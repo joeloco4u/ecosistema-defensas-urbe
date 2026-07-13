@@ -1,0 +1,40 @@
+<div class="min-h-screen bg-background-dark flex items-center justify-center">
+  <div class="w-full max-w-sm p-8">
+    <div class="text-center mb-10">
+      <h1 class="text-2xl font-light tracking-[0.2em] uppercase text-accent-white">Defensas URBE</h1>
+      <p class="text-sm text-accent-muted mt-2">Inicia sesión para continuar</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+      <div>
+        <label for="email" class="block text-xs uppercase tracking-widest text-accent-muted mb-2">Correo electrónico</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="usuario@urbe.edu"
+          class="w-full bg-surface-dark border border-surface-border rounded-sm px-4 py-2.5 text-sm text-accent-white placeholder-accent-subtle focus:outline-none focus:border-accent-white focus:ring-1 focus:ring-accent-white transition-colors"
+        />
+      </div>
+
+      <div>
+        <label for="password" class="block text-xs uppercase tracking-widest text-accent-muted mb-2">Contraseña</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          placeholder="&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;"
+          class="w-full bg-surface-dark border border-surface-border rounded-sm px-4 py-2.5 text-sm text-accent-white placeholder-accent-subtle focus:outline-none focus:border-accent-white focus:ring-1 focus:ring-accent-white transition-colors"
+        />
+      </div>
+
+      <button
+        type="submit"
+        [disabled]="loginForm.invalid || loading"
+        class="w-full py-2.5 text-sm uppercase tracking-widest border border-accent-white text-accent-white bg-transparent rounded-sm hover:bg-accent-white hover:text-background-dark transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+      >
+        {{ loading ? 'Ingresando…' : 'Iniciar sesión' }}
+      </button>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,107 @@
+[
+  {
+    "cedula_docente": "V-12345678",
+    "dia_semana": 1,
+    "hora_inicio": "08:00",
+    "hora_fin": "09:30",
+    "periodo": "2026-2"
+  },
+  {
+    "cedula_docente": "V-12345678",
+    "dia_semana": 1,
+    "hora_inicio": "10:00",
+    "hora_fin": "12:00",
+    "periodo": "2026-2"
+  },
+  {
+    "cedula_docente": "V-12345678",
+    "dia_semana": 3,
+    "hora_inicio": "08:00",
+    "hora_fin": "10:30",
+    "periodo": "2026-2"
+  },
+  {
+    "cedula_docente": "V-12345678",
+    "dia_semana": 3,
+    "hora_inicio": "14:00",
+    "hora_fin": "16:00",
+    "periodo": "2026-2"
+  },
+  {
+    "cedula_docente": "V-12345678",
+    "dia_semana": 5,
+    "hora_inicio": "09:00",
+    "hora_fin": "11:00",
+    "periodo": "2026-2"
+  },
+  {
+    "cedula_docente": "V-23456789",
+    "dia_semana": 2,
+    "hora_inicio": "08:00",
+    "hora_fin": "10:00",
+    "periodo": "2026-2"
+  },
+  {
+    "cedula_docente": "V-23456789",
+    "dia_semana": 2,
+    "hora_inicio": "14:00",
+    "hora_fin": "16:30",
+    "periodo": "2026-2"
+  },
+  {
+    "cedula_docente": "V-23456789",
+    "dia_semana": 4,
+    "hora_inicio": "09:00",
+    "hora_fin": "11:00",
+    "periodo": "2026-2"
+  },
+  {
+    "cedula_docente": "V-23456789",
+    "dia_semana": 4,
+    "hora_inicio": "13:00",
+    "hora_fin": "15:00",
+    "periodo": "2026-2"
+  },
+  {
+    "cedula_docente": "V-23456789",
+    "dia_semana": 5,
+    "hora_inicio": "14:00",
+    "hora_fin": "17:00",
+    "periodo": "2026-2"
+  },
+  {
+    "cedula_docente": "V-34567890",
+    "dia_semana": 1,
+    "hora_inicio": "14:00",
+    "hora_fin": "16:00",
+    "periodo": "2026-2"
+  },
+  {
+    "cedula_docente": "V-34567890",
+    "dia_semana": 2,
+    "hora_inicio": "10:00",
+    "hora_fin": "12:00",
+    "periodo": "2026-2"
+  },
+  {
+    "cedula_docente": "V-34567890",
+    "dia_semana": 3,
+    "hora_inicio": "09:00",
+    "hora_fin": "11:00",
+    "periodo": "2026-2"
+  },
+  {
+    "cedula_docente": "V-34567890",
+    "dia_semana": 3,
+    "hora_inicio": "15:00",
+    "hora_fin": "17:00",
+    "periodo": "2026-2"
+  },
+  {
+    "cedula_docente": "V-34567890",
+    "dia_semana": 4,
+    "hora_inicio": "08:00",
+    "hora_fin": "10:00",
+    "periodo": "2026-2"
+  }
+]

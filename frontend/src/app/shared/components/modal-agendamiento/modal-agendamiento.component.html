@@ -1,0 +1,120 @@
+<div
+  *ngIf="isOpen"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+  (click)="cerrar()"
+>
+  <div
+    class="bg-surface-dark border border-surface-border rounded-sm max-w-2xl w-full mx-4 shadow-2xl"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="flex items-center justify-between px-6 py-4 border-b border-surface-border">
+      <h2 class="text-lg font-semibold text-accent-white tracking-tight">Sugerencias de Agendamiento</h2>
+      <button
+        (click)="cerrar()"
+        class="text-accent-subtle hover:text-accent-white transition-colors text-xl leading-none"
+      >&times;</button>
+    </div>
+
+    <div *ngIf="proyecto" class="px-6 py-3 border-b border-surface-border">
+      <p class="text-sm text-accent-muted">
+        <span class="text-accent-subtle">Tesista:</span> {{ proyecto.tesista }}
+      </p>
+      <p class="text-sm text-accent-muted">
+        <span class="text-accent-subtle">Proyecto:</span> {{ proyecto.titulo }}
+      </p>
+    </div>
+
+    <div *ngIf="docentes.length || espacios.length" class="px-6 py-4 border-b border-surface-border space-y-3">
+      <div class="grid grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs uppercase tracking-widest text-accent-subtle font-medium mb-1.5">Jurado 1</label>
+          <select
+            [(ngModel)]="jurado1Cedula"
+            class="w-full bg-surface-dark border border-surface-border rounded-sm px-3 py-2 text-sm text-accent-white focus:outline-none focus:border-accent-white"
+          >
+            <option value="" disabled selected>Seleccionar</option>
+            <option *ngFor="let d of docentes" [value]="d.codigoInstitucional">{{ d.nombreCompleto }}</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs uppercase tracking-widest text-accent-subtle font-medium mb-1.5">Jurado 2</label>
+          <select
+            [(ngModel)]="jurado2Cedula"
+            class="w-full bg-surface-dark border border-surface-border rounded-sm px-3 py-2 text-sm text-accent-white focus:outline-none focus:border-accent-white"
+          >
+            <option value="" disabled selected>Seleccionar</option>
+            <option *ngFor="let d of docentes" [value]="d.codigoInstitucional">{{ d.nombreCompleto }}</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs uppercase tracking-widest text-accent-subtle font-medium mb-1.5">Espacio</label>
+          <select
+            [(ngModel)]="espacioId"
+            class="w-full bg-surface-dark border border-surface-border rounded-sm px-3 py-2 text-sm text-accent-white focus:outline-none focus:border-accent-white"
+          >
+            <option value="" disabled selected>Seleccionar</option>
+            <option *ngFor="let e of espacios" [value]="e.id">{{ e.codigoAula }} (Capacidad: {{ e.capacidad }} personas)</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex justify-end">
+        <button
+          (click)="buscarDisponibilidad()"
+          [disabled]="!jurado1Cedula || !jurado2Cedula || !espacioId"
+          class="px-5 py-2 text-sm font-medium rounded-sm transition-colors"
+          [ngClass]="{
+            'bg-accent-white text-background-dark hover:bg-accent-white/90 cursor-pointer': jurado1Cedula && jurado2Cedula && espacioId,
+            'bg-surface-light text-accent-subtle cursor-not-allowed': !jurado1Cedula || !jurado2Cedula || !espacioId
+          }"
+        >Buscar Horarios</button>
+      </div>
+    </div>
+
+    <div class="px-6 py-5 space-y-3">
+      <p class="text-xs uppercase tracking-widest text-accent-subtle font-medium">Selecciona una franja disponible</p>
+
+      <div
+        *ngFor="let s of sugerencias"
+        (click)="seleccionarSugerencia(s)"
+        class="border border-surface-border rounded-sm px-5 py-4 transition-all cursor-pointer"
+        [ngClass]="{
+          'bg-accent-white text-background-dark border-accent-white': sugerenciaSeleccionada === s,
+          'bg-transparent text-accent-white hover:bg-accent-white hover:text-background-dark hover:border-accent-white': sugerenciaSeleccionada !== s
+        }"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-6">
+            <div>
+              <p class="text-sm font-medium" [ngClass]="sugerenciaSeleccionada === s ? 'text-background-dark' : 'text-accent-white'">{{ s.fecha }}</p>
+            </div>
+            <div class="text-sm" [ngClass]="sugerenciaSeleccionada === s ? 'text-background-dark' : 'text-accent-muted'">
+              {{ s.horaInicio }} – {{ s.horaFin }}
+            </div>
+          </div>
+          <div>
+            <span
+              class="text-xs font-mono tracking-wider px-2 py-0.5 rounded-sm"
+              [ngClass]="sugerenciaSeleccionada === s ? 'bg-background-dark text-accent-white' : 'bg-surface-light text-accent-subtle'"
+            >{{ s.codigoAula }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-surface-border">
+      <button
+        (click)="cerrar()"
+        class="px-5 py-2 text-sm font-medium text-accent-muted bg-surface-light border border-surface-border rounded-sm hover:bg-surface-hover hover:text-accent-white transition-colors"
+      >Cancelar</button>
+      <button
+        (click)="confirmarDefensa()"
+        [disabled]="!sugerenciaSeleccionada"
+        class="px-5 py-2 text-sm font-medium rounded-sm transition-colors"
+        [ngClass]="{
+          'bg-accent-white text-background-dark hover:bg-accent-white/90 cursor-pointer': sugerenciaSeleccionada,
+          'bg-surface-light text-accent-subtle cursor-not-allowed': !sugerenciaSeleccionada
+        }"
+      >Confirmar Defensa</button>
+    </div>
+  </div>
+</div>
