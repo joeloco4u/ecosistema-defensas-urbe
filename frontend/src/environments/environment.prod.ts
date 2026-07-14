@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: '/api',
+  apiUrl: 'https://ecosistema-defensas-urbe-production.up.railway.app/api',
 };

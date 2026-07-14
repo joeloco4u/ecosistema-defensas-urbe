@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class ProgramacionService {
 
-  private readonly apiUrl = 'http://localhost:8080/api/programacion';
+  private readonly apiUrl = 'https://ecosistema-defensas-urbe-production.up.railway.app/api/programacion';
 
   constructor(private http: HttpClient) {}
 

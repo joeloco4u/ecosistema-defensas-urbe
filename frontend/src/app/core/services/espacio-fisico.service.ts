@@ -6,7 +6,7 @@ import { AuthService } from './auth.service';
 @Injectable({ providedIn: 'root' })
 export class EspacioFisicoService {
 
-  private readonly apiUrl = 'http://localhost:8080/api/espacios';
+  private readonly apiUrl = 'https://ecosistema-defensas-urbe-production.up.railway.app/api/espacios';
 
   constructor(
     private http: HttpClient,
