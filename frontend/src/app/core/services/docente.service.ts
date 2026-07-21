@@ -2,11 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class DocenteService {
 
-  private readonly apiUrl = 'https://ecosistema-defensas-urbe-production.up.railway.app/api/docentes';
+  private readonly apiUrl = `${environment.apiUrl}/docentes`;
 
   constructor(
     private http: HttpClient,
