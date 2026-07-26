@@ -11,6 +11,9 @@ interface SugerenciaHorario {
   horaFin: string;
   codigoAula: string;
   espacioId?: string;
+  juradoId?: number;
+  tutorAcademicoId?: number;
+  tutorMetodologicoId?: number;
 }
 
 interface ProyectoInfo {
@@ -38,8 +41,9 @@ export class ModalAgendamientoComponent implements OnChanges {
 
   docentes: any[] = [];
   espacios: any[] = [];
-  jurado1Cedula = '';
-  jurado2Cedula = '';
+  juradoId: number | null = null;
+  tutorAcademicoId: number | null = null;
+  tutorMetodologicoId: number | null = null;
   espacioId = '';
 
   constructor(
@@ -52,8 +56,9 @@ export class ModalAgendamientoComponent implements OnChanges {
     if (changes['isOpen'] && this.isOpen) {
       this.sugerencias = [];
       this.sugerenciaSeleccionada = null;
-      this.jurado1Cedula = '';
-      this.jurado2Cedula = '';
+      this.juradoId = null;
+      this.tutorAcademicoId = null;
+      this.tutorMetodologicoId = null;
       this.espacioId = '';
       this.cargando = true;
       this.docenteService.getDocentes().subscribe({
@@ -68,12 +73,21 @@ export class ModalAgendamientoComponent implements OnChanges {
     }
   }
 
+  private getCedula(docenteId: number): string | undefined {
+    return this.docentes.find(d => d.id === docenteId)?.codigoInstitucional;
+  }
+
   buscarDisponibilidad(): void {
-    if (!this.jurado1Cedula || !this.jurado2Cedula || !this.espacioId) return;
+    if (!this.juradoId || !this.tutorAcademicoId || !this.tutorMetodologicoId || !this.espacioId) return;
     this.cargando = true;
     this.sugerencias = [];
     this.sugerenciaSeleccionada = null;
-    this.programacionService.getSugerencias([this.jurado1Cedula, this.jurado2Cedula], this.espacioId).subscribe({
+    const cedulas = [
+      this.getCedula(this.juradoId),
+      this.getCedula(this.tutorAcademicoId),
+      this.getCedula(this.tutorMetodologicoId),
+    ].filter((c): c is string => !!c);
+    this.programacionService.getSugerencias(cedulas, this.espacioId).subscribe({
       next: (data) => {
         this.sugerencias = data.map(item => ({
           fecha: item.fecha,
@@ -101,6 +115,9 @@ export class ModalAgendamientoComponent implements OnChanges {
   confirmarDefensa(): void {
     if (this.sugerenciaSeleccionada) {
       this.sugerenciaSeleccionada.espacioId = this.espacioId;
+      this.sugerenciaSeleccionada.juradoId = this.juradoId!;
+      this.sugerenciaSeleccionada.tutorAcademicoId = this.tutorAcademicoId!;
+      this.sugerenciaSeleccionada.tutorMetodologicoId = this.tutorMetodologicoId!;
       this.confirmar.emit(this.sugerenciaSeleccionada);
       this.cerrar();
     }

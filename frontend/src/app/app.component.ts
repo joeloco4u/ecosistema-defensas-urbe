@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-root',
   template: `
-    <div class="flex h-screen bg-gray-50">
+    <div class="flex min-h-screen bg-background-dark">
       <app-sidebar *ngIf="!isLoginPage"></app-sidebar>
       <div class="flex-1 flex flex-col">
         <app-navbar *ngIf="!isLoginPage"></app-navbar>

@@ -51,7 +51,7 @@ public class DefensaService {
                 .orElseThrow(() -> new RuntimeException("Defensa no encontrada"));
     }
 
-    public List<Defensa> listarTodas() {
-        return defensaRepository.findAll();
+    public List<Defensa> listarConFiltros(Long tutorId, UUID proyectoId, String escuela) {
+        return defensaRepository.buscarConFiltros(tutorId, proyectoId, escuela);
     }
 }

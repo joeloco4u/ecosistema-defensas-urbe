@@ -25,25 +25,35 @@
     </div>
 
     <div *ngIf="docentes.length || espacios.length" class="px-6 py-4 border-b border-surface-border space-y-3">
-      <div class="grid grid-cols-3 gap-4">
+      <div class="grid grid-cols-4 gap-4">
         <div>
-          <label class="block text-xs uppercase tracking-widest text-accent-subtle font-medium mb-1.5">Jurado 1</label>
+          <label class="block text-xs uppercase tracking-widest text-accent-subtle font-medium mb-1.5">Jurado</label>
           <select
-            [(ngModel)]="jurado1Cedula"
+            [(ngModel)]="juradoId"
             class="w-full bg-surface-dark border border-surface-border rounded-sm px-3 py-2 text-sm text-accent-white focus:outline-none focus:border-accent-white"
           >
-            <option value="" disabled selected>Seleccionar</option>
-            <option *ngFor="let d of docentes" [value]="d.codigoInstitucional">{{ d.nombreCompleto }}</option>
+            <option [ngValue]="null" disabled selected>Seleccionar</option>
+            <option *ngFor="let d of docentes" [ngValue]="d.id">{{ d.nombreCompleto }}</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs uppercase tracking-widest text-accent-subtle font-medium mb-1.5">Jurado 2</label>
+          <label class="block text-xs uppercase tracking-widest text-accent-subtle font-medium mb-1.5">Tutor Académico</label>
           <select
-            [(ngModel)]="jurado2Cedula"
+            [(ngModel)]="tutorAcademicoId"
             class="w-full bg-surface-dark border border-surface-border rounded-sm px-3 py-2 text-sm text-accent-white focus:outline-none focus:border-accent-white"
           >
-            <option value="" disabled selected>Seleccionar</option>
-            <option *ngFor="let d of docentes" [value]="d.codigoInstitucional">{{ d.nombreCompleto }}</option>
+            <option [ngValue]="null" disabled selected>Seleccionar</option>
+            <option *ngFor="let d of docentes" [ngValue]="d.id">{{ d.nombreCompleto }}</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs uppercase tracking-widest text-accent-subtle font-medium mb-1.5">Tutor Metodológico</label>
+          <select
+            [(ngModel)]="tutorMetodologicoId"
+            class="w-full bg-surface-dark border border-surface-border rounded-sm px-3 py-2 text-sm text-accent-white focus:outline-none focus:border-accent-white"
+          >
+            <option [ngValue]="null" disabled selected>Seleccionar</option>
+            <option *ngFor="let d of docentes" [ngValue]="d.id">{{ d.nombreCompleto }}</option>
           </select>
         </div>
         <div>
@@ -60,11 +70,11 @@
       <div class="flex justify-end">
         <button
           (click)="buscarDisponibilidad()"
-          [disabled]="!jurado1Cedula || !jurado2Cedula || !espacioId"
+          [disabled]="!juradoId || !tutorAcademicoId || !tutorMetodologicoId || !espacioId"
           class="px-5 py-2 text-sm font-medium rounded-sm transition-colors"
           [ngClass]="{
-            'bg-accent-white text-background-dark hover:bg-accent-white/90 cursor-pointer': jurado1Cedula && jurado2Cedula && espacioId,
-            'bg-surface-light text-accent-subtle cursor-not-allowed': !jurado1Cedula || !jurado2Cedula || !espacioId
+            'bg-accent-white text-background-dark hover:bg-accent-white/90 cursor-pointer': juradoId && tutorAcademicoId && tutorMetodologicoId && espacioId,
+            'bg-surface-light text-accent-subtle cursor-not-allowed': !juradoId || !tutorAcademicoId || !tutorMetodologicoId || !espacioId
           }"
         >Buscar Horarios</button>
       </div>

@@ -21,8 +21,11 @@ public class DefensaController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Defensa>> listar() {
-        return ResponseEntity.ok(defensaService.listarTodas());
+    public ResponseEntity<List<Defensa>> listar(
+            @RequestParam(required = false) Long tutorId,
+            @RequestParam(required = false) UUID proyectoId,
+            @RequestParam(required = false) String escuela) {
+        return ResponseEntity.ok(defensaService.listarConFiltros(tutorId, proyectoId, escuela));
     }
 
     @GetMapping("/{id}")

@@ -1,11 +1,13 @@
 package com.urbe.defensas.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.UUID;
 
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table(name = "defensas")
 public class Defensa {
 
@@ -30,6 +32,15 @@ public class Defensa {
     @Column(name = "hora_fin", nullable = false)
     private LocalTime horaFin;
 
+    @Column(name = "jurado_id")
+    private Long juradoId;
+
+    @Column(name = "tutor_academico_id")
+    private Long tutorAcademicoId;
+
+    @Column(name = "tutor_metodologico_id")
+    private Long tutorMetodologicoId;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private EstatusDefensa estatus;
@@ -52,6 +63,12 @@ public class Defensa {
     public void setHoraInicio(LocalTime horaInicio) { this.horaInicio = horaInicio; }
     public LocalTime getHoraFin() { return horaFin; }
     public void setHoraFin(LocalTime horaFin) { this.horaFin = horaFin; }
+    public Long getJuradoId() { return juradoId; }
+    public void setJuradoId(Long juradoId) { this.juradoId = juradoId; }
+    public Long getTutorAcademicoId() { return tutorAcademicoId; }
+    public void setTutorAcademicoId(Long tutorAcademicoId) { this.tutorAcademicoId = tutorAcademicoId; }
+    public Long getTutorMetodologicoId() { return tutorMetodologicoId; }
+    public void setTutorMetodologicoId(Long tutorMetodologicoId) { this.tutorMetodologicoId = tutorMetodologicoId; }
     public EstatusDefensa getEstatus() { return estatus; }
     public void setEstatus(EstatusDefensa estatus) { this.estatus = estatus; }
 }

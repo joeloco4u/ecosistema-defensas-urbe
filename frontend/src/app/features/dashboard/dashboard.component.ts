@@ -60,6 +60,9 @@ export class DashboardComponent {
       fecha: evento.fecha,
       horaInicio: evento.horaInicio.length === 5 ? evento.horaInicio + ':00' : evento.horaInicio,
       horaFin: evento.horaFin.length === 5 ? evento.horaFin + ':00' : evento.horaFin,
+      juradoId: evento.juradoId,
+      tutorAcademicoId: evento.tutorAcademicoId,
+      tutorMetodologicoId: evento.tutorMetodologicoId,
       estatus: 'PROGRAMADA',
     };
 

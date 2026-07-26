@@ -1,0 +1,42 @@
+<div class="bg-background-dark min-h-screen p-8 space-y-6">
+  <h2 class="text-2xl font-bold text-accent-white">Calendario de Defensas</h2>
+
+  <div class="bg-surface-dark rounded-xl p-4 border border-surface-border flex items-center gap-4">
+    <label for="filtro-docente" class="text-sm font-medium text-accent-muted">Docente:</label>
+    <select
+      id="filtro-docente"
+      class="bg-surface-dark border border-surface-border rounded-lg px-3 py-2 text-sm text-accent-white focus:outline-none focus:border-white"
+      [(ngModel)]="tutorIdSeleccionado"
+      (ngModelChange)="onFiltroCambiar()"
+    >
+      <option [ngValue]="undefined">Todos</option>
+      <option *ngFor="let d of docentes" [ngValue]="d.id">{{ d.nombreCompleto }}</option>
+    </select>
+
+    <label for="filtro-escuela" class="text-sm font-medium text-accent-muted">Escuela:</label>
+    <select
+      id="filtro-escuela"
+      class="bg-surface-dark border border-surface-border rounded-lg px-3 py-2 text-sm text-accent-white focus:outline-none focus:border-white"
+      [(ngModel)]="selectedEscuela"
+      (ngModelChange)="onFiltroCambiar()"
+    >
+      <option [ngValue]="undefined">Todas</option>
+      <option *ngFor="let e of escuelas" [ngValue]="e">{{ e }}</option>
+    </select>
+
+    <label for="filtro-proyecto" class="text-sm font-medium text-accent-muted">Proyecto:</label>
+    <select
+      id="filtro-proyecto"
+      class="bg-surface-dark border border-surface-border rounded-lg px-3 py-2 text-sm text-accent-white focus:outline-none focus:border-white"
+      [(ngModel)]="selectedProyectoId"
+      (ngModelChange)="onFiltroCambiar()"
+    >
+      <option [ngValue]="undefined">Todos</option>
+      <option *ngFor="let p of proyectos" [ngValue]="p.id">{{ p.titulo }}</option>
+    </select>
+  </div>
+
+  <div class="bg-surface-dark rounded-xl p-6 border border-surface-border">
+    <full-calendar [options]="calendarOptions"></full-calendar>
+  </div>
+</div>

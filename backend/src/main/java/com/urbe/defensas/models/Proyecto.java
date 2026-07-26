@@ -1,9 +1,11 @@
 package com.urbe.defensas.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.util.UUID;
 
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table(name = "proyectos")
 public class Proyecto {
 
@@ -13,6 +15,9 @@ public class Proyecto {
 
     @Column(nullable = false, length = 255)
     private String titulo;
+
+    @Column(length = 100)
+    private String escuela;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "estudiante_id")
@@ -36,6 +41,8 @@ public class Proyecto {
     public void setId(UUID id) { this.id = id; }
     public String getTitulo() { return titulo; }
     public void setTitulo(String titulo) { this.titulo = titulo; }
+    public String getEscuela() { return escuela; }
+    public void setEscuela(String escuela) { this.escuela = escuela; }
     public Estudiante getEstudiante() { return estudiante; }
     public void setEstudiante(Estudiante estudiante) { this.estudiante = estudiante; }
     public Docente getTutor() { return tutor; }

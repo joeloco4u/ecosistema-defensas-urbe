@@ -27,6 +27,11 @@ const routes: Routes = [
     loadChildren: () => import('./features/contingencias/contingencias.module').then(m => m.ContingenciasModule),
     canActivate: [AuthGuard],
   },
+  {
+    path: 'tutores-sugeridos',
+    loadChildren: () => import('./features/tutores-sugeridos/tutores-sugeridos.module').then(m => m.TutoresSugeridosModule),
+    canActivate: [AuthGuard],
+  },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' },
 ];
