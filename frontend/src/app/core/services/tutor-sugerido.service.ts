@@ -6,7 +6,7 @@ import { TutorSugerido } from '../models/tutor-sugerido.model';
 @Injectable({ providedIn: 'root' })
 export class TutorSugeridoService {
 
-  private readonly apiUrl = 'http://localhost:8080/api/tutores-sugeridos';
+  private readonly apiUrl = 'https://ecosistema-defensas-urbe-production.up.railway.app/api/tutores-sugeridos';
 
   constructor(private http: HttpClient) {}
 
