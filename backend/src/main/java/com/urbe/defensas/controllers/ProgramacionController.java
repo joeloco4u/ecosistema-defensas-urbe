@@ -10,7 +10,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/programacion")
-@CrossOrigin(origins = "*")
 public class ProgramacionController {
 
     private final MotorProgramacionService motorProgramacionService;

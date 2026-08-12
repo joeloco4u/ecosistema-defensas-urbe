@@ -12,7 +12,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/espacios")
-@CrossOrigin(origins = "*")
 public class EspacioFisicoController {
 
     private final EspacioFisicoService espacioFisicoService;
