@@ -33,7 +33,7 @@
             class="w-full bg-surface-dark border border-surface-border rounded-sm px-3 py-2 text-sm text-accent-white focus:outline-none focus:border-accent-white"
           >
             <option [ngValue]="null" disabled selected>Seleccionar</option>
-            <option *ngFor="let d of docentes" [ngValue]="d.id">{{ d.nombreCompleto }}</option>
+            <option *ngFor="let d of docentes" [ngValue]="d.id" [disabled]="isDocenteSeleccionado(d.id, 'jurado')">{{ d.nombreCompleto }}</option>
           </select>
         </div>
         <div>
@@ -43,7 +43,7 @@
             class="w-full bg-surface-dark border border-surface-border rounded-sm px-3 py-2 text-sm text-accent-white focus:outline-none focus:border-accent-white"
           >
             <option [ngValue]="null" disabled selected>Seleccionar</option>
-            <option *ngFor="let d of docentes" [ngValue]="d.id">{{ d.nombreCompleto }}</option>
+            <option *ngFor="let d of docentes" [ngValue]="d.id" [disabled]="isDocenteSeleccionado(d.id, 'tutorAcademico')">{{ d.nombreCompleto }}</option>
           </select>
         </div>
         <div>
@@ -53,7 +53,7 @@
             class="w-full bg-surface-dark border border-surface-border rounded-sm px-3 py-2 text-sm text-accent-white focus:outline-none focus:border-accent-white"
           >
             <option [ngValue]="null" disabled selected>Seleccionar</option>
-            <option *ngFor="let d of docentes" [ngValue]="d.id">{{ d.nombreCompleto }}</option>
+            <option *ngFor="let d of docentes" [ngValue]="d.id" [disabled]="isDocenteSeleccionado(d.id, 'tutorMetodologico')">{{ d.nombreCompleto }}</option>
           </select>
         </div>
         <div>

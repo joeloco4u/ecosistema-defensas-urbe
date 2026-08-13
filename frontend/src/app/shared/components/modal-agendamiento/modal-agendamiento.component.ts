@@ -77,6 +77,13 @@ export class ModalAgendamientoComponent implements OnChanges {
     return this.docentes.find(d => d.id === docenteId)?.codigoInstitucional;
   }
 
+  isDocenteSeleccionado(docenteId: number, rolActual: string): boolean {
+    if (rolActual !== 'jurado' && docenteId === this.juradoId) return true;
+    if (rolActual !== 'tutorAcademico' && docenteId === this.tutorAcademicoId) return true;
+    if (rolActual !== 'tutorMetodologico' && docenteId === this.tutorMetodologicoId) return true;
+    return false;
+  }
+
   buscarDisponibilidad(): void {
     if (!this.juradoId || !this.tutorAcademicoId || !this.tutorMetodologicoId || !this.espacioId) return;
     this.cargando = true;
