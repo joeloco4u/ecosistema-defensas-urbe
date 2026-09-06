@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://ecosistema-defensas-urbe-production.up.railway.app/api',
+  apiUrl: 'http://localhost:8080/api',
 };

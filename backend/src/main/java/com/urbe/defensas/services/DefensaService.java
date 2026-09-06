@@ -1,7 +1,12 @@
 package com.urbe.defensas.services;
 
+import com.urbe.defensas.dtos.RegistroDefensaDTO;
 import com.urbe.defensas.models.Defensa;
+import com.urbe.defensas.models.EspacioFisico;
+import com.urbe.defensas.models.Proyecto;
 import com.urbe.defensas.repositories.DefensaRepository;
+import com.urbe.defensas.repositories.EspacioFisicoRepository;
+import com.urbe.defensas.repositories.ProyectoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,13 +18,40 @@ import java.util.UUID;
 public class DefensaService {
 
     private final DefensaRepository defensaRepository;
+    private final ProyectoRepository proyectoRepository;
+    private final EspacioFisicoRepository espacioFisicoRepository;
 
-    public DefensaService(DefensaRepository defensaRepository) {
+    public DefensaService(DefensaRepository defensaRepository,
+                          ProyectoRepository proyectoRepository,
+                          EspacioFisicoRepository espacioFisicoRepository) {
         this.defensaRepository = defensaRepository;
+        this.proyectoRepository = proyectoRepository;
+        this.espacioFisicoRepository = espacioFisicoRepository;
     }
 
-    public Defensa crear(Defensa defensa) {
-        return defensaRepository.save(defensa);
+    public Defensa programar(RegistroDefensaDTO dto) {
+        Proyecto proyecto = proyectoRepository.findById(dto.getProyectoId())
+                .orElseThrow(() -> new RuntimeException("Proyecto no encontrado"));
+        EspacioFisico espacio = espacioFisicoRepository.findById(dto.getEspacioId())
+                .orElseThrow(() -> new RuntimeException("Espacio físico no encontrado"));
+
+        Defensa defensa = new Defensa();
+        defensa.setProyecto(proyecto);
+        defensa.setEspacioFisico(espacio);
+        defensa.setFecha(dto.getFecha());
+        defensa.setHoraInicio(dto.getHoraInicio());
+        defensa.setHoraFin(dto.getHoraFin());
+        defensa.setTutorAcademicoId(dto.getTutorAcademicoId());
+        defensa.setTutorMetodologicoId(dto.getTutorMetodologicoId());
+        defensa.setJuradoId(dto.getJuradoId());
+        defensa.setEstatus(Defensa.EstatusDefensa.PROGRAMADA);
+
+        Defensa guardada = defensaRepository.save(defensa);
+
+        proyecto.setEstatus(Proyecto.EstatusProyecto.AGENDADO);
+        proyectoRepository.save(proyecto);
+
+        return guardada;
     }
 
     public Defensa reprogramar(UUID id, Defensa defensa) {
