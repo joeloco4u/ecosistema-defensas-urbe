@@ -2,11 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { TutorSugerido } from '../models/tutor-sugerido.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class TutorSugeridoService {
 
-  private readonly apiUrl = 'https://ecosistema-defensas-urbe-production.up.railway.app/api/tutores-sugeridos';
+  private readonly apiUrl = `${environment.apiUrl}/tutores-sugeridos`;
 
   constructor(private http: HttpClient) {}
 

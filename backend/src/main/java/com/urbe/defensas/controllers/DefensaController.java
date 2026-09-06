@@ -1,5 +1,6 @@
 package com.urbe.defensas.controllers;
 
+import com.urbe.defensas.dtos.RegistroDefensaDTO;
 import com.urbe.defensas.models.Defensa;
 import com.urbe.defensas.services.DefensaService;
 import jakarta.validation.Valid;
@@ -34,8 +35,8 @@ public class DefensaController {
     }
 
     @PostMapping
-    public ResponseEntity<Defensa> crear(@Valid @RequestBody Defensa defensa) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(defensaService.crear(defensa));
+    public ResponseEntity<Defensa> crear(@Valid @RequestBody RegistroDefensaDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(defensaService.programar(dto));
     }
 
     @PutMapping("/{id}/reprogramar")

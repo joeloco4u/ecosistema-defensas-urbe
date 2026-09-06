@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ModalAgendamientoComponent } from '../../shared/components/modal-agendamiento/modal-agendamiento.component';
 import { DefensaService } from '../../core/services/defensa.service';
+import { ProyectoService } from '../../core/services/proyecto.service';
 
 interface ProyectoPendiente {
   id: string;
@@ -16,32 +17,34 @@ interface ProyectoPendiente {
   imports: [CommonModule, ModalAgendamientoComponent],
   templateUrl: './dashboard.component.html',
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
   modalAbierto = false;
   proyectoSeleccionado: ProyectoPendiente | null = null;
 
-  proyectosPendientes: ProyectoPendiente[] = [
-    {
-      id: '1f43e502-a40d-46d0-9a15-c882932db697',
-      tesista: 'Viktor Gonzalez',
-      titulo: 'Aplicación Web para la Gestión de Tutorías Académicas',
-      tutor: 'María Rodríguez',
-    },
-    {
-      id: '223e4567-e89b-12d3-a456-426614174001',
-      tesista: 'Sebastián Cárdenas',
-      titulo: 'Sistema de Detección de Anomalías en Redes de Datos',
-      tutor: 'Carlos Mendoza',
-    },
-    {
-      id: '323e4567-e89b-12d3-a456-426614174002',
-      tesista: 'Andreina Paredes',
-      titulo: 'Análisis de Cobertura de Redes 5G en Zonas Urbanas',
-      tutor: 'Ana López',
-    },
-  ];
+  proyectosPendientes: ProyectoPendiente[] = [];
 
-  constructor(private defensaService: DefensaService) {}
+  constructor(
+    private defensaService: DefensaService,
+    private proyectoService: ProyectoService,
+  ) {}
+
+  ngOnInit(): void {
+    this.proyectoService.listarProyectos().subscribe({
+      next: (proyectos) => {
+        this.proyectosPendientes = proyectos
+          .filter((p) => p.estatus === 'PENDIENTE')
+          .map((p) => ({
+            id: p.id,
+            tesista: [p.estudiante?.nombres, p.estudiante?.apellidos].filter(Boolean).join(' ') || 'Por asignar',
+            titulo: p.titulo ?? 'Sin título',
+            tutor: p.tutor?.nombreCompleto ?? 'Por asignar',
+          }));
+      },
+      error: (err) => {
+        console.error('Error al cargar los proyectos reales', err);
+      },
+    });
+  }
 
   abrirModalAgendamiento(proyecto: ProyectoPendiente): void {
     this.proyectoSeleccionado = proyecto;
@@ -55,21 +58,24 @@ export class DashboardComponent {
 
   onConfirmarDefensa(evento: any): void {
     const body = {
-      proyecto: { id: this.proyectoSeleccionado!.id },
-      espacioFisico: { id: evento.espacioId },
+      proyectoId: this.proyectoSeleccionado!.id,
+      espacioId: evento.espacioId,
       fecha: evento.fecha,
       horaInicio: evento.horaInicio.length === 5 ? evento.horaInicio + ':00' : evento.horaInicio,
       horaFin: evento.horaFin.length === 5 ? evento.horaFin + ':00' : evento.horaFin,
-      juradoId: evento.juradoId,
       tutorAcademicoId: evento.tutorAcademicoId,
       tutorMetodologicoId: evento.tutorMetodologicoId,
-      estatus: 'PROGRAMADA',
+      juradoId: evento.juradoId,
     };
 
     this.defensaService.crearDefensa(body).subscribe({
       next: () => {
         alert('¡Defensa guardada exitosamente en la BD!');
         this.cerrarModal();
+      },
+      error: (err) => {
+        console.error('Error al guardar la defensa', err);
+        alert('No se pudo guardar la defensa: ' + err.message);
       },
     });
   }
