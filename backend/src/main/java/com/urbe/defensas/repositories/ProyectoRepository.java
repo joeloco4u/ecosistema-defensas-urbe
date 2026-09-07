@@ -12,4 +12,6 @@ public interface ProyectoRepository extends JpaRepository<Proyecto, UUID> {
     List<Proyecto> findByEstatus(Proyecto.EstatusProyecto estatus);
     List<Proyecto> findByTutorId(Long tutorId);
     List<Proyecto> findByEstudianteId(UUID estudianteId);
+    List<Proyecto> findByNivelSeminario(String nivelSeminario);
+    List<Proyecto> findByNivelSeminarioIsNull();
 }

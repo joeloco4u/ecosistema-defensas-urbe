@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -38,5 +39,11 @@ public class ProyectoController {
     @PutMapping("/{id}")
     public ResponseEntity<Proyecto> actualizar(@PathVariable UUID id, @Valid @RequestBody Proyecto proyecto) {
         return ResponseEntity.ok(proyectoService.actualizar(id, proyecto));
+    }
+
+    @PostMapping("/transicion-trimestre")
+    public ResponseEntity<Map<String, Integer>> transicionTrimestre() {
+        int afectados = proyectoService.ejecutarTransicionSeminarios();
+        return ResponseEntity.ok(Map.of("proyectosAfectados", afectados));
     }
 }
