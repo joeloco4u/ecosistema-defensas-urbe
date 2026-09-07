@@ -19,6 +19,9 @@ public class Proyecto {
     @Column(length = 100)
     private String escuela;
 
+    @Column(name = "nivel_seminario", length = 30)
+    private String nivelSeminario;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "estudiante_id")
     private Estudiante estudiante;
@@ -43,6 +46,8 @@ public class Proyecto {
     public void setTitulo(String titulo) { this.titulo = titulo; }
     public String getEscuela() { return escuela; }
     public void setEscuela(String escuela) { this.escuela = escuela; }
+    public String getNivelSeminario() { return nivelSeminario; }
+    public void setNivelSeminario(String nivelSeminario) { this.nivelSeminario = nivelSeminario; }
     public Estudiante getEstudiante() { return estudiante; }
     public void setEstudiante(Estudiante estudiante) { this.estudiante = estudiante; }
     public Docente getTutor() { return tutor; }

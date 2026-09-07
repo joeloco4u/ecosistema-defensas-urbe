@@ -28,4 +28,10 @@ export class ProyectoService {
       responseType: 'blob',
     });
   }
+
+  transicionSeminarios(): Observable<any> {
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    return this.http.post<any>(`${this.apiUrl}/transicion-trimestre`, null, { headers });
+  }
 }
