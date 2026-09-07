@@ -31,6 +31,14 @@ public class TutorSugeridoService {
         return tutorSugeridoRepository.findByEstado("PENDIENTE");
     }
 
+    public List<TutorSugerido> listarPorProyecto(UUID proyectoId) {
+        return tutorSugeridoRepository.findByProyectoId(proyectoId);
+    }
+
+    public List<TutorSugerido> listarPendientesPorProyecto(UUID proyectoId) {
+        return tutorSugeridoRepository.findByProyectoIdAndEstado(proyectoId, "PENDIENTE");
+    }
+
     public TutorSugerido cambiarEstado(UUID id, String nuevoEstado) {
         TutorSugerido existente = tutorSugeridoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tutor sugerido no encontrado"));

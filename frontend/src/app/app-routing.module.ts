@@ -32,6 +32,11 @@ const routes: Routes = [
     loadChildren: () => import('./features/tutores-sugeridos/tutores-sugeridos.module').then(m => m.TutoresSugeridosModule),
     canActivate: [AuthGuard],
   },
+  {
+    path: 'directorio-docentes',
+    loadChildren: () => import('./features/directorio-docentes/directorio-docentes.module').then(m => m.DirectorioDocentesModule),
+    canActivate: [AuthGuard],
+  },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' },
 ];

@@ -19,6 +19,10 @@ export class TutorSugeridoService {
     return this.http.get<TutorSugerido[]>(`${this.apiUrl}/pendientes`);
   }
 
+  obtenerPorProyecto(proyectoId: string): Observable<TutorSugerido[]> {
+    return this.http.get<TutorSugerido[]>(`${this.apiUrl}/proyecto/${proyectoId}`);
+  }
+
   actualizarEstado(id: string, estado: string): Observable<TutorSugerido> {
     return this.http.patch<TutorSugerido>(`${this.apiUrl}/${id}/estado`, { estado });
   }

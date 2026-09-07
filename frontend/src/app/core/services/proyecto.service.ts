@@ -19,4 +19,13 @@ export class ProyectoService {
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
     return this.http.get<any[]>(this.apiUrl, { headers });
   }
+
+  descargarBackupCsv(): Observable<Blob> {
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    return this.http.get(`${environment.apiUrl}/backup/proyectos/csv`, {
+      headers,
+      responseType: 'blob',
+    });
+  }
 }

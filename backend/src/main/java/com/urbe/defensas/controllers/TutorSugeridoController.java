@@ -31,6 +31,11 @@ public class TutorSugeridoController {
         return ResponseEntity.ok(tutorSugeridoService.listarPendientes());
     }
 
+    @GetMapping("/proyecto/{proyectoId}")
+    public ResponseEntity<List<TutorSugerido>> listarPorProyecto(@PathVariable UUID proyectoId) {
+        return ResponseEntity.ok(tutorSugeridoService.listarPorProyecto(proyectoId));
+    }
+
     @PatchMapping("/{id}/estado")
     public ResponseEntity<TutorSugerido> cambiarEstado(
             @PathVariable UUID id,

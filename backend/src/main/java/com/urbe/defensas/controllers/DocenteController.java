@@ -1,5 +1,6 @@
 package com.urbe.defensas.controllers;
 
+import com.urbe.defensas.dtos.ExpedienteDocenteDTO;
 import com.urbe.defensas.models.Docente;
 import com.urbe.defensas.services.DocenteService;
 import jakarta.validation.Valid;
@@ -27,6 +28,11 @@ public class DocenteController {
     @GetMapping("/{id}")
     public ResponseEntity<Docente> obtener(@PathVariable Long id) {
         return ResponseEntity.ok(docenteService.obtenerPorId(id));
+    }
+
+    @GetMapping("/{id}/expediente")
+    public ResponseEntity<ExpedienteDocenteDTO> obtenerExpediente(@PathVariable Long id) {
+        return ResponseEntity.ok(docenteService.obtenerExpediente(id));
     }
 
     @PostMapping

@@ -19,4 +19,10 @@ export class DocenteService {
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
     return this.http.get<any[]>(this.apiUrl, { headers });
   }
+
+  getExpediente(id: number): Observable<any> {
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    return this.http.get<any>(`${this.apiUrl}/${id}/expediente`, { headers });
+  }
 }

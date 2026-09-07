@@ -13,3 +13,64 @@ body {
 .fc-button-primary:not(:disabled):active, .fc-button-primary:not(:disabled):hover { background-color: #27272a !important; border-color: #3f3f46 !important; }
 .fc-day-today { background-color: #18181b !important; }
 .fc-col-header-cell-cushion, .fc-daygrid-day-number { color: #a1a1aa !important; }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .print-area,
+  .print-area * {
+    visibility: visible;
+  }
+
+  .reporte-modal-overlay,
+  .reporte-modal-overlay .fixed.inset-0 {
+    position: static !important;
+    display: block !important;
+    padding: 0 !important;
+    background: none !important;
+  }
+
+  .reporte-modal-overlay .print-area {
+    position: static !important;
+    max-width: none !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  .reporte-modal-overlay .print-area * {
+    color: #111111 !important;
+    background-color: #ffffff !important;
+    border-color: #999999 !important;
+  }
+
+  .reporte-modal-overlay .no-print {
+    visibility: hidden !important;
+    display: none !important;
+  }
+
+  .reporte-modal-overlay .print-area table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  .reporte-modal-overlay .print-area table th,
+  .reporte-modal-overlay .print-area table td {
+    border: 1px solid #999999 !important;
+    padding: 6px 8px !important;
+    text-align: left !important;
+  }
+
+  .reporte-modal-overlay .print-area table thead th {
+    background-color: #eeeeee !important;
+    text-transform: uppercase !important;
+    font-size: 11px !important;
+  }
+}

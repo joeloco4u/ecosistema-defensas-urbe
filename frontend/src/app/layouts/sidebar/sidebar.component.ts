@@ -14,8 +14,7 @@ import { AuthService } from '../../core/services/auth.service';
         <a *ngFor="let item of menuItems"
            [routerLink]="item.path"
            routerLinkActive="bg-surface-light text-white border-l-4 border-white"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-accent-muted hover:bg-surface-light hover:text-white transition-colors">
-          <span class="text-lg">{{ item.icon }}</span>
+           class="block px-4 py-2.5 rounded-lg text-sm font-medium text-accent-muted hover:bg-surface-light hover:text-white transition-colors">
           {{ item.label }}
         </a>
       </nav>
@@ -32,11 +31,12 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class SidebarComponent {
   menuItems = [
-    { label: 'Dashboard', path: '/dashboard', icon: '📊' },
-    { label: 'Calendario Defensas', path: '/calendario-defensas', icon: '📅' },
-    { label: 'Gestión de Proyectos', path: '/gestion-proyectos', icon: '📂' },
-    { label: 'Contingencias', path: '/contingencias', icon: '⚠️' },
-    { label: 'Tutores Sugeridos', path: '/tutores-sugeridos', icon: '👤' },
+    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Calendario Defensas', path: '/calendario-defensas' },
+    { label: 'Gestión de Proyectos', path: '/gestion-proyectos' },
+    { label: 'Contingencias', path: '/contingencias' },
+    { label: 'Tutores Sugeridos', path: '/tutores-sugeridos' },
+    { label: 'Directorio Docentes', path: '/directorio-docentes' },
   ];
 
   constructor(

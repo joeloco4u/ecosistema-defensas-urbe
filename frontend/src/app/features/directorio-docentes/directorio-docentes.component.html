@@ -1,0 +1,140 @@
+<div class="bg-background-dark min-h-screen p-8 space-y-6">
+  <div>
+    <h2 class="text-2xl font-bold text-accent-white">Directorio de Docentes</h2>
+    <p class="text-sm text-accent-muted mt-1">Expediente del profesor: seminarios, tutorías y jurados asignados</p>
+  </div>
+
+  <div>
+    <input
+      type="text"
+      [(ngModel)]="busqueda"
+      placeholder="Buscar docente por nombre o cédula..."
+      class="w-full sm:w-96 bg-surface-dark border border-surface-border rounded-sm px-4 py-2.5 text-sm text-accent-white placeholder-accent-subtle focus:outline-none focus:border-accent-subtle"
+    />
+  </div>
+
+  <div class="bg-surface-dark rounded-sm border border-surface-border overflow-hidden">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="bg-surface-light border-b border-surface-border">
+          <th class="text-left px-6 py-3 font-medium text-accent-muted">Código</th>
+          <th class="text-left px-6 py-3 font-medium text-accent-muted">Nombre</th>
+          <th class="text-left px-6 py-3 font-medium text-accent-muted">Departamento</th>
+          <th class="text-left px-6 py-3 font-medium text-accent-muted">Carga Semanal</th>
+          <th class="text-left px-6 py-3 font-medium text-accent-muted">Acción</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-surface-border">
+        <tr *ngFor="let d of docentesFiltrados" class="hover:bg-surface-light transition-colors">
+          <td class="px-6 py-4 text-accent-muted">{{ d.codigoInstitucional }}</td>
+          <td class="px-6 py-4 text-accent-white">{{ d.nombreCompleto }}</td>
+          <td class="px-6 py-4 text-accent-muted">{{ d.departamento || '—' }}</td>
+          <td class="px-6 py-4 text-accent-muted">{{ d.cargaMaximaSemanal ?? '—' }} h</td>
+          <td class="px-6 py-4">
+            <button
+              (click)="verExpediente(d)"
+              class="px-4 py-1.5 text-xs uppercase tracking-widest border border-blue-700 text-blue-400 bg-transparent rounded-sm hover:bg-blue-900/30 transition-colors"
+            >
+              Ver Expediente
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="cargando">
+          <td colspan="5" class="px-6 py-12 text-center text-sm text-accent-muted">Cargando docentes...</td>
+        </tr>
+        <tr *ngIf="!cargando && docentesFiltrados.length === 0">
+          <td colspan="5" class="px-6 py-12 text-center text-sm text-accent-muted">
+            No se encontraron docentes con los criterios de búsqueda.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div *ngIf="expedienteAbierto" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="fixed inset-0 bg-black bg-opacity-70" (click)="cerrarExpediente()"></div>
+
+  <div class="relative bg-background-elevated border border-surface-border rounded-sm shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto z-10">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-surface-border">
+      <h3 class="text-lg font-semibold text-accent-white">Expediente del Profesor</h3>
+      <button (click)="cerrarExpediente()" class="text-accent-muted hover:text-accent-white text-xl leading-none">&times;</button>
+    </div>
+
+    <div *ngIf="cargandoExpediente" class="p-12 text-center text-sm text-accent-muted">Cargando expediente...</div>
+
+    <ng-container *ngIf="!cargandoExpediente && expediente">
+      <div class="px-6 py-5 border-b border-surface-border space-y-1">
+        <p class="text-xl font-semibold text-accent-white">{{ expediente.docente.nombreCompleto }}</p>
+        <p class="text-sm text-accent-muted">{{ expediente.docente.codigoInstitucional }}</p>
+        <div class="flex flex-wrap gap-x-6 gap-y-1 pt-2 text-sm">
+          <p class="text-accent-muted"><span class="text-accent-subtle">Departamento:</span> {{ expediente.docente.departamento || '—' }}</p>
+          <p class="text-accent-muted"><span class="text-accent-subtle">Email:</span> {{ expediente.docente.email || '—' }}</p>
+          <p class="text-accent-muted"><span class="text-accent-subtle">Carga semanal:</span> {{ expediente.docente.cargaMaximaSemanal }} h</p>
+        </div>
+      </div>
+
+      <div class="px-6 py-5 border-b border-surface-border">
+        <h4 class="text-xs uppercase tracking-widest text-accent-muted font-medium mb-3">Seminarios Asignados</h4>
+        <div class="flex flex-wrap gap-2">
+          <span
+            *ngFor="let s of expediente.seminarios"
+            class="px-3 py-1 rounded-full text-xs font-medium bg-surface-light border border-surface-border text-accent-white"
+          >
+            {{ s }}
+          </span>
+          <span *ngIf="!expediente.seminarios?.length" class="text-sm text-accent-subtle">Sin seminarios asignados.</span>
+        </div>
+      </div>
+
+      <div class="px-6 py-5 border-b border-surface-border">
+        <h4 class="text-xs uppercase tracking-widest text-accent-muted font-medium mb-3">
+          Proyectos como Tutor ({{ expediente.proyectosTutor.length }})
+        </h4>
+        <div *ngIf="expediente.proyectosTutor.length === 0" class="text-sm text-accent-subtle">Sin proyectos tutelados.</div>
+        <div class="space-y-3">
+          <div *ngFor="let t of expediente.proyectosTutor" class="bg-surface-dark border border-surface-border rounded-sm p-4">
+            <div class="flex items-center justify-between gap-4">
+              <p class="text-sm font-medium text-accent-white">{{ t.titulo }}</p>
+              <span class="shrink-0 px-2 py-1 rounded-full text-xs font-medium bg-surface-light border border-surface-border text-blue-400">
+                {{ rolTutoriaLabel(t.rol) }}
+              </span>
+            </div>
+            <div class="flex flex-wrap gap-x-6 gap-y-1 mt-2 text-xs text-accent-muted">
+              <p><span class="text-accent-subtle">Tesista:</span> {{ t.tesista || '—' }}</p>
+              <p><span class="text-accent-subtle">Seminario:</span> {{ t.escuela || '—' }}</p>
+              <p><span class="text-accent-subtle">Estatus:</span>
+                <span [class]="'px-2 py-0.5 rounded-full text-xs font-medium ' + proyectoEstatusClase(t.estatus)">{{ t.estatus }}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-6 py-5">
+        <h4 class="text-xs uppercase tracking-widest text-accent-muted font-medium mb-3">
+          Defensas como Jurado ({{ expediente.defensasJurado.length }})
+        </h4>
+        <div *ngIf="expediente.defensasJurado.length === 0" class="text-sm text-accent-subtle">Sin defensas como jurado.</div>
+        <div class="space-y-3">
+          <div *ngFor="let dj of expediente.defensasJurado" class="bg-surface-dark border border-surface-border rounded-sm p-4">
+            <div class="flex items-center justify-between gap-4">
+              <p class="text-sm font-medium text-accent-white">{{ dj.proyectoTitulo }}</p>
+              <span *ngIf="dj.rolJurado" class="shrink-0 px-2 py-1 rounded-full text-xs font-medium bg-surface-light border border-surface-border text-accent-white">
+                {{ dj.rolJurado }}
+              </span>
+            </div>
+            <div class="flex flex-wrap gap-x-6 gap-y-1 mt-2 text-xs text-accent-muted">
+              <p><span class="text-accent-subtle">Tesista:</span> {{ dj.tesista || '—' }}</p>
+              <p><span class="text-accent-subtle">Fecha:</span> {{ dj.fecha }}</p>
+              <p><span class="text-accent-subtle">Hora:</span> {{ dj.horaInicio }} - {{ dj.horaFin }}</p>
+              <p><span class="text-accent-subtle">Estatus:</span>
+                <span [class]="'px-2 py-0.5 rounded-full text-xs font-medium ' + defensaEstatusClase(dj.estatus)">{{ dj.estatus }}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>

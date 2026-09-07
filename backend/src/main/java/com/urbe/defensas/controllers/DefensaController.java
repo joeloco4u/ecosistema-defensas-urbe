@@ -1,6 +1,7 @@
 package com.urbe.defensas.controllers;
 
 import com.urbe.defensas.dtos.RegistroDefensaDTO;
+import com.urbe.defensas.dtos.ReporteDefensaDTO;
 import com.urbe.defensas.models.Defensa;
 import com.urbe.defensas.services.DefensaService;
 import jakarta.validation.Valid;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,6 +29,11 @@ public class DefensaController {
             @RequestParam(required = false) UUID proyectoId,
             @RequestParam(required = false) String escuela) {
         return ResponseEntity.ok(defensaService.listarConFiltros(tutorId, proyectoId, escuela));
+    }
+
+    @GetMapping("/reporte")
+    public ResponseEntity<List<ReporteDefensaDTO>> reporteDiario(@RequestParam("fecha") LocalDate fecha) {
+        return ResponseEntity.ok(defensaService.generarReporteDiario(fecha));
     }
 
     @GetMapping("/{id}")

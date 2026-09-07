@@ -1,15 +1,19 @@
 package com.urbe.defensas.services;
 
 import com.urbe.defensas.dtos.RegistroDefensaDTO;
+import com.urbe.defensas.dtos.ReporteDefensaDTO;
 import com.urbe.defensas.models.Defensa;
+import com.urbe.defensas.models.Docente;
 import com.urbe.defensas.models.EspacioFisico;
 import com.urbe.defensas.models.Proyecto;
 import com.urbe.defensas.repositories.DefensaRepository;
+import com.urbe.defensas.repositories.DocenteRepository;
 import com.urbe.defensas.repositories.EspacioFisicoRepository;
 import com.urbe.defensas.repositories.ProyectoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,13 +24,16 @@ public class DefensaService {
     private final DefensaRepository defensaRepository;
     private final ProyectoRepository proyectoRepository;
     private final EspacioFisicoRepository espacioFisicoRepository;
+    private final DocenteRepository docenteRepository;
 
     public DefensaService(DefensaRepository defensaRepository,
                           ProyectoRepository proyectoRepository,
-                          EspacioFisicoRepository espacioFisicoRepository) {
+                          EspacioFisicoRepository espacioFisicoRepository,
+                          DocenteRepository docenteRepository) {
         this.defensaRepository = defensaRepository;
         this.proyectoRepository = proyectoRepository;
         this.espacioFisicoRepository = espacioFisicoRepository;
+        this.docenteRepository = docenteRepository;
     }
 
     public Defensa programar(RegistroDefensaDTO dto) {
@@ -85,5 +92,38 @@ public class DefensaService {
 
     public List<Defensa> listarConFiltros(Long tutorId, UUID proyectoId, String escuela) {
         return defensaRepository.buscarConFiltros(tutorId, proyectoId, escuela);
+    }
+
+    public List<ReporteDefensaDTO> generarReporteDiario(LocalDate fecha) {
+        return defensaRepository.findByFechaOrderByHoraInicioAsc(fecha).stream()
+                .map(this::mapearReporte)
+                .toList();
+    }
+
+    private ReporteDefensaDTO mapearReporte(Defensa defensa) {
+        ReporteDefensaDTO reporte = new ReporteDefensaDTO();
+        reporte.setHoraInicio(defensa.getHoraInicio());
+        reporte.setHoraFin(defensa.getHoraFin());
+
+        if (defensa.getEspacioFisico() != null) {
+            reporte.setEspacio(defensa.getEspacioFisico().getCodigoAula());
+        }
+
+        Proyecto proyecto = defensa.getProyecto();
+        if (proyecto != null) {
+            reporte.setTitulo(proyecto.getTitulo());
+            if (proyecto.getEstudiante() != null) {
+                reporte.setTesista(proyecto.getEstudiante().getNombres() + " " + proyecto.getEstudiante().getApellidos());
+            }
+        }
+
+        reporte.setTutorAcademico(resolverDocente(defensa.getTutorAcademicoId()));
+        reporte.setJurado(resolverDocente(defensa.getJuradoId()));
+        return reporte;
+    }
+
+    private String resolverDocente(Long id) {
+        if (id == null) return null;
+        return docenteRepository.findById(id).map(Docente::getNombreCompleto).orElse(null);
     }
 }

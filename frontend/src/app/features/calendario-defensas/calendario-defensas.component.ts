@@ -38,6 +38,11 @@ export class CalendarioDefensasComponent implements OnInit {
   selectedProyectoId: string | undefined;
   selectedEscuela: string | undefined;
 
+  reporteAbierto = false;
+  fechaReporte = '';
+  cargandoReporte = false;
+  reporte: any[] = [];
+
   constructor(
     private defensaService: DefensaService,
     private docenteService: DocenteService,
@@ -53,6 +58,39 @@ export class CalendarioDefensasComponent implements OnInit {
       this.escuelas = [...new Set(proyectos.map((p: any) => p.escuela).filter(Boolean))];
     });
     this.cargarEventos();
+  }
+
+  abrirReporte(): void {
+    this.fechaReporte = '';
+    this.reporte = [];
+    this.cargandoReporte = false;
+    this.reporteAbierto = true;
+  }
+
+  cerrarReporte(): void {
+    this.reporteAbierto = false;
+    this.reporte = [];
+  }
+
+  onFechaReporte(): void {
+    if (!this.fechaReporte) {
+      this.reporte = [];
+      return;
+    }
+    this.cargandoReporte = true;
+    this.defensaService.obtenerReporteDiario(this.fechaReporte).subscribe({
+      next: (data) => {
+        this.reporte = data;
+        this.cargandoReporte = false;
+      },
+      error: () => {
+        this.cargandoReporte = false;
+      },
+    });
+  }
+
+  imprimirReporte(): void {
+    window.print();
   }
 
   onFiltroCambiar(): void {
