@@ -1,0 +1,78 @@
+<div class="bg-background-dark min-h-screen p-8 space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-2xl font-bold text-accent-white">Gestión de Proyectos</h2>
+      <p class="text-sm text-accent-muted mt-1">Historial y registro de proyectos de Seminario III</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <button
+        (click)="exportarBackup()"
+        [disabled]="exportando"
+        class="px-4 py-2 text-xs uppercase tracking-widest border border-accent-muted text-accent-white bg-transparent rounded-sm hover:bg-accent-white hover:text-background-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {{ exportando ? 'Exportando...' : 'Exportar Backup CSV' }}
+      </button>
+      <app-button variant="primary" (onClick)="mostrarModal = true">
+        Nuevo Proyecto
+      </app-button>
+    </div>
+  </div>
+
+  <div class="flex flex-col sm:flex-row gap-4">
+    <div class="flex-1">
+      <input
+        type="text"
+        [(ngModel)]="busqueda"
+        placeholder="Buscar por tesista, cédula o tutor..."
+        class="w-full bg-surface-dark border border-surface-border rounded-sm px-4 py-2.5 text-sm text-accent-white placeholder-accent-subtle focus:outline-none focus:border-accent-subtle"
+      />
+    </div>
+    <div>
+      <select
+        [(ngModel)]="filtroEstatus"
+        class="w-full sm:w-48 bg-surface-dark border border-surface-border rounded-sm px-4 py-2.5 text-sm text-accent-white focus:outline-none focus:border-accent-subtle"
+      >
+        <option *ngFor="let s of estatusDisponibles" [value]="s">{{ s }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="bg-surface-dark rounded-sm border border-surface-border overflow-hidden">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="bg-surface-light border-b border-surface-border">
+          <th class="text-left px-6 py-3 font-medium text-accent-muted">Expediente</th>
+          <th class="text-left px-6 py-3 font-medium text-accent-muted">Tesista</th>
+          <th class="text-left px-6 py-3 font-medium text-accent-muted">Título</th>
+          <th class="text-left px-6 py-3 font-medium text-accent-muted">Tutor</th>
+          <th class="text-left px-6 py-3 font-medium text-accent-muted">Estatus</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-surface-border">
+        <tr *ngFor="let p of proyectosFiltrados" class="hover:bg-surface-light transition-colors">
+          <td class="px-6 py-4 text-accent-muted">{{ p.estudiante?.cedula || '—' }}</td>
+          <td class="px-6 py-4 text-accent-white">{{ tesistaNombre(p) }}</td>
+          <td class="px-6 py-4 text-accent-muted">{{ p.titulo || 'Sin título' }}</td>
+          <td class="px-6 py-4 text-accent-muted">{{ p.tutor?.nombreCompleto || '—' }}</td>
+          <td class="px-6 py-4">
+            <span [class]="'px-3 py-1 rounded-full text-xs font-medium ' + estatusClase(p.estatus)">
+              {{ p.estatus }}
+            </span>
+          </td>
+        </tr>
+        <tr *ngIf="cargando">
+          <td colspan="5" class="px-6 py-12 text-center text-sm text-accent-muted">Cargando proyectos...</td>
+        </tr>
+        <tr *ngIf="!cargando && proyectosFiltrados.length === 0">
+          <td colspan="5" class="px-6 py-12 text-center text-sm text-accent-muted">
+            No se encontraron proyectos con los filtros seleccionados.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <app-modal [visible]="mostrarModal" title="Nuevo Proyecto" (onClose)="mostrarModal = false">
+    <p class="text-accent-muted text-sm">Formulario de creación de proyecto.</p>
+  </app-modal>
+</div>

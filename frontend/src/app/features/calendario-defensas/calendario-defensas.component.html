@@ -1,5 +1,13 @@
 <div class="bg-background-dark min-h-screen p-8 space-y-6">
-  <h2 class="text-2xl font-bold text-accent-white">Calendario de Defensas</h2>
+  <div class="flex items-center justify-between">
+    <h2 class="text-2xl font-bold text-accent-white">Calendario de Defensas</h2>
+    <button
+      (click)="abrirReporte()"
+      class="px-4 py-2 text-xs uppercase tracking-widest border border-accent-muted text-accent-white bg-transparent rounded-sm hover:bg-accent-white hover:text-background-dark transition-colors"
+    >
+      Generar Reporte Diario
+    </button>
+  </div>
 
   <div class="bg-surface-dark rounded-xl p-4 border border-surface-border flex items-center gap-4">
     <label for="filtro-docente" class="text-sm font-medium text-accent-muted">Docente:</label>
@@ -38,5 +46,73 @@
 
   <div class="bg-surface-dark rounded-xl p-6 border border-surface-border">
     <full-calendar [options]="calendarOptions"></full-calendar>
+  </div>
+</div>
+
+<div *ngIf="reporteAbierto" class="reporte-modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="fixed inset-0 bg-black bg-opacity-70" (click)="cerrarReporte()"></div>
+
+  <div class="print-area relative bg-background-elevated border border-surface-border rounded-sm shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto z-10">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-surface-border">
+      <h3 class="text-lg font-semibold text-accent-white">Reporte Diario de Defensas</h3>
+      <button (click)="cerrarReporte()" class="text-accent-muted hover:text-accent-white text-xl leading-none">&times;</button>
+    </div>
+
+    <div class="px-6 py-4 border-b border-surface-border flex items-end gap-4">
+      <div>
+        <label for="fe-reporte" class="block text-xs uppercase tracking-widest text-accent-muted font-medium mb-2">Fecha del reporte</label>
+        <input
+          id="fe-reporte"
+          type="date"
+          [(ngModel)]="fechaReporte"
+          (ngModelChange)="onFechaReporte()"
+          class="bg-surface-dark border border-surface-border rounded-sm px-3 py-2 text-sm text-accent-white focus:outline-none focus:border-accent-subtle"
+        />
+      </div>
+      <div class="ml-auto flex gap-2 no-print">
+        <button
+          (click)="imprimirReporte()"
+          class="px-4 py-2 text-xs uppercase tracking-widest border border-green-700 text-green-400 bg-transparent rounded-sm hover:bg-green-900/30 transition-colors"
+        >
+          Imprimir
+        </button>
+      </div>
+    </div>
+
+    <div class="px-6 py-5">
+      <p class="text-sm text-accent-muted mb-4" *ngIf="fechaReporte">
+        Defensas programadas para el <span class="text-accent-white font-medium">{{ fechaReporte }}</span> —
+        <span class="text-accent-white font-medium">{{ reporte.length }}</span> defensa(s)
+      </p>
+
+      <div *ngIf="cargandoReporte" class="py-12 text-center text-sm text-accent-muted">Cargando reporte...</div>
+
+      <div *ngIf="!cargandoReporte && reporte.length === 0" class="py-12 text-center text-sm text-accent-subtle">
+        No hay defensas programadas para la fecha seleccionada.
+      </div>
+
+      <table *ngIf="reporte.length > 0" class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-surface-border">
+            <th class="text-left px-4 py-3 text-xs uppercase tracking-widest text-accent-muted font-medium">Hora</th>
+            <th class="text-left px-4 py-3 text-xs uppercase tracking-widest text-accent-muted font-medium">Espacio</th>
+            <th class="text-left px-4 py-3 text-xs uppercase tracking-widest text-accent-muted font-medium">Tesista</th>
+            <th class="text-left px-4 py-3 text-xs uppercase tracking-widest text-accent-muted font-medium">Título</th>
+            <th class="text-left px-4 py-3 text-xs uppercase tracking-widest text-accent-muted font-medium">Tutor Académico</th>
+            <th class="text-left px-4 py-3 text-xs uppercase tracking-widest text-accent-muted font-medium">Jurado</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-border">
+          <tr *ngFor="let r of reporte" class="hover:bg-surface-light transition-colors">
+            <td class="px-4 py-3 text-accent-white whitespace-nowrap">{{ r.horaInicio }} - {{ r.horaFin }}</td>
+            <td class="px-4 py-3 text-accent-muted">{{ r.espacio || '—' }}</td>
+            <td class="px-4 py-3 text-accent-white">{{ r.tesista || '—' }}</td>
+            <td class="px-4 py-3 text-accent-muted">{{ r.titulo || '—' }}</td>
+            <td class="px-4 py-3 text-accent-muted">{{ r.tutorAcademico || '—' }}</td>
+            <td class="px-4 py-3 text-accent-muted">{{ r.jurado || '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>

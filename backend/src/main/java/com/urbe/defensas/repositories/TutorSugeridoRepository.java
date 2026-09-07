@@ -10,4 +10,6 @@ import java.util.UUID;
 @Repository
 public interface TutorSugeridoRepository extends JpaRepository<TutorSugerido, UUID> {
     List<TutorSugerido> findByEstado(String estado);
+    List<TutorSugerido> findByProyectoId(UUID proyectoId);
+    List<TutorSugerido> findByProyectoIdAndEstado(UUID proyectoId, String estado);
 }

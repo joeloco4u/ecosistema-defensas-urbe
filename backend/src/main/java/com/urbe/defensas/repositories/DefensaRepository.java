@@ -15,6 +15,9 @@ public interface DefensaRepository extends JpaRepository<Defensa, UUID> {
     List<Defensa> findByEstatus(Defensa.EstatusDefensa estatus);
     List<Defensa> findByEspacioFisicoIdAndFecha(UUID espacioId, LocalDate fecha);
     List<Defensa> findByFecha(LocalDate fecha);
+
+    List<Defensa> findByFechaOrderByHoraInicioAsc(LocalDate fecha);
+
     List<Defensa> findByProyectoId(UUID proyectoId);
 
     @Query("SELECT d FROM Defensa d WHERE d.juradoId = :tutorId OR d.tutorAcademicoId = :tutorId OR d.tutorMetodologicoId = :tutorId")

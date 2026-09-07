@@ -28,6 +28,9 @@ public class TutorSugerido {
     @Column(nullable = false, length = 20)
     private String estado;
 
+    @Column(name = "proyecto_id")
+    private UUID proyectoId;
+
     public TutorSugerido() {}
 
     public UUID getId() { return id; }
@@ -42,4 +45,6 @@ public class TutorSugerido {
     public void setAreaInvestigacion(String areaInvestigacion) { this.areaInvestigacion = areaInvestigacion; }
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
+    public UUID getProyectoId() { return proyectoId; }
+    public void setProyectoId(UUID proyectoId) { this.proyectoId = proyectoId; }
 }

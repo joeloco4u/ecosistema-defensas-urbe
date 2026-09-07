@@ -5,4 +5,5 @@ export interface TutorSugerido {
   cedula: string;
   areaInvestigacion: string;
   estado: string;
+  proyectoId?: string;
 }

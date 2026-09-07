@@ -1,47 +1,103 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { ProyectoService } from '../../core/services/proyecto.service';
+
+interface EstudianteInfo {
+  cedula?: string;
+  nombres?: string;
+  apellidos?: string;
+}
+
+interface TutorInfo {
+  nombreCompleto?: string;
+}
+
+interface ProyectoRegistro {
+  id: string;
+  titulo?: string;
+  escuela?: string;
+  estudiante?: EstudianteInfo;
+  tutor?: TutorInfo;
+  estatus: string;
+}
 
 @Component({
   selector: 'app-gestion-proyectos',
-  template: `
-    <div class="bg-background-dark min-h-screen p-8 space-y-6">
-      <div class="flex items-center justify-between">
-        <h2 class="text-2xl font-bold text-accent-white">Gestión de Proyectos</h2>
-        <app-button variant="primary" (onClick)="mostrarModal = true">
-          Nuevo Proyecto
-        </app-button>
-      </div>
-
-      <div class="bg-surface-dark rounded-xl border border-surface-border overflow-hidden">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="bg-surface-light border-b border-surface-border">
-              <th class="text-left px-6 py-3 font-medium text-accent-muted">Título</th>
-              <th class="text-left px-6 py-3 font-medium text-accent-muted">Estudiante</th>
-              <th class="text-left px-6 py-3 font-medium text-accent-muted">Estado</th>
-              <th class="text-left px-6 py-3 font-medium text-accent-muted">Acciones</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-surface-border">
-            <tr class="hover:bg-surface-light">
-              <td class="px-6 py-4 text-accent-white">Sistema de Gestión Académica</td>
-              <td class="px-6 py-4 text-accent-muted">Juan Pérez</td>
-              <td class="px-6 py-4">
-                <span class="px-2 py-1 bg-yellow-900/30 text-yellow-400 rounded-full text-xs font-medium">En revisión</span>
-              </td>
-              <td class="px-6 py-4">
-                <button class="text-blue-400 hover:text-blue-300 text-sm font-medium">Ver</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <app-modal [visible]="mostrarModal" title="Nuevo Proyecto" (onClose)="mostrarModal = false">
-        <p class="text-accent-muted text-sm">Formulario de creación de proyecto.</p>
-      </app-modal>
-    </div>
-  `,
+  templateUrl: './gestion-proyectos.component.html',
 })
-export class GestionProyectosComponent {
+export class GestionProyectosComponent implements OnInit {
   mostrarModal = false;
+  cargando = false;
+  exportando = false;
+
+  proyectos: ProyectoRegistro[] = [];
+  busqueda = '';
+  filtroEstatus = 'TODOS';
+
+  estatusDisponibles = ['TODOS', 'PENDIENTE', 'AGENDADO', 'DEFENDIDO'];
+
+  constructor(private proyectoService: ProyectoService) {}
+
+  ngOnInit(): void {
+    this.cargarProyectos();
+  }
+
+  cargarProyectos(): void {
+    this.cargando = true;
+    this.proyectoService.listarProyectos().subscribe({
+      next: (proyectos) => {
+        this.proyectos = proyectos;
+        this.cargando = false;
+      },
+      error: () => {
+        this.cargando = false;
+      },
+    });
+  }
+
+  exportarBackup(): void {
+    this.exportando = true;
+    this.proyectoService.descargarBackupCsv().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'backup_proyectos_urbe.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        this.exportando = false;
+      },
+      error: (err) => {
+        console.error('Error al exportar el backup', err);
+        this.exportando = false;
+      },
+    });
+  }
+
+  get proyectosFiltrados(): ProyectoRegistro[] {
+    const termino = this.busqueda.trim().toLowerCase();
+    return this.proyectos.filter((p) => {
+      if (this.filtroEstatus !== 'TODOS' && p.estatus !== this.filtroEstatus) return false;
+      if (!termino) return true;
+      const tesista = [p.estudiante?.nombres, p.estudiante?.apellidos].filter(Boolean).join(' ').toLowerCase();
+      const cedula = (p.estudiante?.cedula ?? '').toLowerCase();
+      const tutor = (p.tutor?.nombreCompleto ?? '').toLowerCase();
+      const titulo = (p.titulo ?? '').toLowerCase();
+      return tesista.includes(termino) || cedula.includes(termino) || tutor.includes(termino) || titulo.includes(termino);
+    });
+  }
+
+  tesistaNombre(p: ProyectoRegistro): string {
+    return [p.estudiante?.nombres, p.estudiante?.apellidos].filter(Boolean).join(' ') || 'Por asignar';
+  }
+
+  estatusClase(estatus: string): string {
+    switch (estatus) {
+      case 'PENDIENTE': return 'bg-yellow-900/30 text-yellow-400';
+      case 'AGENDADO': return 'bg-blue-900/30 text-blue-400';
+      case 'DEFENDIDO': return 'bg-emerald-900/30 text-emerald-400';
+      default: return 'bg-surface-light text-accent-muted';
+    }
+  }
 }
