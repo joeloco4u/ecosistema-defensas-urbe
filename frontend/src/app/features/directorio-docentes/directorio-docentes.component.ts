@@ -23,6 +23,10 @@ export class DirectorioDocentesComponent implements OnInit {
   expedienteAbierto = false;
   cargandoExpediente = false;
   expediente: any = null;
+  fechaReporte = '';
+
+  mostrarModalNuevo = false;
+  nuevoDocente = { nombre: '', cedula: '', departamento: '', email: '' };
 
   constructor(private docenteService: DocenteService) {}
 
@@ -71,6 +75,37 @@ export class DirectorioDocentesComponent implements OnInit {
   cerrarExpediente(): void {
     this.expedienteAbierto = false;
     this.expediente = null;
+  }
+
+  imprimirReporte(tipo: 'trimestre' | 'dia'): void {
+    // MVP: se imprime el expediente completo tal como se muestra.
+    // En el futuro se filtrará por trimestre (tipo 'trimestre') o por fecha (tipo 'dia' + this.fechaReporte).
+    setTimeout(() => {
+      window.print();
+    }, 100);
+  }
+
+  abrirModalNuevo(): void {
+    this.mostrarModalNuevo = true;
+  }
+
+  cerrarModalNuevo(): void {
+    this.mostrarModalNuevo = false;
+    this.nuevoDocente = { nombre: '', cedula: '', departamento: '', email: '' };
+  }
+
+  guardarDocente(): void {
+    if (!this.nuevoDocente.nombre || !this.nuevoDocente.cedula) return;
+    const payload = {
+      nombreCompleto: this.nuevoDocente.nombre,
+      codigoInstitucional: this.nuevoDocente.cedula,
+      departamento: this.nuevoDocente.departamento,
+      email: this.nuevoDocente.email,
+    };
+    this.docenteService.crearDocente(payload).subscribe((docente) => {
+      this.docentes.push(docente);
+      this.cerrarModalNuevo();
+    });
   }
 
   proyectoEstatusClase(estatus: string): string {

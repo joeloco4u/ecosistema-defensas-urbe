@@ -1,4 +1,4 @@
-<div class="bg-background-dark min-h-screen p-8 space-y-6">
+<div class="bg-background-dark w-full max-w-full overflow-x-hidden flex flex-col min-h-screen p-8 space-y-6 box-border">
   <div class="flex items-center justify-between">
     <h2 class="text-2xl font-bold text-accent-white">Calendario de Defensas</h2>
     <button
@@ -9,7 +9,7 @@
     </button>
   </div>
 
-  <div class="bg-surface-dark rounded-xl p-4 border border-surface-border flex items-center gap-4">
+  <div class="bg-surface-dark rounded-xl p-4 border border-surface-border flex flex-wrap items-center gap-4 min-w-0">
     <label for="filtro-docente" class="text-sm font-medium text-accent-muted">Docente:</label>
     <select
       id="filtro-docente"
@@ -25,27 +25,46 @@
     <select
       id="filtro-escuela"
       class="bg-surface-dark border border-surface-border rounded-lg px-3 py-2 text-sm text-accent-white focus:outline-none focus:border-white"
-      [(ngModel)]="selectedEscuela"
-      (ngModelChange)="onFiltroCambiar()"
+      [(ngModel)]="filtroEscuela"
+      (ngModelChange)="aplicarFiltros()"
     >
-      <option [ngValue]="undefined">Todas</option>
+      <option value="Todas">Todas</option>
       <option *ngFor="let e of escuelas" [ngValue]="e">{{ e }}</option>
-    </select>
-
-    <label for="filtro-proyecto" class="text-sm font-medium text-accent-muted">Proyecto:</label>
-    <select
-      id="filtro-proyecto"
-      class="bg-surface-dark border border-surface-border rounded-lg px-3 py-2 text-sm text-accent-white focus:outline-none focus:border-white"
-      [(ngModel)]="selectedProyectoId"
-      (ngModelChange)="onFiltroCambiar()"
-    >
-      <option [ngValue]="undefined">Todos</option>
-      <option *ngFor="let p of proyectos" [ngValue]="p.id">{{ p.titulo }}</option>
     </select>
   </div>
 
-  <div class="bg-surface-dark rounded-xl p-6 border border-surface-border">
-    <full-calendar [options]="calendarOptions"></full-calendar>
+  <div class="flex flex-col lg:flex-row gap-6 items-start w-full max-w-full min-w-0">
+    <div class="flex-1 min-w-0 w-full max-w-full bg-[#1a1a1a] border border-[#333] rounded-lg p-4">
+      <div class="w-full max-w-full overflow-x-auto overflow-y-hidden min-w-0">
+        <div class="calendar-container">
+          <full-calendar [options]="calendarOptions"></full-calendar>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-full lg:w-96 bg-[#1a1a1a] border border-[#333] rounded-lg p-5 shrink-0">
+      <h3 class="text-sm uppercase tracking-widest text-accent-muted font-medium mb-4">Defensas del Día</h3>
+      <p class="text-lg font-semibold text-accent-white capitalize mb-4">{{ formattedDate() }}</p>
+
+      <div *ngIf="defensasDelDia.length === 0" class="py-8 text-center text-sm text-accent-subtle">
+        No hay defensas programadas para este día.
+      </div>
+
+      <div *ngFor="let d of defensasDelDia" class="mb-3 last:mb-0 bg-background-dark border border-surface-border rounded-md p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-medium text-accent-white whitespace-nowrap">
+            {{ d.horaInicio }} - {{ d.horaFin }}
+          </span>
+          <span class="text-xs text-accent-subtle">{{ d.espacioFisico?.codigoAula || '—' }}</span>
+        </div>
+        <p class="text-sm text-accent-white mb-1">
+          {{ d.proyecto?.estudiante?.nombres }} {{ d.proyecto?.estudiante?.apellidos }}
+        </p>
+        <p class="text-xs text-accent-muted truncate overflow-hidden whitespace-nowrap text-ellipsis">
+          {{ d.proyecto?.titulo || '—' }}
+        </p>
+      </div>
+    </div>
   </div>
 </div>
 

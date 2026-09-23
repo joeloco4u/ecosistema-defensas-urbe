@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-EcosistemaDefensasApplication<ecosistema-defensas>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.urbe.defensas.EcosistemaDefensasApplication",
+            "projectName": "ecosistema-defensas",
+            "args": "",
+            //"envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
