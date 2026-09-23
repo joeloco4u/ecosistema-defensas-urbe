@@ -20,6 +20,12 @@ export class ProyectoService {
     return this.http.get<any[]>(this.apiUrl, { headers });
   }
 
+  getEscuelas(): Observable<string[]> {
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    return this.http.get<string[]>(`${this.apiUrl}/escuelas`, { headers });
+  }
+
   descargarBackupCsv(): Observable<Blob> {
     const token = this.authService.getToken();
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
@@ -27,5 +33,11 @@ export class ProyectoService {
       headers,
       responseType: 'blob',
     });
+  }
+
+  transicionSeminarios(): Observable<any> {
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    return this.http.post<any>(`${this.apiUrl}/transicion-trimestre`, null, { headers });
   }
 }

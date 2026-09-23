@@ -4,13 +4,21 @@
     <p class="text-sm text-accent-muted mt-1">Expediente del profesor: seminarios, tutorías y jurados asignados</p>
   </div>
 
-  <div>
-    <input
-      type="text"
-      [(ngModel)]="busqueda"
-      placeholder="Buscar docente por nombre o cédula..."
-      class="w-full sm:w-96 bg-surface-dark border border-surface-border rounded-sm px-4 py-2.5 text-sm text-accent-white placeholder-accent-subtle focus:outline-none focus:border-accent-subtle"
-    />
+  <div class="flex items-center gap-4">
+    <div class="flex-1 sm:flex-none">
+      <input
+        type="text"
+        [(ngModel)]="busqueda"
+        placeholder="Buscar docente por nombre o cédula..."
+        class="w-full sm:w-96 bg-surface-dark border border-surface-border rounded-sm px-4 py-2.5 text-sm text-accent-white placeholder-accent-subtle focus:outline-none focus:border-accent-subtle"
+      />
+    </div>
+    <button
+      (click)="abrirModalNuevo()"
+      class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-sm text-sm font-medium transition-colors"
+    >
+      + Agregar Docente
+    </button>
   </div>
 
   <div class="bg-surface-dark rounded-sm border border-surface-border overflow-hidden">
@@ -52,13 +60,37 @@
   </div>
 </div>
 
-<div *ngIf="expedienteAbierto" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-  <div class="fixed inset-0 bg-black bg-opacity-70" (click)="cerrarExpediente()"></div>
+<div *ngIf="expedienteAbierto" class="expediente-modal fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="fixed inset-0 bg-black bg-opacity-70 print:hidden" (click)="cerrarExpediente()"></div>
 
-  <div class="relative bg-background-elevated border border-surface-border rounded-sm shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto z-10">
+  <div class="modal-container relative bg-background-elevated border border-surface-border rounded-sm shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto z-10">
     <div class="flex items-center justify-between px-6 py-4 border-b border-surface-border">
       <h3 class="text-lg font-semibold text-accent-white">Expediente del Profesor</h3>
-      <button (click)="cerrarExpediente()" class="text-accent-muted hover:text-accent-white text-xl leading-none">&times;</button>
+      <button (click)="cerrarExpediente()" class="text-accent-muted hover:text-accent-white text-xl leading-none print:hidden">&times;</button>
+    </div>
+
+    <div class="flex items-center gap-4 mt-4 px-6 pb-4 print:hidden">
+      <button
+        (click)="imprimirReporte('trimestre')"
+        class="bg-[#1a1a1a] hover:bg-[#252525] border border-[#333] text-gray-300 px-3 py-1.5 rounded-md text-sm transition-colors"
+      >
+        <i class="fas fa-print mr-2"></i> Imprimir Todo el Trimestre
+      </button>
+
+      <div class="flex items-center gap-2">
+        <input
+          type="date"
+          [(ngModel)]="fechaReporte"
+          class="bg-[#1a1a1a] border border-[#333] text-gray-300 text-sm rounded-md px-2 py-1.5 focus:ring-blue-500 focus:border-blue-500 outline-none"
+        />
+        <button
+          (click)="imprimirReporte('dia')"
+          class="bg-[#1a1a1a] hover:bg-[#252525] border border-[#333] text-gray-300 px-3 py-1.5 rounded-md text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          [disabled]="!fechaReporte"
+        >
+          <i class="fas fa-print mr-2"></i> Imprimir Día
+        </button>
+      </div>
     </div>
 
     <div *ngIf="cargandoExpediente" class="p-12 text-center text-sm text-accent-muted">Cargando expediente...</div>
@@ -136,5 +168,60 @@
         </div>
       </div>
     </ng-container>
+  </div>
+</div>
+
+<!-- Modal Nuevo Docente -->
+<div *ngIf="mostrarModalNuevo" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 print:hidden">
+  <div class="bg-[#141414] border border-[#333] rounded-xl w-full max-w-md p-6 shadow-2xl">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-lg font-semibold text-white">Registrar Nuevo Docente</h3>
+      <button (click)="cerrarModalNuevo()" class="text-gray-400 hover:text-white text-xl leading-none">&times;</button>
+    </div>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-xs font-medium text-gray-400 mb-1">Nombre Completo</label>
+        <input
+          type="text"
+          [(ngModel)]="nuevoDocente.nombre"
+          class="w-full bg-[#1a1a1a] border border-[#333] rounded-md px-3 py-2 text-white text-sm focus:border-blue-500 focus:outline-none"
+        />
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-400 mb-1">Cédula</label>
+        <input
+          type="text"
+          [(ngModel)]="nuevoDocente.cedula"
+          class="w-full bg-[#1a1a1a] border border-[#333] rounded-md px-3 py-2 text-white text-sm focus:border-blue-500 focus:outline-none"
+        />
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-400 mb-1">Departamento</label>
+        <input
+          type="text"
+          [(ngModel)]="nuevoDocente.departamento"
+          class="w-full bg-[#1a1a1a] border border-[#333] rounded-md px-3 py-2 text-white text-sm focus:border-blue-500 focus:outline-none"
+        />
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-400 mb-1">Email</label>
+        <input
+          type="email"
+          [(ngModel)]="nuevoDocente.email"
+          class="w-full bg-[#1a1a1a] border border-[#333] rounded-md px-3 py-2 text-white text-sm focus:border-blue-500 focus:outline-none"
+        />
+      </div>
+    </div>
+    <div class="flex justify-end gap-3 mt-6">
+      <button (click)="cerrarModalNuevo()" class="px-4 py-2 text-sm text-gray-300 hover:text-white transition-colors">Cancelar</button>
+      <button
+        (click)="guardarDocente()"
+        class="bg-white text-black hover:bg-gray-200 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+        [disabled]="!nuevoDocente.nombre || !nuevoDocente.cedula"
+        [class.opacity-50]="!nuevoDocente.nombre || !nuevoDocente.cedula"
+      >
+        Guardar
+      </button>
+    </div>
   </div>
 </div>

@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,4 +36,21 @@ public interface DefensaRepository extends JpaRepository<Defensa, UUID> {
     List<Defensa> buscarConFiltros(@Param("tutorId") Long tutorId,
                                    @Param("proyectoId") UUID proyectoId,
                                    @Param("escuela") String escuela);
+
+    @Query("""
+            SELECT CASE WHEN COUNT(d) > 0 THEN TRUE ELSE FALSE END
+            FROM Defensa d
+            WHERE d.fecha = :fecha
+              AND d.horaInicio < :fin
+              AND d.horaFin > :inicio
+              AND (d.espacioFisico.id = :espacioId
+                   OR d.juradoId IN :docentesIds
+                   OR d.tutorAcademicoId IN :docentesIds
+                   OR d.tutorMetodologicoId IN :docentesIds)
+            """)
+    boolean existeDefensaEnHorario(@Param("fecha") LocalDate fecha,
+                                   @Param("espacioId") UUID espacioId,
+                                   @Param("docentesIds") List<Long> docentesIds,
+                                   @Param("inicio") LocalTime inicio,
+                                   @Param("fin") LocalTime fin);
 }
