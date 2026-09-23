@@ -1,0 +1,91 @@
+.calendar-container {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.calendar-container full-calendar {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.calendar-container full-calendar .fc {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.calendar-container table {
+  table-layout: fixed;
+  width: 100% !important;
+  max-width: 100%;
+}
+
+.calendar-container .fc-view-harness,
+.calendar-container .fc-scrollgrid,
+.calendar-container .fc-timegrid {
+  max-width: 100%;
+}
+
+.calendar-container .fc-daygrid-body,
+.calendar-container .fc-daygrid-body table,
+.calendar-container .fc-col-header,
+.calendar-container .fc-col-header table {
+  width: 100%;
+}
+
+.calendar-container .fc-scrollgrid-section > td {
+  width: 100%;
+}
+
+.calendar-container .fc-daygrid-day-frame {
+  min-width: 0;
+}
+
+.calendar-container .fc-daygrid-day.fc-day-today,
+.calendar-container .fc-daygrid-day {
+  min-width: 0;
+}
+
+.calendar-container ::ng-deep td.fc-day {
+  cursor: pointer !important;
+}
+
+.calendar-container ::ng-deep td.fc-day:hover {
+  background-color: #252525 !important;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.calendar-container ::ng-deep .fc-daygrid-day.fc-day-today {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+  border-top: 2px solid #555 !important;
+}
+
+.calendar-container ::ng-deep td.fc-day:hover .fc-daygrid-day-frame {
+  background-color: transparent !important;
+}
+
+.calendar-container ::ng-deep .fc-daygrid-day-frame {
+  min-height: 110px !important;
+  height: 100% !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-container ::ng-deep .fc-daygrid-day-events,
+.calendar-container ::ng-deep .fc-daygrid-event-harness,
+.calendar-container ::ng-deep .fc-event,
+.calendar-container ::ng-deep .fc-daygrid-day-top {
+  pointer-events: none !important;
+}
+
+.calendar-container ::ng-deep .fc-view-harness {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+.calendar-container .fc-scrollgrid-section.fc-scrollgrid-section-body > td {
+  min-width: 0;
+}

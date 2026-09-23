@@ -1,154 +1,162 @@
 package com.urbe.defensas.services;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.urbe.defensas.dtos.SugerenciaHorarioDTO;
+import com.urbe.defensas.models.Docente;
 import com.urbe.defensas.models.EspacioFisico;
 import com.urbe.defensas.repositories.DefensaRepository;
 import com.urbe.defensas.repositories.DocenteRepository;
 import com.urbe.defensas.repositories.EspacioFisicoRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.urbe.defensas.repositories.HorarioClaseRepository;
 import org.springframework.stereotype.Service;
 
-import java.io.InputStream;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class MotorProgramacionService {
 
-    private static final Logger log = LoggerFactory.getLogger(MotorProgramacionService.class);
     private static final LocalTime HORA_INICIO_JORNADA = LocalTime.of(8, 0);
-    private static final LocalTime HORA_FIN_JORNADA = LocalTime.of(18, 0);
-    private static final int DURACION_BLOQUE_HORAS = 2;
-    private static final int MAX_SUGERENCIAS = 3;
+    private static final LocalTime HORA_ULTIMO_INICIO = LocalTime.of(19, 0);
+    private static final LocalTime PRIME_INICIO = LocalTime.of(13, 0);
+    private static final LocalTime PRIME_FIN = LocalTime.of(16, 0);
+    private static final LocalTime MANANA_INICIO = LocalTime.of(8, 0);
+    private static final LocalTime MANANA_FIN = LocalTime.of(12, 0);
+    private static final LocalTime TARDE_INICIO = LocalTime.of(17, 0);
+    private static final LocalTime TARDE_FIN = LocalTime.of(19, 0);
+    private static final int DURACION_BLOQUE_MINUTOS = 40;
+    private static final int MAX_SUGERENCIAS = 5;
 
-    private final ObjectMapper objectMapper;
-    private final EspacioFisicoRepository espacioFisicoRepository;
     private final DocenteRepository docenteRepository;
+    private final EspacioFisicoRepository espacioFisicoRepository;
+    private final HorarioClaseRepository horarioClaseRepository;
     private final DefensaRepository defensaRepository;
 
-    public MotorProgramacionService(ObjectMapper objectMapper,
-                                     EspacioFisicoRepository espacioFisicoRepository,
-                                     DocenteRepository docenteRepository,
-                                     DefensaRepository defensaRepository) {
-        this.objectMapper = objectMapper;
-        this.espacioFisicoRepository = espacioFisicoRepository;
+    public MotorProgramacionService(DocenteRepository docenteRepository,
+                                    EspacioFisicoRepository espacioFisicoRepository,
+                                    HorarioClaseRepository horarioClaseRepository,
+                                    DefensaRepository defensaRepository) {
         this.docenteRepository = docenteRepository;
+        this.espacioFisicoRepository = espacioFisicoRepository;
+        this.horarioClaseRepository = horarioClaseRepository;
         this.defensaRepository = defensaRepository;
     }
 
     public List<SugerenciaHorarioDTO> calcularDisponibilidad(List<String> cedulasDocentes, UUID espacioFisicoId) {
-        EspacioFisico espacio = espacioFisicoRepository.findById(espacioFisicoId)
-                .orElseThrow(() -> new IllegalArgumentException("Espacio físico no encontrado: " + espacioFisicoId));
+        List<Long> docenteIds = resolverIdsDocentes(cedulasDocentes);
+        List<EspacioFisico> espacios = resolverEspacios(espacioFisicoId);
 
-        Map<String, List<BloqueOcupado>> horariosDocentes = cargarHorariosOcupadosMock();
-
-        List<SugerenciaHorarioDTO> sugerencias = new ArrayList<>();
         LocalDate lunes = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.MONDAY));
         LocalDate viernes = lunes.plusDays(4);
 
+        List<BloqueCandidato> candidatos = new ArrayList<>();
         for (LocalDate fecha = lunes; !fecha.isAfter(viernes); fecha = fecha.plusDays(1)) {
-            int diaSemana = fecha.getDayOfWeek().getValue();
-            List<com.urbe.defensas.models.Defensa> defensasEspacio =
-                    defensaRepository.findByEspacioFisicoIdAndFecha(espacioFisicoId, fecha);
-
+            String dia = diaSemanaEspanol(fecha);
             for (LocalTime inicio = HORA_INICIO_JORNADA;
-                 inicio.plusHours(DURACION_BLOQUE_HORAS).compareTo(HORA_FIN_JORNADA) <= 0;
-                 inicio = inicio.plusHours(DURACION_BLOQUE_HORAS)) {
+                 !inicio.isAfter(HORA_ULTIMO_INICIO);
+                 inicio = inicio.plusHours(1)) {
+                LocalTime fin = inicio.plusMinutes(DURACION_BLOQUE_MINUTOS);
+                int prioridad = calcularPrioridad(inicio);
+                if (prioridad == 0) continue;
 
-                final LocalTime inicioBloque = inicio;
-                LocalTime fin = inicioBloque.plusHours(DURACION_BLOQUE_HORAS);
-
-                boolean aulaOcupada = defensasEspacio.stream()
-                        .anyMatch(d -> bloquesSeSuperponen(inicioBloque, fin, d.getHoraInicio(), d.getHoraFin()));
-                if (aulaOcupada) continue;
-
-                boolean docenteOcupado = false;
-                for (String cedula : cedulasDocentes) {
-                    List<BloqueOcupado> bloques = horariosDocentes.getOrDefault(cedula, Collections.emptyList());
-                    for (BloqueOcupado bloque : bloques) {
-                        if (bloque.diaSemana == diaSemana
-                                && bloquesSeSuperponen(inicioBloque, fin, bloque.horaInicio, bloque.horaFin)) {
-                            docenteOcupado = true;
-                            break;
-                        }
-                    }
-                    if (docenteOcupado) break;
+                for (EspacioFisico espacio : espacios) {
+                    candidatos.add(new BloqueCandidato(fecha, dia, inicio, fin, prioridad, espacio));
                 }
+            }
+        }
 
-                if (docenteOcupado) continue;
+        candidatos.sort(Comparator.comparingInt(BloqueCandidato::getPrioridad)
+                .thenComparing(BloqueCandidato::getFecha)
+                .thenComparing(BloqueCandidato::getInicio));
 
-                sugerencias.add(new SugerenciaHorarioDTO(
-                        fecha, inicio, fin, espacioFisicoId, espacio.getCodigoAula()));
-                if (sugerencias.size() >= MAX_SUGERENCIAS) {
-                    return sugerencias;
-                }
+        List<SugerenciaHorarioDTO> sugerencias = new ArrayList<>();
+        for (BloqueCandidato candidato : candidatos) {
+            boolean choqueConClases = horarioClaseRepository.existeChoqueDeClases(
+                    candidato.dia, candidato.espacio.getId(), docenteIds, candidato.inicio, candidato.fin);
+            if (choqueConClases) continue;
+
+            boolean choqueConDefensas = defensaRepository.existeDefensaEnHorario(
+                    candidato.fecha, candidato.espacio.getId(), docenteIds, candidato.inicio, candidato.fin);
+            if (choqueConDefensas) continue;
+
+            sugerencias.add(new SugerenciaHorarioDTO(
+                    candidato.fecha, candidato.inicio, candidato.fin,
+                    candidato.espacio.getId(), candidato.espacio.getCodigoAula()));
+            if (sugerencias.size() >= MAX_SUGERENCIAS) {
+                return sugerencias;
             }
         }
 
         return sugerencias;
     }
 
-    private Map<String, List<BloqueOcupado>> cargarHorariosOcupadosMock() {
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream("mock-horarios-urbe.json")) {
-            if (is == null) {
-                throw new IllegalStateException(
-                        "No se encontró el archivo mock-horarios-urbe.json en el classpath");
-            }
-            List<HorarioMockDTO> horarios = objectMapper.readValue(
-                    is, new TypeReference<List<HorarioMockDTO>>() {});
-            Map<String, List<BloqueOcupado>> agrupados = new HashMap<>();
-            for (HorarioMockDTO h : horarios) {
-                agrupados.computeIfAbsent(h.cedulaDocente, k -> new ArrayList<>())
-                        .add(new BloqueOcupado(h.diaSemana, h.horaInicio, h.horaFin));
-            }
-            return agrupados;
-        } catch (Exception e) {
-            log.error("Error al cargar horarios ocupados desde mock-horarios-urbe.json", e);
-            throw new RuntimeException("Error al procesar el archivo de horarios mock", e);
+    private List<Long> resolverIdsDocentes(List<String> cedulasDocentes) {
+        if (cedulasDocentes == null) return List.of();
+        List<Long> docenteIds = new ArrayList<>();
+        for (String cedula : cedulasDocentes) {
+            if (cedula == null || cedula.isBlank()) continue;
+            Optional<Docente> docente = docenteRepository.findByCodigoInstitucional(cedula.trim());
+            docente.ifPresent(d -> docenteIds.add(d.getId()));
         }
+        return docenteIds;
     }
 
-    private boolean bloquesSeSuperponen(LocalTime inicio1, LocalTime fin1,
-                                         LocalTime inicio2, LocalTime fin2) {
-        return inicio1.isBefore(fin2) && inicio2.isBefore(fin1);
-    }
-
-    private static class HorarioMockDTO {
-        @JsonProperty("cedula_docente")
-        public String cedulaDocente;
-        @JsonProperty("dia_semana")
-        public int diaSemana;
-        @JsonProperty("hora_inicio")
-        @JsonFormat(pattern = "HH:mm")
-        public LocalTime horaInicio;
-        @JsonProperty("hora_fin")
-        @JsonFormat(pattern = "HH:mm")
-        public LocalTime horaFin;
-        public String periodo;
-    }
-
-    private static class BloqueOcupado {
-        final int diaSemana;
-        final LocalTime horaInicio;
-        final LocalTime horaFin;
-
-        BloqueOcupado(int diaSemana, LocalTime horaInicio, LocalTime horaFin) {
-            this.diaSemana = diaSemana;
-            this.horaInicio = horaInicio;
-            this.horaFin = horaFin;
+    private List<EspacioFisico> resolverEspacios(UUID espacioFisicoId) {
+        if (espacioFisicoId != null) {
+            return espacioFisicoRepository.findById(espacioFisicoId)
+                    .filter(EspacioFisico::getEstatusOperativo)
+                    .map(List::of)
+                    .orElseGet(List::of);
         }
+        return espacioFisicoRepository.findByEstatusOperativoTrue();
+    }
+
+    private int calcularPrioridad(LocalTime inicio) {
+        if (!inicio.isBefore(PRIME_INICIO) && !inicio.isAfter(PRIME_FIN)) return 1;
+        if (!inicio.isBefore(MANANA_INICIO) && !inicio.isAfter(MANANA_FIN)) return 2;
+        if (!inicio.isBefore(TARDE_INICIO) && !inicio.isAfter(TARDE_FIN)) return 3;
+        return 0;
+    }
+
+    private String diaSemanaEspanol(LocalDate fecha) {
+        DayOfWeek dia = fecha.getDayOfWeek();
+        return switch (dia) {
+            case MONDAY -> "LUNES";
+            case TUESDAY -> "MARTES";
+            case WEDNESDAY -> "MIERCOLES";
+            case THURSDAY -> "JUEVES";
+            case FRIDAY -> "VIERNES";
+            case SATURDAY -> "SABADO";
+            default -> "DOMINGO";
+        };
+    }
+
+    private static class BloqueCandidato {
+        final LocalDate fecha;
+        final String dia;
+        final LocalTime inicio;
+        final LocalTime fin;
+        final int prioridad;
+        final EspacioFisico espacio;
+
+        BloqueCandidato(LocalDate fecha, String dia, LocalTime inicio, LocalTime fin,
+                        int prioridad, EspacioFisico espacio) {
+            this.fecha = fecha;
+            this.dia = dia;
+            this.inicio = inicio;
+            this.fin = fin;
+            this.prioridad = prioridad;
+            this.espacio = espacio;
+        }
+
+        public LocalDate getFecha() { return fecha; }
+        public LocalTime getInicio() { return inicio; }
+        public int getPrioridad() { return prioridad; }
     }
 }

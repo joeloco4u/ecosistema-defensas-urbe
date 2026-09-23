@@ -2,6 +2,7 @@ package com.urbe.defensas.repositories;
 
 import com.urbe.defensas.models.Proyecto;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,4 +15,7 @@ public interface ProyectoRepository extends JpaRepository<Proyecto, UUID> {
     List<Proyecto> findByEstudianteId(UUID estudianteId);
     List<Proyecto> findByNivelSeminario(String nivelSeminario);
     List<Proyecto> findByNivelSeminarioIsNull();
+
+    @Query("SELECT DISTINCT p.escuela FROM Proyecto p WHERE p.escuela IS NOT NULL ORDER BY p.escuela")
+    List<String> findDistinctEscuelas();
 }

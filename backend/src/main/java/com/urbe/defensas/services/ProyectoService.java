@@ -42,6 +42,10 @@ public class ProyectoService {
         return proyectoRepository.findAll();
     }
 
+    public List<String> listarEscuelas() {
+        return proyectoRepository.findDistinctEscuelas();
+    }
+
     public List<Proyecto> listarPorEstatus(Proyecto.EstatusProyecto estatus) {
         return proyectoRepository.findByEstatus(estatus);
     }

@@ -29,16 +29,33 @@ interface ProyectoPendiente {
         <label class="block text-xs uppercase tracking-widest text-accent-muted font-medium mb-2">
           Proyecto de Seminario III
         </label>
-        <select
-          [(ngModel)]="proyectoSeleccionado"
-          (ngModelChange)="onProyectoChange()"
-          class="w-full bg-background-dark text-accent-white border border-surface-border rounded-sm px-3 py-2.5 text-sm focus:outline-none focus:border-accent-muted"
+        <div class="relative max-w-4xl">
+        <button
+          type="button"
+          (click)="toggleDropdown()"
+          class="w-full flex items-center justify-between bg-background-dark text-accent-white border border-surface-border rounded-sm px-3 py-2.5 text-sm focus:outline-none focus:border-accent-muted"
         >
-          <option value="" disabled>Seleccione un proyecto</option>
-          <option *ngFor="let p of proyectos" [value]="p.id">
-            {{ p.tesista }} — {{ p.titulo }}
-          </option>
-        </select>
+          <span class="truncate overflow-hidden whitespace-nowrap text-ellipsis text-left">
+            {{ tituloProyectoSeleccionado.length > 90 ? (tituloProyectoSeleccionado | slice:0:90) + '...' : tituloProyectoSeleccionado }}
+          </span>
+          <svg class="w-4 h-4 text-accent-muted shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        <div
+          *ngIf="isDropdownOpen"
+          class="absolute z-50 w-full mt-1 bg-gray-900 border border-gray-700 rounded-md shadow-lg max-h-64 overflow-y-auto"
+        >
+          <div
+            *ngFor="let p of proyectos"
+            (click)="selectProyecto(p)"
+            class="p-3 cursor-pointer hover:bg-gray-800 text-gray-300 hover:text-white border-b border-gray-800"
+          >
+            {{ p.titulo.length > 90 ? (p.titulo | slice:0:90) + '...' : p.titulo }}
+          </div>
+        </div>
+      </div>
       </div>
 
       <div *ngIf="!proyectoSeleccionado" class="bg-surface-dark rounded-sm border border-surface-border p-12 text-center text-sm text-accent-subtle">
@@ -160,6 +177,7 @@ interface ProyectoPendiente {
 export class TutoresSugeridosComponent implements OnInit {
   proyectos: ProyectoSugerencia[] = [];
   proyectoSeleccionado = '';
+  isDropdownOpen = false;
   pendientes: TutorSugerido[] = [];
   mostrarFormulario = false;
   nuevoTutor: Partial<TutorSugerido> = { nombre: '', apellido: '', cedula: '', areaInvestigacion: '' };
@@ -190,6 +208,21 @@ export class TutoresSugeridosComponent implements OnInit {
         }
       },
     });
+  }
+
+  get tituloProyectoSeleccionado(): string {
+    const p = this.proyectos.find((x) => x.id === this.proyectoSeleccionado);
+    return p ? p.titulo : 'Seleccione un proyecto';
+  }
+
+  toggleDropdown(): void {
+    this.isDropdownOpen = !this.isDropdownOpen;
+  }
+
+  selectProyecto(proyecto: ProyectoSugerencia): void {
+    this.proyectoSeleccionado = proyecto.id;
+    this.isDropdownOpen = false;
+    this.onProyectoChange();
   }
 
   onProyectoChange(): void {

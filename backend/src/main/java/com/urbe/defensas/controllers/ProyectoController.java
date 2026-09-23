@@ -26,6 +26,11 @@ public class ProyectoController {
         return ResponseEntity.ok(proyectoService.listarTodos());
     }
 
+    @GetMapping("/escuelas")
+    public ResponseEntity<List<String>> getEscuelas() {
+        return ResponseEntity.ok(proyectoService.listarEscuelas());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Proyecto> obtener(@PathVariable UUID id) {
         return ResponseEntity.ok(proyectoService.obtenerPorId(id));

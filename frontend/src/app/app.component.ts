@@ -6,9 +6,9 @@ import { Router } from '@angular/router';
   template: `
     <div class="flex min-h-screen bg-background-dark">
       <app-sidebar *ngIf="!isLoginPage"></app-sidebar>
-      <div class="flex-1 flex flex-col">
+      <div class="flex-1 flex flex-col min-w-0">
         <app-navbar *ngIf="!isLoginPage"></app-navbar>
-        <main class="flex-1 overflow-auto" [ngClass]="isLoginPage ? '' : 'p-6'">
+        <main class="flex-1 overflow-auto min-w-0 w-full" [ngClass]="isLoginPage ? '' : 'p-6'">
           <router-outlet></router-outlet>
         </main>
       </div>

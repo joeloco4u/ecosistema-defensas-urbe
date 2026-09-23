@@ -32,13 +32,21 @@ export class GestionProyectosComponent implements OnInit {
   proyectos: ProyectoRegistro[] = [];
   busqueda = '';
   filtroEstatus = 'TODOS';
+  filtroEscuela = 'Todas';
 
   estatusDisponibles = ['TODOS', 'PENDIENTE', 'AGENDADO', 'DEFENDIDO'];
+  escuelas: string[] = [];
+
+  proyectoSeleccionado: any = null;
+  mostrarModalExpediente = false;
 
   constructor(private proyectoService: ProyectoService) {}
 
   ngOnInit(): void {
     this.cargarProyectos();
+    this.proyectoService.getEscuelas().subscribe((escuelas: string[]) => {
+      this.escuelas = escuelas;
+    });
   }
 
   cargarProyectos(): void {
@@ -79,6 +87,7 @@ export class GestionProyectosComponent implements OnInit {
     const termino = this.busqueda.trim().toLowerCase();
     return this.proyectos.filter((p) => {
       if (this.filtroEstatus !== 'TODOS' && p.estatus !== this.filtroEstatus) return false;
+      if (this.filtroEscuela !== 'Todas' && p.escuela !== this.filtroEscuela) return false;
       if (!termino) return true;
       const tesista = [p.estudiante?.nombres, p.estudiante?.apellidos].filter(Boolean).join(' ').toLowerCase();
       const cedula = (p.estudiante?.cedula ?? '').toLowerCase();
@@ -86,6 +95,20 @@ export class GestionProyectosComponent implements OnInit {
       const titulo = (p.titulo ?? '').toLowerCase();
       return tesista.includes(termino) || cedula.includes(termino) || tutor.includes(termino) || titulo.includes(termino);
     });
+  }
+
+  aplicarFiltros(): void {
+    return;
+  }
+
+  abrirExpediente(proyecto: any): void {
+    this.proyectoSeleccionado = proyecto;
+    this.mostrarModalExpediente = true;
+  }
+
+  cerrarExpediente(): void {
+    this.mostrarModalExpediente = false;
+    this.proyectoSeleccionado = null;
   }
 
   tesistaNombre(p: ProyectoRegistro): string {

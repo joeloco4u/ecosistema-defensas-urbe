@@ -21,7 +21,7 @@ public class ProgramacionController {
     @GetMapping("/sugerencias")
     public ResponseEntity<List<SugerenciaHorarioDTO>> obtenerSugerencias(
             @RequestParam(name = "cedulas") List<String> cedulas,
-            @RequestParam(name = "espacioId") UUID espacioId) {
+            @RequestParam(name = "espacioId", required = false) UUID espacioId) {
         List<SugerenciaHorarioDTO> sugerencias = motorProgramacionService.calcularDisponibilidad(cedulas, espacioId);
         return ResponseEntity.ok(sugerencias);
     }
