@@ -1,57 +1,58 @@
 <div class="bg-background-dark min-h-screen p-8 space-y-6">
   <div>
-    <h2 class="text-2xl font-bold text-accent-white">Directorio de Docentes</h2>
-    <p class="text-sm text-accent-muted mt-1">Expediente del profesor: seminarios, tutorías y jurados asignados</p>
+    <p class="urbe-kicker">Académico</p>
+    <h2 class="urbe-page-title mt-1">Directorio de Docentes</h2>
+    <p class="urbe-page-subtitle">Expediente del profesor: seminarios, tutorías y jurados asignados</p>
   </div>
 
-  <div class="flex items-center gap-4">
+  <div class="urbe-toolbar p-4 flex items-center gap-4">
     <div class="flex-1 sm:flex-none">
       <input
         type="text"
         [(ngModel)]="busqueda"
         placeholder="Buscar docente por nombre o cédula..."
-        class="w-full sm:w-96 bg-surface-dark border border-surface-border rounded-sm px-4 py-2.5 text-sm text-accent-white placeholder-accent-subtle focus:outline-none focus:border-accent-subtle"
+        class="urbe-field w-full sm:w-96"
       />
     </div>
     <button
       (click)="abrirModalNuevo()"
-      class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-sm text-sm font-medium transition-colors"
+      class="urbe-btn urbe-btn-primary"
     >
       + Agregar Docente
     </button>
   </div>
 
-  <div class="bg-surface-dark rounded-sm border border-surface-border overflow-hidden">
-    <table class="w-full text-sm">
+  <div class="urbe-card overflow-hidden">
+    <table class="urbe-datagrid">
       <thead>
-        <tr class="bg-surface-light border-b border-surface-border">
-          <th class="text-left px-6 py-3 font-medium text-accent-muted">Código</th>
-          <th class="text-left px-6 py-3 font-medium text-accent-muted">Nombre</th>
-          <th class="text-left px-6 py-3 font-medium text-accent-muted">Departamento</th>
-          <th class="text-left px-6 py-3 font-medium text-accent-muted">Carga Semanal</th>
-          <th class="text-left px-6 py-3 font-medium text-accent-muted">Acción</th>
+        <tr>
+          <th>Código</th>
+          <th>Nombre</th>
+          <th>Departamento</th>
+          <th>Carga Semanal</th>
+          <th>Acción</th>
         </tr>
       </thead>
-      <tbody class="divide-y divide-surface-border">
-        <tr *ngFor="let d of docentesFiltrados" class="hover:bg-surface-light transition-colors">
-          <td class="px-6 py-4 text-accent-muted">{{ d.codigoInstitucional }}</td>
-          <td class="px-6 py-4 text-accent-white">{{ d.nombreCompleto }}</td>
-          <td class="px-6 py-4 text-accent-muted">{{ d.departamento || '—' }}</td>
-          <td class="px-6 py-4 text-accent-muted">{{ d.cargaMaximaSemanal ?? '—' }} h</td>
-          <td class="px-6 py-4">
+      <tbody>
+        <tr *ngFor="let d of docentesFiltrados">
+          <td class="cell-muted">{{ d.codigoInstitucional }}</td>
+          <td class="cell-strong">{{ d.nombreCompleto }}</td>
+          <td class="cell-muted">{{ d.departamento || '—' }}</td>
+          <td class="cell-muted">{{ d.cargaMaximaSemanal ?? '—' }} h</td>
+          <td>
             <button
               (click)="verExpediente(d)"
-              class="px-4 py-1.5 text-xs uppercase tracking-widest border border-blue-700 text-blue-400 bg-transparent rounded-sm hover:bg-blue-900/30 transition-colors"
+              class="urbe-btn urbe-btn-sm bg-[#002b5c] text-[#fff] font-medium hover:brightness-110 transition-all duration-100 ease-in-out active:scale-[0.98]"
             >
               Ver Expediente
             </button>
           </td>
         </tr>
         <tr *ngIf="cargando">
-          <td colspan="5" class="px-6 py-12 text-center text-sm text-accent-muted">Cargando docentes...</td>
+          <td colspan="5" class="urbe-empty">Cargando docentes...</td>
         </tr>
         <tr *ngIf="!cargando && docentesFiltrados.length === 0">
-          <td colspan="5" class="px-6 py-12 text-center text-sm text-accent-muted">
+          <td colspan="5" class="urbe-empty">
             No se encontraron docentes con los criterios de búsqueda.
           </td>
         </tr>
@@ -63,41 +64,41 @@
 <div *ngIf="expedienteAbierto" class="expediente-modal fixed inset-0 z-50 flex items-center justify-center p-4">
   <div class="fixed inset-0 bg-black bg-opacity-70 print:hidden" (click)="cerrarExpediente()"></div>
 
-  <div class="modal-container relative bg-background-elevated border border-surface-border rounded-sm shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto z-10">
-    <div class="flex items-center justify-between px-6 py-4 border-b border-surface-border">
-      <h3 class="text-lg font-semibold text-accent-white">Expediente del Profesor</h3>
-      <button (click)="cerrarExpediente()" class="text-accent-muted hover:text-accent-white text-xl leading-none print:hidden">&times;</button>
+  <div class="modal-container urbe-modal relative max-w-3xl w-full max-h-[90vh] overflow-y-auto z-10">
+    <div class="urbe-modal-header flex items-center justify-between px-6 py-4">
+      <h3 class="urbe-modal-title">Expediente del Profesor</h3>
+      <button (click)="cerrarExpediente()" class="urbe-close-btn text-xl leading-none print:hidden">&times;</button>
     </div>
 
     <div class="flex items-center gap-4 mt-4 px-6 pb-4 print:hidden">
       <button
         (click)="imprimirReporte('trimestre')"
-        class="bg-[#1a1a1a] hover:bg-[#252525] border border-[#333] text-gray-300 px-3 py-1.5 rounded-md text-sm transition-colors"
+        class="urbe-btn urbe-btn-sm bg-[#002b5c] text-[#fff] font-medium text-center hover:brightness-110 transition-all duration-100 ease-in-out active:scale-[0.98]"
       >
-        <i class="fas fa-print mr-2"></i> Imprimir Todo el Trimestre
+        Imprimir Todo el Trimestre
       </button>
 
       <div class="flex items-center gap-2">
         <input
           type="date"
           [(ngModel)]="fechaReporte"
-          class="bg-[#1a1a1a] border border-[#333] text-gray-300 text-sm rounded-md px-2 py-1.5 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          class="urbe-field"
         />
         <button
           (click)="imprimirReporte('dia')"
-          class="bg-[#1a1a1a] hover:bg-[#252525] border border-[#333] text-gray-300 px-3 py-1.5 rounded-md text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          class="urbe-btn urbe-btn-sm bg-[#002b5c] text-[#fff] font-medium text-center hover:brightness-110 transition-all duration-100 ease-in-out active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
           [disabled]="!fechaReporte"
         >
-          <i class="fas fa-print mr-2"></i> Imprimir Día
+          Imprimir Día
         </button>
       </div>
     </div>
 
-    <div *ngIf="cargandoExpediente" class="p-12 text-center text-sm text-accent-muted">Cargando expediente...</div>
+    <div *ngIf="cargandoExpediente" class="urbe-empty">Cargando expediente...</div>
 
     <ng-container *ngIf="!cargandoExpediente && expediente">
       <div class="px-6 py-5 border-b border-surface-border space-y-1">
-        <p class="text-xl font-semibold text-accent-white">{{ expediente.docente.nombreCompleto }}</p>
+        <p class="text-xl font-semibold" style="color: var(--urbe-dark-blue)">{{ expediente.docente.nombreCompleto }}</p>
         <p class="text-sm text-accent-muted">{{ expediente.docente.codigoInstitucional }}</p>
         <div class="flex flex-wrap gap-x-6 gap-y-1 pt-2 text-sm">
           <p class="text-accent-muted"><span class="text-accent-subtle">Departamento:</span> {{ expediente.docente.departamento || '—' }}</p>
@@ -107,11 +108,12 @@
       </div>
 
       <div class="px-6 py-5 border-b border-surface-border">
-        <h4 class="text-xs uppercase tracking-widest text-accent-muted font-medium mb-3">Seminarios Asignados</h4>
+        <h4 class="urbe-modal-label mb-3">Seminarios Asignados</h4>
         <div class="flex flex-wrap gap-2">
           <span
             *ngFor="let s of expediente.seminarios"
-            class="px-3 py-1 rounded-full text-xs font-medium bg-surface-light border border-surface-border text-accent-white"
+            class="urbe-badge"
+            style="background: #eef2f9; border: 1px solid var(--urbe-border); color: var(--urbe-dark-blue)"
           >
             {{ s }}
           </span>
@@ -120,15 +122,15 @@
       </div>
 
       <div class="px-6 py-5 border-b border-surface-border">
-        <h4 class="text-xs uppercase tracking-widest text-accent-muted font-medium mb-3">
+        <h4 class="urbe-modal-label mb-3">
           Proyectos como Tutor ({{ expediente.proyectosTutor.length }})
         </h4>
         <div *ngIf="expediente.proyectosTutor.length === 0" class="text-sm text-accent-subtle">Sin proyectos tutelados.</div>
         <div class="space-y-3">
-          <div *ngFor="let t of expediente.proyectosTutor" class="bg-surface-dark border border-surface-border rounded-sm p-4">
+          <div *ngFor="let t of expediente.proyectosTutor" class="urbe-card-flat p-4">
             <div class="flex items-center justify-between gap-4">
               <p class="text-sm font-medium text-accent-white">{{ t.titulo }}</p>
-              <span class="shrink-0 px-2 py-1 rounded-full text-xs font-medium bg-surface-light border border-surface-border text-blue-400">
+              <span class="urbe-badge shrink-0" style="background: rgba(0,36,106,.08); border: 1px solid rgba(0,36,106,.25); color: var(--urbe-dark-blue)">
                 {{ rolTutoriaLabel(t.rol) }}
               </span>
             </div>
@@ -144,15 +146,15 @@
       </div>
 
       <div class="px-6 py-5">
-        <h4 class="text-xs uppercase tracking-widest text-accent-muted font-medium mb-3">
+        <h4 class="urbe-modal-label mb-3">
           Defensas como Jurado ({{ expediente.defensasJurado.length }})
         </h4>
         <div *ngIf="expediente.defensasJurado.length === 0" class="text-sm text-accent-subtle">Sin defensas como jurado.</div>
         <div class="space-y-3">
-          <div *ngFor="let dj of expediente.defensasJurado" class="bg-surface-dark border border-surface-border rounded-sm p-4">
+          <div *ngFor="let dj of expediente.defensasJurado" class="urbe-card-flat p-4">
             <div class="flex items-center justify-between gap-4">
               <p class="text-sm font-medium text-accent-white">{{ dj.proyectoTitulo }}</p>
-              <span *ngIf="dj.rolJurado" class="shrink-0 px-2 py-1 rounded-full text-xs font-medium bg-surface-light border border-surface-border text-accent-white">
+              <span *ngIf="dj.rolJurado" class="urbe-badge shrink-0" style="background: var(--urbe-burgundy-soft); border: 1px solid rgba(120,30,39,.3); color: var(--urbe-burgundy)">
                 {{ dj.rolJurado }}
               </span>
             </div>
@@ -173,50 +175,50 @@
 
 <!-- Modal Nuevo Docente -->
 <div *ngIf="mostrarModalNuevo" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 print:hidden">
-  <div class="bg-[#141414] border border-[#333] rounded-xl w-full max-w-md p-6 shadow-2xl">
+  <div class="urbe-modal w-full max-w-md p-6">
     <div class="flex justify-between items-center mb-6">
-      <h3 class="text-lg font-semibold text-white">Registrar Nuevo Docente</h3>
-      <button (click)="cerrarModalNuevo()" class="text-gray-400 hover:text-white text-xl leading-none">&times;</button>
+      <h3 class="urbe-modal-title">Registrar Nuevo Docente</h3>
+      <button (click)="cerrarModalNuevo()" class="urbe-close-btn text-xl leading-none">&times;</button>
     </div>
     <div class="space-y-4">
       <div>
-        <label class="block text-xs font-medium text-gray-400 mb-1">Nombre Completo</label>
+        <label class="urbe-modal-label block mb-1">Nombre Completo</label>
         <input
           type="text"
           [(ngModel)]="nuevoDocente.nombre"
-          class="w-full bg-[#1a1a1a] border border-[#333] rounded-md px-3 py-2 text-white text-sm focus:border-blue-500 focus:outline-none"
+          class="urbe-field w-full"
         />
       </div>
       <div>
-        <label class="block text-xs font-medium text-gray-400 mb-1">Cédula</label>
+        <label class="urbe-modal-label block mb-1">Cédula</label>
         <input
           type="text"
           [(ngModel)]="nuevoDocente.cedula"
-          class="w-full bg-[#1a1a1a] border border-[#333] rounded-md px-3 py-2 text-white text-sm focus:border-blue-500 focus:outline-none"
+          class="urbe-field w-full"
         />
       </div>
       <div>
-        <label class="block text-xs font-medium text-gray-400 mb-1">Departamento</label>
+        <label class="urbe-modal-label block mb-1">Departamento</label>
         <input
           type="text"
           [(ngModel)]="nuevoDocente.departamento"
-          class="w-full bg-[#1a1a1a] border border-[#333] rounded-md px-3 py-2 text-white text-sm focus:border-blue-500 focus:outline-none"
+          class="urbe-field w-full"
         />
       </div>
       <div>
-        <label class="block text-xs font-medium text-gray-400 mb-1">Email</label>
+        <label class="urbe-modal-label block mb-1">Email</label>
         <input
           type="email"
           [(ngModel)]="nuevoDocente.email"
-          class="w-full bg-[#1a1a1a] border border-[#333] rounded-md px-3 py-2 text-white text-sm focus:border-blue-500 focus:outline-none"
+          class="urbe-field w-full"
         />
       </div>
     </div>
     <div class="flex justify-end gap-3 mt-6">
-      <button (click)="cerrarModalNuevo()" class="px-4 py-2 text-sm text-gray-300 hover:text-white transition-colors">Cancelar</button>
+      <button (click)="cerrarModalNuevo()" class="urbe-btn urbe-btn-ghost">Cancelar</button>
       <button
         (click)="guardarDocente()"
-        class="bg-white text-black hover:bg-gray-200 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+        class="urbe-btn urbe-btn-primary"
         [disabled]="!nuevoDocente.nombre || !nuevoDocente.cedula"
         [class.opacity-50]="!nuevoDocente.nombre || !nuevoDocente.cedula"
       >

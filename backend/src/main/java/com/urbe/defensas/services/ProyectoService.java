@@ -1,5 +1,6 @@
 package com.urbe.defensas.services;
 
+import com.urbe.defensas.dtos.ProyectoDTO;
 import com.urbe.defensas.models.Proyecto;
 import com.urbe.defensas.repositories.ProyectoRepository;
 import org.springframework.stereotype.Service;
@@ -19,27 +20,36 @@ public class ProyectoService {
         this.proyectoRepository = proyectoRepository;
     }
 
-    public Proyecto crear(Proyecto proyecto) {
-        return proyectoRepository.save(proyecto);
+    public ProyectoDTO crear(Proyecto proyecto) {
+        return ProyectoDTO.fromEntity(proyectoRepository.save(proyecto));
     }
 
-    public Proyecto actualizar(UUID id, Proyecto proyecto) {
+    public ProyectoDTO actualizar(UUID id, Proyecto proyecto) {
         Proyecto existente = proyectoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Proyecto no encontrado"));
         existente.setTitulo(proyecto.getTitulo());
+        existente.setExpediente(proyecto.getExpediente());
         existente.setEstudiante(proyecto.getEstudiante());
+        existente.setEstudiante2(proyecto.getEstudiante2());
+        existente.setEstudiante3(proyecto.getEstudiante3());
         existente.setTutor(proyecto.getTutor());
+        existente.setTutorMetodologico(proyecto.getTutorMetodologico());
         existente.setEstatus(proyecto.getEstatus());
-        return proyectoRepository.save(existente);
+        return ProyectoDTO.fromEntity(proyectoRepository.save(existente));
     }
 
-    public Proyecto obtenerPorId(UUID id) {
-        return proyectoRepository.findById(id)
+    @Transactional(readOnly = true)
+    public ProyectoDTO obtenerPorId(UUID id) {
+        Proyecto proyecto = proyectoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Proyecto no encontrado"));
+        return ProyectoDTO.fromEntity(proyecto);
     }
 
-    public List<Proyecto> listarTodos() {
-        return proyectoRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<ProyectoDTO> listarTodos() {
+        return proyectoRepository.findAll().stream()
+                .map(ProyectoDTO::fromEntity)
+                .toList();
     }
 
     public List<String> listarEscuelas() {

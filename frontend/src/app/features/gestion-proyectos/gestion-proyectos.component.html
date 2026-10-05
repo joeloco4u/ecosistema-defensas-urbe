@@ -1,14 +1,15 @@
 <div class="bg-background-dark min-h-screen p-8 space-y-6">
   <div class="flex items-center justify-between">
     <div>
-      <h2 class="text-2xl font-bold text-accent-white">Gestión de Proyectos</h2>
-      <p class="text-sm text-accent-muted mt-1">Historial y registro de proyectos de Seminario III</p>
+      <p class="urbe-kicker">Seminario III</p>
+      <h2 class="urbe-page-title mt-1">Gestión de Proyectos</h2>
+      <p class="urbe-page-subtitle">Historial y registro de proyectos de Seminario III</p>
     </div>
     <div class="flex items-center gap-3">
       <button
         (click)="exportarBackup()"
         [disabled]="exportando"
-        class="px-4 py-2 text-xs uppercase tracking-widest border border-accent-muted text-accent-white bg-transparent rounded-sm hover:bg-accent-white hover:text-background-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        class="urbe-btn bg-[#002b5c] text-[#fff] font-medium hover:brightness-110 transition-all duration-100 ease-in-out active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {{ exportando ? 'Exportando...' : 'Exportar Backup CSV' }}
       </button>
@@ -18,28 +19,35 @@
     </div>
   </div>
 
-  <div class="flex flex-col sm:flex-row items-center gap-4">
-    <div class="flex-1">
+  <div class="urbe-toolbar p-4 flex flex-col sm:flex-row items-center gap-4">
+    <div class="flex-1 w-full relative">
+      <svg
+        class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none"
+        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+      </svg>
       <input
         type="text"
         [(ngModel)]="busqueda"
-        placeholder="Buscar por tesista, cédula o tutor..."
-        class="w-full bg-surface-dark border border-surface-border rounded-sm px-4 py-2.5 text-sm text-accent-white placeholder-accent-subtle focus:outline-none focus:border-accent-subtle"
+        placeholder="Buscar por expediente, título o tutor..."
+        class="urbe-field w-full"
+        style="padding-left: 2.25rem;"
       />
     </div>
-    <div>
+    <div class="w-full sm:w-48">
       <select
         [(ngModel)]="filtroEstatus"
-        class="w-full sm:w-48 bg-surface-dark border border-surface-border rounded-sm px-4 py-2.5 text-sm text-accent-white focus:outline-none focus:border-accent-subtle"
+        class="urbe-select w-full"
       >
         <option *ngFor="let s of estatusDisponibles" [value]="s">{{ s }}</option>
       </select>
     </div>
-    <div>
+    <div class="w-full sm:w-auto min-w-[200px]">
       <select
         [(ngModel)]="filtroEscuela"
         (change)="aplicarFiltros()"
-        class="w-full sm:w-auto min-w-[200px] bg-surface-dark border border-surface-border rounded-sm px-4 py-2.5 text-sm text-accent-white focus:outline-none focus:border-accent-subtle"
+        class="urbe-select w-full"
       >
         <option value="Todas">Todas las Escuelas</option>
         <option *ngFor="let escuela of escuelas" [value]="escuela">{{ escuela }}</option>
@@ -47,43 +55,52 @@
     </div>
   </div>
 
-  <div class="bg-surface-dark rounded-sm border border-surface-border overflow-hidden">
-    <table class="w-full text-sm">
+  <div class="urbe-card overflow-hidden">
+    <table class="urbe-datagrid">
       <thead>
-        <tr class="bg-surface-light border-b border-surface-border">
-          <th class="text-left px-6 py-3 font-medium text-accent-muted">Expediente</th>
-          <th class="text-left px-6 py-3 font-medium text-accent-muted">Tesista</th>
-          <th class="text-left px-6 py-3 font-medium text-accent-muted">Título</th>
-          <th class="text-left px-6 py-3 font-medium text-accent-muted">Tutor</th>
-          <th class="text-left px-6 py-3 font-medium text-accent-muted">Estatus</th>
-          <th class="text-left px-6 py-3 font-medium text-accent-muted">Acción</th>
+        <tr>
+          <th>Expediente</th>
+          <th>Título</th>
+          <th>Tutor</th>
+          <th>Estatus</th>
+          <th>Acción</th>
         </tr>
       </thead>
-      <tbody class="divide-y divide-surface-border">
-        <tr *ngFor="let p of proyectosFiltrados" class="hover:bg-surface-light transition-colors">
-          <td class="px-6 py-4 text-accent-muted">{{ p.estudiante?.cedula || '—' }}</td>
-          <td class="px-6 py-4 text-accent-white">{{ tesistaNombre(p) }}</td>
-          <td class="px-6 py-4 text-accent-muted">{{ p.titulo || 'Sin título' }}</td>
-          <td class="px-6 py-4 text-accent-muted">{{ p.tutor?.nombreCompleto || '—' }}</td>
-          <td class="px-6 py-4">
-            <span [class]="'px-3 py-1 rounded-full text-xs font-medium ' + estatusClase(p.estatus)">
+      <tbody>
+        <tr *ngFor="let p of proyectosFiltrados">
+          <td class="cell-strong">
+            <span class="text-sm font-bold text-gray-900 uppercase">{{ p.expediente || 'Sin Asignar' }}</span>
+          </td>
+          <td class="cell-muted">{{ p.titulo || 'Sin título' }}</td>
+          <td class="cell-muted">{{ p.tutor?.nombreCompleto || '—' }}</td>
+          <td>
+            <span [class]="'font-medium px-2 py-1 rounded text-xs ' + estatusClase(p.estatus)">
               {{ p.estatus }}
             </span>
           </td>
-          <td class="px-6 py-4">
-            <button
-              (click)="abrirExpediente(p)"
-              class="text-xs border border-[#333] hover:bg-[#252525] text-gray-300 px-3 py-1 rounded transition-colors"
-            >
-              VER EXPEDIENTE
-            </button>
+          <td>
+            <div class="flex items-center">
+              <button
+                (click)="abrirExpediente(p)"
+                class="urbe-btn urbe-btn-sm bg-[#002b5c] text-[#fff] hover:brightness-110 transition-all duration-100 ease-in-out active:scale-[0.98]"
+              >
+                VER EXPEDIENTE
+              </button>
+              <button
+                *ngIf="p.estatus === 'AGENDADO'"
+                (click)="abrirModalReagendar(p)"
+                class="urbe-btn urbe-btn-sm bg-accent-white text-[#fff] enabled:hover:brightness-110 ml-2 transition-all duration-100 ease-in-out active:scale-[0.98]"
+              >
+                REAGENDAR
+              </button>
+            </div>
           </td>
         </tr>
         <tr *ngIf="cargando">
-          <td colspan="6" class="px-6 py-12 text-center text-sm text-accent-muted">Cargando proyectos...</td>
+          <td colspan="5" class="urbe-empty">Cargando proyectos...</td>
         </tr>
         <tr *ngIf="!cargando && proyectosFiltrados.length === 0">
-          <td colspan="6" class="px-6 py-12 text-center text-sm text-accent-muted">
+          <td colspan="5" class="urbe-empty">
             No se encontraron proyectos con los filtros seleccionados.
           </td>
         </tr>
@@ -94,22 +111,53 @@
   <app-modal [visible]="mostrarModal" title="Nuevo Proyecto" (onClose)="mostrarModal = false">
     <p class="text-accent-muted text-sm">Formulario de creación de proyecto.</p>
   </app-modal>
+
+  <div class="bg-white border border-surface-border rounded-lg p-6 mt-8 shadow-sm">
+    <h3 class="text-lg font-semibold text-gray-800 mb-2">Transición de Trimestre Académico</h3>
+    <p class="text-sm text-gray-600 mb-6">
+      Archiva los proyectos de Seminario 3 y promueve los de Seminario 1 y 2 al nivel superior.
+      Esta acción no se puede deshacer.
+    </p>
+    <button
+      (click)="ejecutarTransicion()"
+      [disabled]="ejecutandoTransicion"
+      class="urbe-btn urbe-btn-primary transition-all duration-100 ease-in-out active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      {{ ejecutandoTransicion ? 'Ejecutando...' : 'Iniciar Transición de Trimestre' }}
+    </button>
+  </div>
 </div>
+
+<app-modal-agendamiento
+  [isOpen]="modalReagendarAbierto"
+  [proyecto]="infoProyectoDefensa()"
+  [juradoInicial]="reagendarDefensa?.juradoId"
+  [tutorAcademicoInicial]="reagendarDefensa?.tutorAcademicoId"
+  [tutorMetodologicoInicial]="reagendarDefensa?.tutorMetodologicoId"
+  [espacioInicial]="reagendarDefensa?.espacioFisico?.id"
+  [fechaInicial]="reagendarDefensa?.fecha"
+  [horaInicioInicial]="reagendarDefensa?.horaInicio"
+  [horaFinInicial]="reagendarDefensa?.horaFin"
+  tituloModal="Reagendar Defensa"
+  botonConfirmar="Confirmar Reagendación"
+  (closeModal)="cerrarModalReagendar()"
+  (confirmar)="onConfirmarReagendar($event)"
+></app-modal-agendamiento>
 
 <!-- Modal Expediente Alumno -->
 <div *ngIf="mostrarModalExpediente && proyectoSeleccionado" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 print:hidden">
-  <div class="bg-[#141414] border border-[#333] rounded-xl w-full max-w-2xl p-6 shadow-2xl">
-    <div class="flex justify-between items-center mb-6 pb-4 border-b border-[#333]">
-      <h3 class="text-lg font-semibold text-white">Expediente del Proyecto</h3>
-      <button (click)="cerrarExpediente()" class="text-gray-400 hover:text-white text-xl leading-none">&times;</button>
+  <div class="urbe-modal w-full max-w-2xl p-6">
+    <div class="urbe-modal-header flex justify-between items-center mb-6 pb-4 -mx-6 -mt-6 px-6 pt-6">
+      <h3 class="urbe-modal-title">Expediente del Proyecto</h3>
+      <button (click)="cerrarExpediente()" class="urbe-close-btn text-xl leading-none">&times;</button>
     </div>
 
     <div class="space-y-6">
       <div>
-        <h4 class="text-sm font-medium text-gray-400 uppercase tracking-wider mb-2">Título de la Investigación</h4>
-        <p class="text-white text-base">{{ proyectoSeleccionado.titulo || 'Sin título asignado' }}</p>
+        <h4 class="urbe-modal-label mb-2">Título de la Investigación</h4>
+        <p class="text-base font-medium" style="color: var(--urbe-text)">{{ proyectoSeleccionado.titulo || 'Sin título asignado' }}</p>
         <div class="mt-2">
-          <span class="inline-block px-2 py-1 text-xs font-semibold rounded bg-blue-900/30 text-blue-400 border border-blue-800">
+          <span class="urbe-badge" style="background: rgba(0,36,106,.08); color: var(--urbe-dark-blue); border: 1px solid rgba(0,36,106,.25)">
             {{ proyectoSeleccionado.estatus || 'EN PROCESO' }}
           </span>
         </div>
@@ -117,24 +165,32 @@
 
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <h4 class="text-sm font-medium text-gray-400 mb-1">Tesista Principal</h4>
-          <p class="text-white">{{ tesistaNombre(proyectoSeleccionado) }}</p>
-          <p class="text-xs text-gray-500">{{ proyectoSeleccionado.estudiante?.cedula || 'N/A' }}</p>
+          <h4 class="urbe-modal-label mb-1">Equipo de Tesistas</h4>
+          <div
+            *ngFor="let integrante of integrantesEquipo(proyectoSeleccionado)"
+            class="mb-2 last:mb-0"
+          >
+            <p style="color: var(--urbe-text)">{{ nombreEstudiante(integrante) }}</p>
+            <p class="text-xs text-gray-500">{{ integrante.cedula || 'N/A' }}</p>
+          </div>
+          <p *ngIf="integrantesEquipo(proyectoSeleccionado).length === 0" style="color: var(--urbe-text)">
+            Por asignar
+          </p>
         </div>
         <div>
-          <h4 class="text-sm font-medium text-gray-400 mb-1">Escuela</h4>
-          <p class="text-white">{{ proyectoSeleccionado.escuela || proyectoSeleccionado.estudiante?.escuela || 'No asignada' }}</p>
+          <h4 class="urbe-modal-label mb-1">Escuela</h4>
+          <p style="color: var(--urbe-text)">{{ proyectoSeleccionado.escuela || proyectoSeleccionado.estudiante?.escuela || 'No asignada' }}</p>
         </div>
       </div>
 
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <h4 class="text-sm font-medium text-gray-400 mb-1">Tutor Asignado</h4>
-          <p class="text-white">{{ proyectoSeleccionado.tutor?.nombreCompleto || 'Sin tutor' }}</p>
+          <h4 class="urbe-modal-label mb-1">Tutor Asignado</h4>
+          <p style="color: var(--urbe-text)">{{ proyectoSeleccionado.tutor?.nombreCompleto || 'Sin tutor' }}</p>
         </div>
         <div>
-          <h4 class="text-sm font-medium text-gray-400 mb-1">Nivel de Seminario</h4>
-          <p class="text-white">{{ proyectoSeleccionado.nivelSeminario || 'N/A' }}</p>
+          <h4 class="urbe-modal-label mb-1">Nivel de Seminario</h4>
+          <p style="color: var(--urbe-text)">{{ proyectoSeleccionado.nivelSeminario || 'N/A' }}</p>
         </div>
       </div>
     </div>

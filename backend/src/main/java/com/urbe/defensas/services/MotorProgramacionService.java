@@ -82,7 +82,7 @@ public class MotorProgramacionService {
             if (choqueConClases) continue;
 
             boolean choqueConDefensas = defensaRepository.existeDefensaEnHorario(
-                    candidato.fecha, candidato.espacio.getId(), docenteIds, candidato.inicio, candidato.fin);
+                    candidato.fecha, candidato.espacio.getId(), docenteIds, candidato.inicio, candidato.fin, null);
             if (choqueConDefensas) continue;
 
             sugerencias.add(new SugerenciaHorarioDTO(

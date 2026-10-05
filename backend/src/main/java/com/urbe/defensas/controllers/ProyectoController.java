@@ -1,5 +1,6 @@
 package com.urbe.defensas.controllers;
 
+import com.urbe.defensas.dtos.ProyectoDTO;
 import com.urbe.defensas.models.Proyecto;
 import com.urbe.defensas.services.ProyectoService;
 import jakarta.validation.Valid;
@@ -22,7 +23,7 @@ public class ProyectoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Proyecto>> listar() {
+    public ResponseEntity<List<ProyectoDTO>> listar() {
         return ResponseEntity.ok(proyectoService.listarTodos());
     }
 
@@ -32,17 +33,17 @@ public class ProyectoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Proyecto> obtener(@PathVariable UUID id) {
+    public ResponseEntity<ProyectoDTO> obtener(@PathVariable UUID id) {
         return ResponseEntity.ok(proyectoService.obtenerPorId(id));
     }
 
     @PostMapping
-    public ResponseEntity<Proyecto> crear(@Valid @RequestBody Proyecto proyecto) {
+    public ResponseEntity<ProyectoDTO> crear(@Valid @RequestBody Proyecto proyecto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(proyectoService.crear(proyecto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Proyecto> actualizar(@PathVariable UUID id, @Valid @RequestBody Proyecto proyecto) {
+    public ResponseEntity<ProyectoDTO> actualizar(@PathVariable UUID id, @Valid @RequestBody Proyecto proyecto) {
         return ResponseEntity.ok(proyectoService.actualizar(id, proyecto));
     }
 

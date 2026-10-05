@@ -23,18 +23,23 @@ const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
-    path: 'contingencias',
-    loadChildren: () => import('./features/contingencias/contingencias.module').then(m => m.ContingenciasModule),
-    canActivate: [AuthGuard],
-  },
-  {
-    path: 'tutores-sugeridos',
-    loadChildren: () => import('./features/tutores-sugeridos/tutores-sugeridos.module').then(m => m.TutoresSugeridosModule),
+    path: 'jurados-sugeridos',
+    loadChildren: () => import('./features/jurados-sugeridos/jurados-sugeridos.module').then(m => m.JuradosSugeridosModule),
     canActivate: [AuthGuard],
   },
   {
     path: 'directorio-docentes',
     loadChildren: () => import('./features/directorio-docentes/directorio-docentes.module').then(m => m.DirectorioDocentesModule),
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'reportes',
+    loadChildren: () => import('./features/reportes/reportes.module').then(m => m.ReportesModule),
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'documentos',
+    loadChildren: () => import('./features/documentos/documentos.module').then(m => m.DocumentosModule),
     canActivate: [AuthGuard],
   },
   { path: '', redirectTo: '/login', pathMatch: 'full' },

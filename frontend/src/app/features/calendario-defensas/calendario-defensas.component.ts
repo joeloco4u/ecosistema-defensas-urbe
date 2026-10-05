@@ -1,11 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { CalendarOptions } from '@fullcalendar/core';
-import type { DateClickArg } from '@fullcalendar/interaction';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import interactionPlugin from '@fullcalendar/interaction';
 import { DefensaService } from '../../core/services/defensa.service';
 import { DocenteService } from '../../core/services/docente.service';
 import { ProyectoService } from '../../core/services/proyecto.service';
+import { PeriodoAcademicoService } from '../../core/services/periodo-academico.service';
+
+interface DiaCalendario {
+  fecha: Date;
+  numero: number;
+  esMesActual: boolean;
+  esPrimeroDeMes: boolean;
+  esHoy: boolean;
+  defensas: any[];
+}
 
 @Component({
   selector: 'app-calendario-defensas',
@@ -13,34 +19,16 @@ import { ProyectoService } from '../../core/services/proyecto.service';
   styleUrl: './calendario-defensas.component.css',
 })
 export class CalendarioDefensasComponent implements OnInit {
-  trimestreInicio = '2026-08-24';
-  trimestreFin = '2026-11-30';
+  trimestreInicio = '';
+  trimestreFin = '';
 
-  calendarOptions: CalendarOptions = {
-    plugins: [dayGridPlugin, interactionPlugin],
-    initialView: 'catorceSemanas',
-    initialDate: this.trimestreInicio,
-    validRange: { start: this.trimestreInicio, end: this.trimestreFin },
-    weekends: true,
-    locale: 'es',
-    monthStartFormat: { day: 'numeric' },
-    headerToolbar: {
-      left: 'prev,next today',
-      center: 'title',
-      right: 'catorceSemanas',
-    },
-    views: {
-      catorceSemanas: {
-        type: 'dayGrid',
-        duration: { weeks: 14 },
-        buttonText: 'Trimestre',
-      },
-    },
-    dateClick: (info: DateClickArg) => {
-      this.onDayClick(info.dateStr);
-    },
-    events: [],
-  };
+  readonly MESES_CORTOS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+  readonly DIAS_SEMANA = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+  hoy = new Date();
+  fechaActiva = new Date();
+  mesActual = '';
+  diasDelMes: DiaCalendario[] = [];
 
   docentes: any[] = [];
   proyectos: any[] = [];
@@ -58,13 +46,24 @@ export class CalendarioDefensasComponent implements OnInit {
   cargandoReporte = false;
   reporte: any[] = [];
 
+  modalReprogramarAbierto = false;
+  defensaSeleccionada: any = null;
+
   constructor(
     private defensaService: DefensaService,
     private docenteService: DocenteService,
     private proyectoService: ProyectoService,
-  ) {}
+    private periodoAcademico: PeriodoAcademicoService,
+  ) {
+    const trimestre = this.periodoAcademico.obtenerTrimestreActual();
+    this.trimestreInicio = trimestre.fechaInicio;
+    this.trimestreFin = trimestre.fechaFin;
+  }
 
   ngOnInit(): void {
+    const [ano, mes] = this.trimestreInicio.split('-').map(Number);
+    this.fechaActiva = new Date(ano, mes - 1, 1);
+    this.construirMallaMensual();
     this.docenteService.getDocentes().subscribe((docentes: any[]) => {
       this.docentes = docentes;
     });
@@ -72,6 +71,69 @@ export class CalendarioDefensasComponent implements OnInit {
       this.escuelas = escuelas;
     });
     this.cargarEventos();
+  }
+
+  cambiarMes(delta: number): void {
+    const siguiente = new Date(this.fechaActiva.getFullYear(), this.fechaActiva.getMonth() + delta, 1);
+    const minMes = this.primeroDelMes(this.trimestreInicio);
+    const maxMes = this.primeroDelMes(this.trimestreFin);
+    if (siguiente < minMes) this.fechaActiva = minMes;
+    else if (siguiente > maxMes) this.fechaActiva = maxMes;
+    else this.fechaActiva = siguiente;
+    this.construirMallaMensual();
+  }
+
+  irAHoy(): void {
+    this.fechaActiva = new Date(this.hoy.getFullYear(), this.hoy.getMonth(), 1);
+    this.construirMallaMensual();
+  }
+
+  seleccionarDia(dia: DiaCalendario): void {
+    this.selectedDate = this.milToYyyyMmDd(dia.fecha);
+    this.cargarDefensasDelDia();
+  }
+
+  mesCorto(fecha: Date): string {
+    return this.MESES_CORTOS[fecha.getMonth()];
+  }
+
+  private primeroDelMes(fechaIso: string): Date {
+    const [ano, mes] = fechaIso.split('-').map(Number);
+    return new Date(ano, mes - 1, 1);
+  }
+
+  private construirMallaMensual(): void {
+    const anio = this.fechaActiva.getFullYear();
+    const mes = this.fechaActiva.getMonth();
+    const primero = new Date(anio, mes, 1);
+    const diaInicio = 1 - primero.getDay();
+
+    const dias: DiaCalendario[] = [];
+    for (let i = 0; i < 42; i++) {
+      const fecha = new Date(anio, mes, diaInicio + i);
+      dias.push({
+        fecha,
+        numero: fecha.getDate(),
+        esMesActual: fecha.getMonth() === mes && fecha.getFullYear() === anio,
+        esPrimeroDeMes: fecha.getDate() === 1,
+        esHoy: this.mismaFecha(fecha, this.hoy),
+        defensas: this.defensas.filter((d: any) => this.milToYyyyMmDd(d.fecha) === this.milToYyyyMmDd(fecha)),
+      });
+    }
+
+    this.diasDelMes = dias;
+    this.mesActual = this.formatearTituloMes(this.fechaActiva);
+  }
+
+  private mismaFecha(a: Date, b: Date): boolean {
+    return a.getFullYear() === b.getFullYear()
+      && a.getMonth() === b.getMonth()
+      && a.getDate() === b.getDate();
+  }
+
+  private formatearTituloMes(fecha: Date): string {
+    const mes = fecha.toLocaleDateString('es-ES', { month: 'long' });
+    return `${mes.charAt(0).toUpperCase()}${mes.slice(1)} ${fecha.getFullYear()}`;
   }
 
   abrirReporte(): void {
@@ -123,20 +185,11 @@ export class CalendarioDefensasComponent implements OnInit {
           (d: any) => this.filtroEscuela === 'Todas' || d.proyecto?.escuela === this.filtroEscuela,
         );
         this.defensas = filtradas;
-        this.calendarOptions.events = filtradas.map((d: any) => ({
-          title: d.proyecto?.titulo ?? 'Defensa',
-          start: this.combinedDate(d.fecha, d.horaInicio),
-          end: this.combinedDate(d.fecha, d.horaFin),
-        }));
+        this.construirMallaMensual();
         if (this.selectedDate) {
           this.cargarDefensasDelDia();
         }
       });
-  }
-
-  onDayClick(dateStr: string): void {
-    this.selectedDate = dateStr;
-    this.cargarDefensasDelDia();
   }
 
   private cargarDefensasDelDia(): void {
@@ -163,7 +216,57 @@ export class CalendarioDefensasComponent implements OnInit {
     return d.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
   }
 
-  private combinedDate(fecha: string, hora: string): string {
-    return `${fecha}T${hora}`;
+  abrirReprogramar(defensa: any): void {
+    this.defensaSeleccionada = defensa;
+    this.modalReprogramarAbierto = true;
+  }
+
+  cerrarReprogramar(): void {
+    this.modalReprogramarAbierto = false;
+    this.defensaSeleccionada = null;
+  }
+
+  proyectoDeDefensa(defensa: any): any {
+    const estudiante = defensa?.proyecto?.estudiante;
+    const tesista = [estudiante?.nombres, estudiante?.apellidos].filter(Boolean).join(' ') || 'Por asignar';
+    return {
+      id: defensa?.proyecto?.id,
+      tesista,
+      titulo: defensa?.proyecto?.titulo || 'Sin título',
+      tutor: defensa?.proyecto?.tutor ?? null,
+      tutorMetodologico: defensa?.proyecto?.tutorMetodologico ?? null,
+    };
+  }
+
+  nombreEstudiante(e: any): string {
+    return [e?.nombres, e?.apellidos].filter(Boolean).join(' ') || 'Por asignar';
+  }
+
+  onConfirmarReprogramar(evento: any): void {
+    if (!this.defensaSeleccionada) return;
+    const defensa = this.defensaSeleccionada;
+
+    const juradosIds = [evento.juradoId, evento.tutorAcademicoId, evento.tutorMetodologicoId]
+      .filter((id: any) => id != null);
+
+    const body = {
+      espacioId: evento.espacioId,
+      fecha: evento.fecha,
+      horaInicio: evento.horaInicio.length === 5 ? `${evento.horaInicio}:00` : evento.horaInicio,
+      horaFin: evento.horaFin.length === 5 ? `${evento.horaFin}:00` : evento.horaFin,
+      juradosIds,
+    };
+
+    this.defensaService.reprogramarDefensa(defensa.id, body).subscribe({
+      next: () => {
+        alert('Defensa reprogramada exitosamente.');
+        this.cerrarReprogramar();
+        this.cargarEventos();
+      },
+      error: (err) => {
+        console.error('Error al reprogramar la defensa', err);
+        alert('No se pudo reprogramar la defensa: ' + err.message);
+      },
+    });
   }
 }

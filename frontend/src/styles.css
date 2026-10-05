@@ -2,18 +2,654 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply bg-background-dark text-accent-white antialiased;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+/* ==========================================================================
+   URBE — Universidad Privada Dr. Rafael Belloso Chacín
+   Corporate light: burgundy #8a1538 · corporate blue #002b5c · light gray #f4f6f8 bg
+   Logo: https://cdn.urbe.edu/portal-urbe/images/logos/urbe-hd.png
+   ========================================================================== */
+:root {
+  --urbe-logo: url('https://cdn.urbe.edu/portal-urbe/images/logos/urbe-hd.png');
+  --urbe-logo-white: url('https://cdn.urbe.edu/portal-urbe/images/logos/urbe-blanco.svg');
+
+  --urbe-white: #ffffff;
+  --urbe-bg: #f4f6f8;
+  --urbe-anti-flash: #f2f4f9;
+  --urbe-gray-light: #ececec;
+  --urbe-gray: #636363;
+  --urbe-dark-blue: #002b5c;
+  --urbe-blue: #002a73;
+  --urbe-blue-light: #2571f3;
+  --urbe-burgundy: #8a1538;
+  --urbe-burgundy-hover: #6d0f2c;
+  --urbe-burgundy-soft: rgba(138, 21, 56, 0.08);
+  --urbe-yellow: #d8c516;
+  --urbe-gray-dark: #1f1f1f;
+  --urbe-slate: #0e2235;
+
+  --urbe-surface: var(--urbe-white);
+  --urbe-surface-muted: #f8fafc;
+  --urbe-border: #e2e8f0;
+  --urbe-border-strong: #cbd5e1;
+  --urbe-text: #1a1d21;
+  --urbe-text-muted: var(--urbe-gray);
+  --urbe-text-subtle: #8b93a1;
+  --urbe-accent: var(--urbe-blue-light);
+
+  --urbe-shadow: rgba(9, 30, 66, 0.08) 0 1px 2px, rgba(9, 30, 66, 0.04) 0 0 0 1px;
+  --urbe-shadow-lg: rgba(9, 30, 66, 0.16) 0 8px 24px -6px, rgba(9, 30, 66, 0.06) 0 0 0 1px;
+
+  --urbe-radius: 8px;
+  --urbe-radius-sm: 4px;
+  --urbe-font: 'Roboto', 'Inter', system-ui, -apple-system, sans-serif;
+  --urbe-topnav-h: 64px;
 }
 
-.fc { color: #fff !important; }
-.fc-theme-standard td, .fc-theme-standard th { border-color: #27272a !important; }
-.fc-button-primary { background-color: #18181b !important; border-color: #27272a !important; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.75rem; }
-.fc-button-primary:not(:disabled):active, .fc-button-primary:not(:disabled):hover { background-color: #27272a !important; border-color: #3f3f46 !important; }
-.fc-day-today { background-color: #18181b !important; }
-.fc-col-header-cell-cushion, .fc-daygrid-day-number { color: #a1a1aa !important; }
+body {
+  @apply antialiased;
+  font-family: var(--urbe-font);
+  background-color: var(--urbe-bg);
+  color: var(--urbe-text);
+}
 
+/* ==========================================================================
+   Layout shell — vertical column; true top navbar (real <nav>, template defined)
+   ========================================================================== */
+app-root > div.flex.flex-col.min-h-screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
+app-sidebar {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ==========================================================================
+   Tailwind token → URBE light-mode re-map (.ts templates keep working)
+   ========================================================================== */
+.bg-background-dark,
+body {
+  background-color: var(--urbe-bg) !important;
+}
+.bg-background {
+  background-color: var(--urbe-bg);
+}
+.bg-background-elevated,
+.bg-background-card {
+  background-color: var(--urbe-surface);
+}
+.bg-surface-dark,
+.bg-surface {
+  background-color: var(--urbe-surface);
+}
+.bg-surface-light {
+  background-color: var(--urbe-surface-muted);
+}
+.hover\:bg-surface-light:hover {
+  background-color: #f9fafb;
+}
+.border-surface-border {
+  border-color: var(--urbe-border);
+}
+.divide-surface-border > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--urbe-border);
+}
+
+.text-accent-white {
+  color: var(--urbe-text);
+}
+.text-accent {
+  color: var(--urbe-gray-dark);
+}
+.text-accent-muted {
+  color: var(--urbe-text-muted);
+}
+.text-accent-subtle {
+  color: var(--urbe-text-subtle);
+}
+.bg-accent-white {
+  background-color: var(--urbe-burgundy);
+}
+.border-accent-white {
+  border-color: var(--urbe-burgundy);
+}
+.border-accent-muted {
+  border-color: var(--urbe-border-strong);
+}
+.hover\:bg-accent-white:hover {
+  background-color: var(--urbe-burgundy);
+}
+.hover\:text-background-dark:hover {
+  color: var(--urbe-white);
+}
+.hover\:text-accent-white:hover {
+  color: var(--urbe-text);
+}
+.placeholder-accent-subtle::placeholder {
+  color: var(--urbe-text-subtle);
+}
+.focus\:border-accent-white:focus,
+.focus\:border-accent-subtle:focus {
+  border-color: var(--urbe-dark-blue);
+}
+.focus\:ring-accent-white:focus {
+  border-color: var(--urbe-dark-blue);
+  --tw-ring-color: var(--urbe-dark-blue);
+}
+
+.text-red-400 {
+  color: var(--urbe-burgundy);
+}
+.text-green-400 {
+  color: #15803d;
+}
+.border-green-700 {
+  border-color: #15803d;
+}
+.hover\:bg-green-900\/30:hover {
+  background-color: rgba(21, 128, 61, 0.1);
+}
+.bg-blue-600 {
+  background-color: var(--urbe-dark-blue);
+}
+.hover\:bg-blue-700:hover {
+  background-color: var(--urbe-blue);
+}
+.border-blue-700 {
+  border-color: var(--urbe-dark-blue);
+}
+.text-blue-400 {
+  color: var(--urbe-dark-blue);
+}
+.hover\:bg-blue-900\/30:hover {
+  background-color: rgba(0, 36, 106, 0.08);
+}
+
+/* Hardcoded dark utility leftovers used in feature templates */
+.bg-\[\#141414\],
+.bg-\[\#1a1a1a\] {
+  background-color: var(--urbe-white) !important;
+}
+.border-\[\#333\] {
+  border-color: var(--urbe-border) !important;
+}
+.hover\:bg-\[\#252525\]:hover {
+  background-color: #eef2f8 !important;
+}
+.text-gray-300 {
+  color: var(--urbe-text-muted) !important;
+}
+.text-gray-400 {
+  color: var(--urbe-text-muted) !important;
+}
+.text-gray-500 {
+  color: var(--urbe-text-subtle) !important;
+}
+.text-white {
+  color: var(--urbe-text) !important;
+}
+.hover\:text-white:hover {
+  color: var(--urbe-dark-blue) !important;
+}
+.border-\[\#333\] h3,
+.bg-\[\#141414\] h3 {
+  color: var(--urbe-dark-blue) !important;
+}
+.bg-blue-900\/30 {
+  background-color: rgba(0, 36, 106, 0.08) !important;
+}
+.border-blue-800 {
+  border-color: rgba(0, 36, 106, 0.35) !important;
+}
+.text-blue-400 {
+  color: var(--urbe-dark-blue) !important;
+}
+
+/* ==========================================================================
+   Component library — institutional light mode
+   ========================================================================== */
+.urbe-page-title {
+  font-size: 1.55rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--urbe-dark-blue);
+}
+.urbe-page-subtitle {
+  font-size: 0.875rem;
+  color: var(--urbe-text-muted);
+  margin-top: 0.25rem;
+}
+.urbe-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--urbe-dark-blue);
+  letter-spacing: -0.01em;
+}
+.urbe-eyebrow {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  color: var(--urbe-burgundy);
+}
+.urbe-kicker {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+  color: var(--urbe-burgundy);
+}
+.urbe-brand-img {
+  display: block;
+  height: 40px;
+  width: auto;
+}
+
+.urbe-card {
+  background-color: var(--urbe-surface);
+  border: 1px solid var(--urbe-border);
+  border-radius: var(--urbe-radius);
+  box-shadow: var(--urbe-shadow);
+}
+.urbe-card-flat {
+  background-color: var(--urbe-surface);
+  border: 1px solid var(--urbe-border);
+  border-radius: var(--urbe-radius);
+}
+.urbe-toolbar {
+  background-color: var(--urbe-surface);
+  border: 1px solid var(--urbe-border);
+  border-radius: var(--urbe-radius);
+  box-shadow: var(--urbe-shadow);
+}
+
+.urbe-stat {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--urbe-surface);
+  border: 1px solid var(--urbe-border);
+  border-radius: var(--urbe-radius);
+  box-shadow: var(--urbe-shadow);
+}
+.urbe-stat::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background-color: var(--urbe-dark-blue);
+}
+.urbe-stat--alert::before {
+  background-color: var(--urbe-burgundy);
+}
+.urbe-stat--accent::before {
+  background-color: var(--urbe-blue-light);
+}
+.urbe-stat-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  color: var(--urbe-text-muted);
+}
+.urbe-stat-value {
+  font-size: 2.25rem;
+  font-weight: 300;
+  line-height: 1.1;
+  color: var(--urbe-dark-blue);
+  margin-top: 0.5rem;
+}
+.urbe-stat--alert .urbe-stat-value {
+  color: var(--urbe-burgundy);
+}
+
+/* Buttons — burgundy primary, dark blue secondary */
+.urbe-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.15rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: var(--urbe-radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  white-space: nowrap;
+}
+.urbe-btn:focus-visible {
+  outline: 2px solid var(--urbe-blue-light);
+  outline-offset: 2px;
+}
+.urbe-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.urbe-btn-primary {
+  background-color: var(--urbe-burgundy);
+  border-color: var(--urbe-burgundy);
+  color: var(--urbe-white);
+  box-shadow: rgba(120, 30, 39, 0.2) 0 1px 2px;
+}
+.urbe-btn-primary:hover:not(:disabled) {
+  background-color: var(--urbe-burgundy-hover);
+  border-color: var(--urbe-burgundy-hover);
+}
+.urbe-btn-secondary {
+  background-color: var(--urbe-dark-blue);
+  border-color: var(--urbe-dark-blue);
+  color: var(--urbe-white);
+}
+.urbe-btn-secondary:hover:not(:disabled) {
+  background-color: var(--urbe-blue);
+  border-color: var(--urbe-blue);
+}
+.urbe-btn-outline {
+  background-color: var(--urbe-white);
+  border-color: var(--urbe-dark-blue);
+  color: var(--urbe-dark-blue);
+}
+.urbe-btn-outline:hover:not(:disabled) {
+  background-color: var(--urbe-dark-blue);
+  color: var(--urbe-white);
+}
+.urbe-btn-ghost {
+  background-color: transparent;
+  border-color: var(--urbe-border-strong);
+  color: var(--urbe-text-muted);
+}
+.urbe-btn-ghost:hover:not(:disabled) {
+  background-color: var(--urbe-dark-blue);
+  border-color: var(--urbe-dark-blue);
+  color: var(--urbe-white);
+}
+.urbe-btn-success {
+  background-color: transparent;
+  border-color: #15803d;
+  color: #15803d;
+}
+.urbe-btn-success:hover:not(:disabled) {
+  background-color: rgba(21, 128, 61, 0.1);
+}
+.urbe-btn-danger {
+  background-color: transparent;
+  border-color: var(--urbe-burgundy);
+  color: var(--urbe-burgundy);
+}
+.urbe-btn-danger:hover:not(:disabled) {
+  background-color: var(--urbe-burgundy-soft);
+}
+.urbe-btn-sm {
+  padding: 0.4rem 0.85rem;
+  font-size: 0.68rem;
+}
+
+.urbe-field {
+  background-color: var(--urbe-white);
+  border: 1px solid var(--urbe-border-strong);
+  border-radius: var(--urbe-radius-sm);
+  padding: 0.55rem 0.85rem;
+  font-size: 0.875rem;
+  color: var(--urbe-text);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.urbe-field:focus {
+  outline: none;
+  border-color: var(--urbe-dark-blue);
+  box-shadow: rgba(0, 36, 106, 0.15) 0 0 0 3px;
+}
+.urbe-field-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--urbe-text-muted);
+  letter-spacing: 0.02em;
+}
+.urbe-select {
+  background-color: var(--urbe-white);
+  border: 1px solid var(--urbe-border-strong);
+  border-radius: var(--urbe-radius-sm);
+  padding: 0.55rem 0.75rem;
+  font-size: 0.85rem;
+  color: var(--urbe-text);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.urbe-select:focus {
+  outline: none;
+  border-color: var(--urbe-dark-blue);
+  box-shadow: rgba(0, 36, 106, 0.15) 0 0 0 3px;
+}
+
+/* Modern corporate data grid */
+.urbe-datagrid {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.875rem;
+  background-color: var(--urbe-white);
+}
+.urbe-datagrid thead th {
+  background-color: var(--urbe-dark-blue);
+  color: var(--urbe-white);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-align: left;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  white-space: nowrap;
+}
+.urbe-datagrid tbody td {
+  padding: 0.85rem 1.25rem;
+  color: var(--urbe-text);
+  border-bottom: 1px solid var(--urbe-border);
+  vertical-align: middle;
+}
+.urbe-datagrid tbody tr:last-child td {
+  border-bottom: none;
+}
+.urbe-datagrid tbody tr {
+  transition: background-color 0.12s ease;
+}
+.urbe-datagrid tbody tr:hover {
+  background-color: #f9fafb;
+}
+.urbe-datagrid tbody tr:nth-child(even) {
+  background-color: #fafbfd;
+}
+.urbe-datagrid tbody tr:nth-child(even):hover {
+  background-color: #f9fafb;
+}
+.urbe-datagrid .cell-muted {
+  color: var(--urbe-text-muted);
+}
+.urbe-datagrid .cell-strong {
+  color: var(--urbe-text);
+  font-weight: 500;
+}
+.urbe-datagrid .cell-center {
+  text-align: left;
+}
+
+.urbe-modal {
+  background-color: var(--urbe-white);
+  border: 1px solid var(--urbe-border);
+  border-radius: var(--urbe-radius);
+  box-shadow: var(--urbe-shadow-lg);
+}
+.urbe-modal-header {
+  border-bottom: 1px solid var(--urbe-border);
+  background: linear-gradient(180deg, var(--urbe-white) 0%, var(--urbe-surface-muted) 100%);
+}
+.urbe-modal-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--urbe-dark-blue);
+}
+.urbe-close-btn {
+  color: var(--urbe-text-muted);
+  transition: color 0.15s ease;
+}
+.urbe-close-btn:hover {
+  color: var(--urbe-burgundy);
+}
+.urbe-modal-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--urbe-text-muted);
+}
+
+.urbe-agenda-item {
+  background-color: var(--urbe-surface-muted);
+  border: 1px solid var(--urbe-border);
+  border-left: 3px solid var(--urbe-burgundy);
+  border-radius: var(--urbe-radius-sm);
+  padding: 0.9rem 1rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.urbe-agenda-item:hover {
+  border-left-color: var(--urbe-dark-blue);
+  box-shadow: rgba(9, 30, 66, 0.1) 0 2px 6px;
+}
+.urbe-agenda-time {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--urbe-dark-blue);
+  letter-spacing: 0.04em;
+}
+.urbe-agenda-room {
+  font-size: 0.72rem;
+  color: var(--urbe-text-subtle);
+}
+.urbe-agenda-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--urbe-text);
+}
+.urbe-agenda-title {
+  font-size: 0.75rem;
+  color: var(--urbe-text-muted);
+}
+.urbe-empty {
+  font-size: 0.85rem;
+  color: var(--urbe-text-subtle);
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.urbe-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   FullCalendar — light institutional
+   ========================================================================== */
+.fc {
+  color: var(--urbe-text) !important;
+  font-family: var(--urbe-font);
+}
+.fc-theme-standard td,
+.fc-theme-standard th {
+  border-color: var(--urbe-border) !important;
+}
+.fc-theme-standard .fc-scrollgrid {
+  border-color: var(--urbe-border) !important;
+  border-radius: var(--urbe-radius-sm);
+  overflow: hidden;
+}
+.fc-button-primary {
+  background-color: var(--urbe-dark-blue) !important;
+  border-color: var(--urbe-dark-blue) !important;
+  color: var(--urbe-white) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.7rem !important;
+  font-weight: 600;
+  border-radius: var(--urbe-radius-sm) !important;
+  padding: 0.4rem 0.85rem !important;
+}
+.fc-button-primary:not(:disabled):active,
+.fc-button-primary:not(:disabled):hover {
+  background-color: var(--urbe-burgundy) !important;
+  border-color: var(--urbe-burgundy) !important;
+}
+.fc-button-primary:disabled {
+  background-color: var(--urbe-border-strong) !important;
+  border-color: var(--urbe-border-strong) !important;
+  color: var(--urbe-white) !important;
+}
+.fc-day-today {
+  background-color: #e8eefb !important;
+}
+.fc-col-header-cell-cushion,
+.fc-daygrid-day-number {
+  color: var(--urbe-text-muted) !important;
+  text-decoration: none !important;
+}
+.fc-col-header-cell {
+  background-color: var(--urbe-surface-muted) !important;
+}
+.fc-col-header-cell-cushion {
+  font-weight: 600;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.55rem 0.25rem !important;
+}
+.fc-daygrid-day-number {
+  font-size: 0.8rem !important;
+  padding: 0.35rem 0.5rem !important;
+}
+.fc-event {
+  background-color: var(--urbe-burgundy) !important;
+  border-color: var(--urbe-burgundy) !important;
+  color: var(--urbe-white) !important;
+  border-radius: 3px !important;
+  font-size: 0.72rem !important;
+  padding: 1px 4px !important;
+}
+.fc-h-event .fc-event-title {
+  font-weight: 500;
+}
+.fc-toolbar-title {
+  font-size: 1.05rem !important;
+  font-weight: 600 !important;
+  color: var(--urbe-dark-blue) !important;
+  text-transform: capitalize;
+}
+.fc-toolbar {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.fc-icon {
+  color: var(--urbe-dark-blue);
+}
+
+/* ==========================================================================
+   Print
+   ========================================================================== */
 @media print {
   body * {
     visibility: hidden;
@@ -110,5 +746,71 @@ body {
     background-color: #eeeeee !important;
     text-transform: uppercase !important;
     font-size: 11px !important;
+  }
+
+  .reporte-modal-overlay .print-area .urbe-datagrid thead th {
+    background-color: #eeeeee !important;
+    color: #111111 !important;
+  }
+
+  .reporte-modal-overlay .print-area .urbe-datagrid tbody td {
+    color: #111111 !important;
+  }
+
+  app-sidebar,
+  app-navbar {
+    display: none !important;
+  }
+
+  /* Módulo de Reportes: tabla a ancho completo y alto contraste para papel */
+  .reportes-print-area {
+    width: 100% !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+    overflow: visible !important;
+  }
+
+  .reportes-print-area table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  .reportes-print-area table th,
+  .reportes-print-area table td {
+    border: 1px solid #999999 !important;
+    padding: 6px 8px !important;
+    color: #111111 !important;
+  }
+
+  .reportes-print-area table thead th {
+    background-color: #eeeeee !important;
+    color: #111111 !important;
+    text-transform: uppercase !important;
+    font-size: 11px !important;
+  }
+
+  /* Módulo de Documentos: imprimir únicamente la hoja A4 del veredicto */
+  .documento-print-area {
+    position: static !important;
+    width: 100% !important;
+    min-height: auto !important;
+    height: auto !important;
+    aspect-ratio: auto !important;
+    margin: 0 !important;
+    padding: 12mm !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+    overflow: visible !important;
+  }
+
+  .documento-print-area * {
+    color: #111111 !important;
+    box-shadow: none !important;
   }
 }

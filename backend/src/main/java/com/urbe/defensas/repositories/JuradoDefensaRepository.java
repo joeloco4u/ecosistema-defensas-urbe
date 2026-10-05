@@ -10,4 +10,6 @@ import java.util.UUID;
 @Repository
 public interface JuradoDefensaRepository extends JpaRepository<JuradoDefensa, UUID> {
     List<JuradoDefensa> findByDocenteId(Long docenteId);
+    List<JuradoDefensa> findByDefensaId(UUID defensaId);
+    void deleteByDefensaId(UUID defensaId);
 }

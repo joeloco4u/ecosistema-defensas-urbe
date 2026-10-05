@@ -8,6 +8,8 @@ public class ReporteDefensaDTO {
     private LocalTime horaFin;
     private String espacio;
     private String tesista;
+    private String tesista2;
+    private String tesista3;
     private String titulo;
     private String tutorAcademico;
     private String jurado;
@@ -22,6 +24,10 @@ public class ReporteDefensaDTO {
     public void setEspacio(String espacio) { this.espacio = espacio; }
     public String getTesista() { return tesista; }
     public void setTesista(String tesista) { this.tesista = tesista; }
+    public String getTesista2() { return tesista2; }
+    public void setTesista2(String tesista2) { this.tesista2 = tesista2; }
+    public String getTesista3() { return tesista3; }
+    public void setTesista3(String tesista3) { this.tesista3 = tesista3; }
     public String getTitulo() { return titulo; }
     public void setTitulo(String titulo) { this.titulo = titulo; }
     public String getTutorAcademico() { return tutorAcademico; }

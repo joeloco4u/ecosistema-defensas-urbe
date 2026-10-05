@@ -10,6 +10,7 @@ import java.util.Optional;
 @Repository
 public interface DocenteRepository extends JpaRepository<Docente, Long> {
     Optional<Docente> findByCodigoInstitucional(String codigoInstitucional);
+    boolean existsByCodigoInstitucional(String codigoInstitucional);
     List<Docente> findByActivoTrue();
     List<Docente> findByDepartamento(String departamento);
 }
