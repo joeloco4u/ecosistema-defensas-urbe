@@ -22,6 +22,21 @@ public class Estudiante {
     @Column(nullable = false, length = 100)
     private String apellidos;
 
+    @Column(nullable = false)
+    private Boolean condicionado = false;
+
+    @Column(name = "nivel_seminario", nullable = false, length = 20)
+    private String nivelSeminario = "SEMINARIO_3";
+
+    @Column(nullable = false)
+    private Boolean pendiente = false;
+
+    @Column(name = "requiere_entrevista", nullable = false)
+    private Boolean requiereEntrevista = false;
+
+    @Column(name = "trimestre_inscripcion", nullable = false, length = 20)
+    private String trimestreInscripcion = "ENERO_MARZO";
+
     public Estudiante() {}
 
     public UUID getId() { return id; }
@@ -32,4 +47,14 @@ public class Estudiante {
     public void setNombres(String nombres) { this.nombres = nombres; }
     public String getApellidos() { return apellidos; }
     public void setApellidos(String apellidos) { this.apellidos = apellidos; }
+    public Boolean getCondicionado() { return condicionado; }
+    public void setCondicionado(Boolean condicionado) { this.condicionado = condicionado; }
+    public String getNivelSeminario() { return nivelSeminario; }
+    public void setNivelSeminario(String nivelSeminario) { this.nivelSeminario = nivelSeminario; }
+    public Boolean getPendiente() { return pendiente; }
+    public void setPendiente(Boolean pendiente) { this.pendiente = pendiente; }
+    public Boolean getRequiereEntrevista() { return requiereEntrevista; }
+    public void setRequiereEntrevista(Boolean requiereEntrevista) { this.requiereEntrevista = requiereEntrevista; }
+    public String getTrimestreInscripcion() { return trimestreInscripcion; }
+    public void setTrimestreInscripcion(String trimestreInscripcion) { this.trimestreInscripcion = trimestreInscripcion; }
 }

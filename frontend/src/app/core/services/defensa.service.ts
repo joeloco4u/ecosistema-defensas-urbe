@@ -30,6 +30,12 @@ export class DefensaService {
     return this.http.post<any>(this.apiUrl, payload, { headers });
   }
 
+  reprogramarDefensa(id: string, payload: any): Observable<any> {
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    return this.http.put<any>(`${this.apiUrl}/${id}/reprogramar`, payload, { headers });
+  }
+
   obtenerReporteDiario(fecha: string): Observable<any[]> {
     const token = this.authService.getToken();
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });

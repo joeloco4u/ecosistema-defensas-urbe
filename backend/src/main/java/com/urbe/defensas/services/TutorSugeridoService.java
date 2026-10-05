@@ -1,5 +1,6 @@
 package com.urbe.defensas.services;
 
+import com.urbe.defensas.exceptions.ConflictException;
 import com.urbe.defensas.models.Docente;
 import com.urbe.defensas.models.TutorSugerido;
 import com.urbe.defensas.repositories.DocenteRepository;
@@ -42,9 +43,15 @@ public class TutorSugeridoService {
     public TutorSugerido cambiarEstado(UUID id, String nuevoEstado) {
         TutorSugerido existente = tutorSugeridoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tutor sugerido no encontrado"));
+
+        if (!"PENDIENTE".equalsIgnoreCase(existente.getEstado())) {
+            throw new ConflictException("Solo se pueden modificar sugerencias en estado PENDIENTE");
+        }
+
         existente.setEstado(nuevoEstado);
 
-        if (nuevoEstado.equalsIgnoreCase("APROBADO")) {
+        if (nuevoEstado.equalsIgnoreCase("APROBADO")
+                && existeCedula(existente) && !docenteRepository.existsByCodigoInstitucional(existente.getCedula())) {
             Docente nuevoDocente = new Docente();
             nuevoDocente.setCodigoInstitucional(existente.getCedula());
             nuevoDocente.setNombreCompleto(existente.getNombre() + " " + existente.getApellido());
@@ -53,5 +60,9 @@ public class TutorSugeridoService {
         }
 
         return tutorSugeridoRepository.save(existente);
+    }
+
+    private boolean existeCedula(TutorSugerido tutor) {
+        return tutor.getCedula() != null && !tutor.getCedula().trim().isEmpty();
     }
 }

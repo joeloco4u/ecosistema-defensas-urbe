@@ -6,15 +6,18 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface ProyectoRepository extends JpaRepository<Proyecto, UUID> {
     List<Proyecto> findByEstatus(Proyecto.EstatusProyecto estatus);
+    long countByEstatus(Proyecto.EstatusProyecto estatus);
     List<Proyecto> findByTutorId(Long tutorId);
     List<Proyecto> findByEstudianteId(UUID estudianteId);
     List<Proyecto> findByNivelSeminario(String nivelSeminario);
     List<Proyecto> findByNivelSeminarioIsNull();
+    Optional<Proyecto> findByExpediente(String expediente);
 
     @Query("SELECT DISTINCT p.escuela FROM Proyecto p WHERE p.escuela IS NOT NULL ORDER BY p.escuela")
     List<String> findDistinctEscuelas();

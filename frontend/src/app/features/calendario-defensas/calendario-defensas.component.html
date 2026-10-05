@@ -1,19 +1,22 @@
 <div class="bg-background-dark w-full max-w-full overflow-x-hidden flex flex-col min-h-screen p-8 space-y-6 box-border">
   <div class="flex items-center justify-between">
-    <h2 class="text-2xl font-bold text-accent-white">Calendario de Defensas</h2>
+    <div>
+      <p class="urbe-kicker">Coordinación académica</p>
+      <h2 class="urbe-page-title mt-1">Calendario de Defensas</h2>
+    </div>
     <button
       (click)="abrirReporte()"
-      class="px-4 py-2 text-xs uppercase tracking-widest border border-accent-muted text-accent-white bg-transparent rounded-sm hover:bg-accent-white hover:text-background-dark transition-colors"
+      class="urbe-btn urbe-btn-primary"
     >
       Generar Reporte Diario
     </button>
   </div>
 
-  <div class="bg-surface-dark rounded-xl p-4 border border-surface-border flex flex-wrap items-center gap-4 min-w-0">
-    <label for="filtro-docente" class="text-sm font-medium text-accent-muted">Docente:</label>
+  <div class="urbe-toolbar p-4 flex flex-wrap items-center gap-4 min-w-0">
+    <label for="filtro-docente" class="urbe-field-label">Docente:</label>
     <select
       id="filtro-docente"
-      class="bg-surface-dark border border-surface-border rounded-lg px-3 py-2 text-sm text-accent-white focus:outline-none focus:border-white"
+      class="urbe-select"
       [(ngModel)]="tutorIdSeleccionado"
       (ngModelChange)="onFiltroCambiar()"
     >
@@ -21,10 +24,10 @@
       <option *ngFor="let d of docentes" [ngValue]="d.id">{{ d.nombreCompleto }}</option>
     </select>
 
-    <label for="filtro-escuela" class="text-sm font-medium text-accent-muted">Escuela:</label>
+    <label for="filtro-escuela" class="urbe-field-label">Escuela:</label>
     <select
       id="filtro-escuela"
-      class="bg-surface-dark border border-surface-border rounded-lg px-3 py-2 text-sm text-accent-white focus:outline-none focus:border-white"
+      class="urbe-select"
       [(ngModel)]="filtroEscuela"
       (ngModelChange)="aplicarFiltros()"
     >
@@ -34,35 +37,118 @@
   </div>
 
   <div class="flex flex-col lg:flex-row gap-6 items-start w-full max-w-full min-w-0">
-    <div class="flex-1 min-w-0 w-full max-w-full bg-[#1a1a1a] border border-[#333] rounded-lg p-4">
+    <div class="urbe-card flex-1 min-w-0 w-full max-w-full p-4">
+      <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+        <h3 class="text-2xl font-bold text-[#002b5c] capitalize">{{ mesActual }}</h3>
+        <div class="flex items-center gap-2">
+          <button
+            (click)="cambiarMes(-1)"
+            class="w-9 h-9 inline-flex items-center justify-center bg-white border border-surface-border rounded-sm text-accent-muted hover:text-accent-white transition-all duration-100 ease-in-out active:scale-[0.98]"
+            aria-label="Mes anterior"
+            title="Mes anterior"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          </button>
+          <button
+            (click)="cambiarMes(1)"
+            class="w-9 h-9 inline-flex items-center justify-center bg-white border border-surface-border rounded-sm text-accent-muted hover:text-accent-white transition-all duration-100 ease-in-out active:scale-[0.98]"
+            aria-label="Mes siguiente"
+            title="Mes siguiente"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </button>
+          <button
+            (click)="irAHoy()"
+            class="urbe-btn bg-[#002b5c] text-[#fff] font-semibold hover:bg-[#003a7d] transition-all duration-100 ease-in-out active:scale-[0.98]"
+          >Hoy</button>
+        </div>
+      </div>
       <div class="w-full max-w-full overflow-x-auto overflow-y-hidden min-w-0">
-        <div class="calendar-container">
-          <full-calendar [options]="calendarOptions"></full-calendar>
+        <div class="calendar-container grid grid-cols-7 min-w-[640px] border border-surface-border rounded-sm overflow-hidden bg-white">
+          <div
+            *ngFor="let nombre of DIAS_SEMANA"
+            class="py-2 px-1 text-center text-xs font-bold uppercase tracking-wider text-accent-muted bg-surface-light border-b border-r border-surface-border last:border-r-0"
+          >{{ nombre }}</div>
+
+          <button
+            *ngFor="let d of diasDelMes"
+            type="button"
+            (click)="seleccionarDia(d)"
+            class="relative flex flex-col items-center pt-2 pb-1 min-h-[5.5rem] border-b border-r border-surface-border last:border-r-0 transition-colors focus:outline-none focus:ring-1 focus:ring-accent-white"
+            [ngClass]="{
+              'bg-white hover:bg-[#eef2f8]': d.esMesActual,
+              'bg-surface-light text-gray-400': !d.esMesActual
+            }"
+            [attr.aria-label]="d.fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })"
+          >
+            <span
+              class="inline-flex items-center justify-center w-7 h-7 rounded-full text-sm transition-colors"
+              [ngClass]="{
+                'bg-accent-white text-[#fff] font-bold shadow': d.esHoy && d.esMesActual,
+                'text-gray-400 font-normal': !d.esMesActual,
+                'text-accent-white': d.esMesActual && !d.esHoy
+              }"
+            >{{ d.numero }}</span>
+
+            <span
+              *ngIf="d.esPrimeroDeMes"
+              class="mt-0.5 text-[0.6rem] font-bold uppercase tracking-wide"
+              [ngClass]="d.esMesActual ? 'text-accent-subtle' : 'text-gray-400'"
+            >{{ mesCorto(d.fecha) }}</span>
+
+            <span
+              *ngIf="d.defensas.length"
+              class="mt-auto mb-0.5 inline-flex items-center gap-1 text-[0.65rem] font-semibold text-[#8a1538]"
+            >
+              <span class="w-1.5 h-1.5 rounded-full bg-[#8a1538]"></span>{{ d.defensas.length }}
+            </span>
+          </button>
         </div>
       </div>
     </div>
 
-    <div class="w-full lg:w-96 bg-[#1a1a1a] border border-[#333] rounded-lg p-5 shrink-0">
-      <h3 class="text-sm uppercase tracking-widest text-accent-muted font-medium mb-4">Defensas del Día</h3>
+    <div class="urbe-card w-full lg:w-96 p-5 shrink-0">
+      <h3 class="urbe-eyebrow mb-2">Defensas del Día</h3>
       <p class="text-lg font-semibold text-accent-white capitalize mb-4">{{ formattedDate() }}</p>
 
-      <div *ngIf="defensasDelDia.length === 0" class="py-8 text-center text-sm text-accent-subtle">
+      <div *ngIf="defensasDelDia.length === 0" class="urbe-empty">
         No hay defensas programadas para este día.
       </div>
 
-      <div *ngFor="let d of defensasDelDia" class="mb-3 last:mb-0 bg-background-dark border border-surface-border rounded-md p-4">
+      <div *ngFor="let d of defensasDelDia" class="urbe-agenda-item mb-3 last:mb-0">
         <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-medium text-accent-white whitespace-nowrap">
+          <span class="urbe-agenda-time whitespace-nowrap">
             {{ d.horaInicio }} - {{ d.horaFin }}
           </span>
-          <span class="text-xs text-accent-subtle">{{ d.espacioFisico?.codigoAula || '—' }}</span>
+          <span class="urbe-agenda-room">{{ d.espacioFisico?.codigoAula || '—' }}</span>
         </div>
-        <p class="text-sm text-accent-white mb-1">
-          {{ d.proyecto?.estudiante?.nombres }} {{ d.proyecto?.estudiante?.apellidos }}
+        <p class="urbe-agenda-name mb-1">
+          {{ nombreEstudiante(d.proyecto?.estudiante) }}
         </p>
-        <p class="text-xs text-accent-muted truncate overflow-hidden whitespace-nowrap text-ellipsis">
+        <ng-container *ngIf="d.proyecto?.estudiante2?.nombres || d.proyecto?.estudiante3?.nombres">
+          <p class="text-xs text-gray-500" *ngIf="d.proyecto?.estudiante2?.nombres">
+            {{ nombreEstudiante(d.proyecto.estudiante2) }}
+          </p>
+          <p class="text-xs text-gray-500" *ngIf="d.proyecto?.estudiante3?.nombres">
+            {{ nombreEstudiante(d.proyecto.estudiante3) }}
+          </p>
+        </ng-container>
+        <p class="urbe-agenda-title truncate overflow-hidden whitespace-nowrap text-ellipsis">
           {{ d.proyecto?.titulo || '—' }}
         </p>
+        <button
+          (click)="abrirReprogramar(d)"
+          class="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[#8A1538] hover:text-[#002b5c] transition-colors"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          Reprogramar
+        </button>
       </div>
     </div>
   </div>
@@ -71,27 +157,27 @@
 <div *ngIf="reporteAbierto" class="reporte-modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4">
   <div class="fixed inset-0 bg-black bg-opacity-70" (click)="cerrarReporte()"></div>
 
-  <div class="print-area relative bg-background-elevated border border-surface-border rounded-sm shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto z-10">
-    <div class="flex items-center justify-between px-6 py-4 border-b border-surface-border">
-      <h3 class="text-lg font-semibold text-accent-white">Reporte Diario de Defensas</h3>
-      <button (click)="cerrarReporte()" class="text-accent-muted hover:text-accent-white text-xl leading-none">&times;</button>
-    </div>
+  <div class="print-area urbe-modal relative max-w-4xl w-full max-h-[90vh] overflow-y-auto z-10">
+    <div class="urbe-modal-header flex items-center justify-between px-6 py-4">
+      <h3 class="urbe-modal-title">Reporte Diario de Defensas</h3>
+      <button (click)="cerrarReporte()" class="urbe-close-btn text-xl leading-none">&times;</button>
+  </div>
 
     <div class="px-6 py-4 border-b border-surface-border flex items-end gap-4">
       <div>
-        <label for="fe-reporte" class="block text-xs uppercase tracking-widest text-accent-muted font-medium mb-2">Fecha del reporte</label>
+        <label for="fe-reporte" class="urbe-field-label block mb-2">Fecha del reporte</label>
         <input
           id="fe-reporte"
           type="date"
           [(ngModel)]="fechaReporte"
           (ngModelChange)="onFechaReporte()"
-          class="bg-surface-dark border border-surface-border rounded-sm px-3 py-2 text-sm text-accent-white focus:outline-none focus:border-accent-subtle"
+          class="urbe-field"
         />
       </div>
       <div class="ml-auto flex gap-2 no-print">
         <button
           (click)="imprimirReporte()"
-          class="px-4 py-2 text-xs uppercase tracking-widest border border-green-700 text-green-400 bg-transparent rounded-sm hover:bg-green-900/30 transition-colors"
+          class="urbe-btn urbe-btn-success"
         >
           Imprimir
         </button>
@@ -104,34 +190,56 @@
         <span class="text-accent-white font-medium">{{ reporte.length }}</span> defensa(s)
       </p>
 
-      <div *ngIf="cargandoReporte" class="py-12 text-center text-sm text-accent-muted">Cargando reporte...</div>
+      <div *ngIf="cargandoReporte" class="urbe-empty">Cargando reporte...</div>
 
-      <div *ngIf="!cargandoReporte && reporte.length === 0" class="py-12 text-center text-sm text-accent-subtle">
+      <div *ngIf="!cargandoReporte && reporte.length === 0" class="urbe-empty">
         No hay defensas programadas para la fecha seleccionada.
       </div>
 
-      <table *ngIf="reporte.length > 0" class="w-full text-sm">
+      <table *ngIf="reporte.length > 0" class="urbe-datagrid">
         <thead>
-          <tr class="border-b border-surface-border">
-            <th class="text-left px-4 py-3 text-xs uppercase tracking-widest text-accent-muted font-medium">Hora</th>
-            <th class="text-left px-4 py-3 text-xs uppercase tracking-widest text-accent-muted font-medium">Espacio</th>
-            <th class="text-left px-4 py-3 text-xs uppercase tracking-widest text-accent-muted font-medium">Tesista</th>
-            <th class="text-left px-4 py-3 text-xs uppercase tracking-widest text-accent-muted font-medium">Título</th>
-            <th class="text-left px-4 py-3 text-xs uppercase tracking-widest text-accent-muted font-medium">Tutor Académico</th>
-            <th class="text-left px-4 py-3 text-xs uppercase tracking-widest text-accent-muted font-medium">Jurado</th>
+          <tr>
+            <th>Hora</th>
+            <th>Espacio</th>
+            <th>Tesista</th>
+            <th>Título</th>
+            <th>Tutor Académico</th>
+            <th>Jurado</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-surface-border">
-          <tr *ngFor="let r of reporte" class="hover:bg-surface-light transition-colors">
-            <td class="px-4 py-3 text-accent-white whitespace-nowrap">{{ r.horaInicio }} - {{ r.horaFin }}</td>
-            <td class="px-4 py-3 text-accent-muted">{{ r.espacio || '—' }}</td>
-            <td class="px-4 py-3 text-accent-white">{{ r.tesista || '—' }}</td>
-            <td class="px-4 py-3 text-accent-muted">{{ r.titulo || '—' }}</td>
-            <td class="px-4 py-3 text-accent-muted">{{ r.tutorAcademico || '—' }}</td>
-            <td class="px-4 py-3 text-accent-muted">{{ r.jurado || '—' }}</td>
+        <tbody>
+          <tr *ngFor="let r of reporte">
+            <td class="cell-strong whitespace-nowrap">{{ r.horaInicio }} - {{ r.horaFin }}</td>
+            <td class="cell-muted">{{ r.espacio || '—' }}</td>
+            <td class="cell-strong">
+            <div class="flex flex-col leading-tight">
+              <span class="text-sm font-semibold text-gray-900">{{ r.tesista || '—' }}</span>
+              <span class="text-xs text-gray-500" *ngIf="r.tesista2">{{ r.tesista2 }}</span>
+              <span class="text-xs text-gray-500" *ngIf="r.tesista3">{{ r.tesista3 }}</span>
+            </div>
+          </td>
+            <td class="cell-muted">{{ r.titulo || '—' }}</td>
+            <td class="cell-muted">{{ r.tutorAcademico || '—' }}</td>
+            <td class="cell-muted">{{ r.jurado || '—' }}</td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
 </div>
+
+<app-modal-agendamiento
+  [isOpen]="modalReprogramarAbierto"
+  [proyecto]="proyectoDeDefensa(defensaSeleccionada)"
+  [juradoInicial]="defensaSeleccionada?.juradoId"
+  [tutorAcademicoInicial]="defensaSeleccionada?.tutorAcademicoId"
+  [tutorMetodologicoInicial]="defensaSeleccionada?.tutorMetodologicoId"
+  [espacioInicial]="defensaSeleccionada?.espacioFisico?.id"
+  [fechaInicial]="defensaSeleccionada?.fecha"
+  [horaInicioInicial]="defensaSeleccionada?.horaInicio"
+  [horaFinInicial]="defensaSeleccionada?.horaFin"
+  tituloModal="Sugerencias de Reprogramación"
+  botonConfirmar="Reprogramar Defensa"
+  (closeModal)="cerrarReprogramar()"
+  (confirmar)="onConfirmarReprogramar($event)"
+></app-modal-agendamiento>

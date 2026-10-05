@@ -27,7 +27,7 @@ public class EspacioFisico {
     private Boolean estatusOperativo = true;
 
     public enum TipoEspacio {
-        AULA, SALA_CONFERENCIA
+        AULA, LABORATORIO, SALA_CONFERENCIA
     }
 
     public EspacioFisico() {}

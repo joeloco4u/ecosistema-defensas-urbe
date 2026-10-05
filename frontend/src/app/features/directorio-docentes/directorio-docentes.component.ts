@@ -110,18 +110,18 @@ export class DirectorioDocentesComponent implements OnInit {
 
   proyectoEstatusClase(estatus: string): string {
     switch (estatus) {
-      case 'PENDIENTE': return 'bg-yellow-900/30 text-yellow-400';
-      case 'AGENDADO': return 'bg-blue-900/30 text-blue-400';
-      case 'DEFENDIDO': return 'bg-emerald-900/30 text-emerald-400';
+      case 'PENDIENTE': return 'bg-amber-100 text-amber-800';
+      case 'AGENDADO': return 'bg-emerald-100 text-emerald-800';
+      case 'DEFENDIDO': return 'bg-emerald-100 text-emerald-800';
       default: return 'bg-surface-light text-accent-muted';
     }
   }
 
   defensaEstatusClase(estatus: string): string {
     switch (estatus) {
-      case 'PROGRAMADA': return 'bg-blue-900/30 text-blue-400';
-      case 'REPROGRAMADA': return 'bg-yellow-900/30 text-yellow-400';
-      case 'FINALIZADA': return 'bg-emerald-900/30 text-emerald-400';
+      case 'PROGRAMADA': return 'bg-blue-100 text-blue-800';
+      case 'REPROGRAMADA': return 'bg-amber-100 text-amber-800';
+      case 'FINALIZADA': return 'bg-emerald-100 text-emerald-800';
       default: return 'bg-surface-light text-accent-muted';
     }
   }

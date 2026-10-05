@@ -2,6 +2,7 @@ package com.urbe.defensas.repositories;
 
 import com.urbe.defensas.models.Defensa;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -12,8 +13,10 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface DefensaRepository extends JpaRepository<Defensa, UUID> {
+public interface DefensaRepository extends JpaRepository<Defensa, UUID>, JpaSpecificationExecutor<Defensa> {
     List<Defensa> findByEstatus(Defensa.EstatusDefensa estatus);
+    long countByEstatus(Defensa.EstatusDefensa estatus);
+    long countByFechaBetween(LocalDate inicio, LocalDate fin);
     List<Defensa> findByEspacioFisicoIdAndFecha(UUID espacioId, LocalDate fecha);
     List<Defensa> findByFecha(LocalDate fecha);
 
@@ -43,6 +46,7 @@ public interface DefensaRepository extends JpaRepository<Defensa, UUID> {
             WHERE d.fecha = :fecha
               AND d.horaInicio < :fin
               AND d.horaFin > :inicio
+              AND (:excludedId IS NULL OR d.id <> :excludedId)
               AND (d.espacioFisico.id = :espacioId
                    OR d.juradoId IN :docentesIds
                    OR d.tutorAcademicoId IN :docentesIds
@@ -52,5 +56,6 @@ public interface DefensaRepository extends JpaRepository<Defensa, UUID> {
                                    @Param("espacioId") UUID espacioId,
                                    @Param("docentesIds") List<Long> docentesIds,
                                    @Param("inicio") LocalTime inicio,
-                                   @Param("fin") LocalTime fin);
+                                   @Param("fin") LocalTime fin,
+                                   @Param("excludedId") UUID excludedId);
 }

@@ -1,6 +1,7 @@
 package com.urbe.defensas.controllers;
 
 import com.urbe.defensas.dtos.RegistroDefensaDTO;
+import com.urbe.defensas.dtos.ReprogramacionDTO;
 import com.urbe.defensas.dtos.ReporteDefensaDTO;
 import com.urbe.defensas.models.Defensa;
 import com.urbe.defensas.services.DefensaService;
@@ -47,8 +48,8 @@ public class DefensaController {
     }
 
     @PutMapping("/{id}/reprogramar")
-    public ResponseEntity<Defensa> reprogramar(@PathVariable UUID id, @Valid @RequestBody Defensa defensa) {
-        return ResponseEntity.ok(defensaService.reprogramar(id, defensa));
+    public ResponseEntity<Defensa> reprogramar(@PathVariable UUID id, @Valid @RequestBody ReprogramacionDTO dto) {
+        return ResponseEntity.ok(defensaService.reprogramar(id, dto));
     }
 
     @PostMapping("/{id}/confirmar")

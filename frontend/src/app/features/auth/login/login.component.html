@@ -1,40 +1,108 @@
-<div class="min-h-screen bg-background-dark flex items-center justify-center">
-  <div class="w-full max-w-sm p-8">
-    <div class="text-center mb-10">
-      <h1 class="text-2xl font-light tracking-[0.2em] uppercase text-accent-white">Defensas URBE</h1>
-      <p class="text-sm text-accent-muted mt-2">Inicia sesión para continuar</p>
+<main class="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-gray-100 via-gray-50 to-[#eef2f8] px-4 py-10 sm:px-6">
+  <div class="absolute -left-24 -top-24 h-80 w-80 rounded-full bg-primary/5 blur-3xl" aria-hidden="true"></div>
+  <div class="absolute -bottom-32 -right-24 h-96 w-96 rounded-full bg-[#2571f3]/10 blur-3xl" aria-hidden="true"></div>
+
+  <section class="relative w-full max-w-md overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-[0_24px_60px_-24px_rgba(0,43,92,0.28)]">
+    <div class="h-1.5 bg-gradient-to-r from-primary via-[#002b5c] to-[#2571f3]" aria-hidden="true"></div>
+
+    <div class="p-6 sm:p-8">
+      <header class="text-center">
+        <img
+          class="mx-auto h-12 w-auto object-contain"
+          src="https://cdn.urbe.edu/portal-urbe/images/logos/urbe-hd.png"
+          alt="Universidad Privada Dr. Rafael Belloso Chacín"
+        />
+        <h1 class="mt-5 text-2xl font-bold tracking-tight text-primary">Ecosistema Digital de Defensas</h1>
+        <p class="mt-2 text-sm leading-relaxed text-gray-600">Universidad Privada Dr. Rafael Belloso Chacín</p>
+      </header>
+
+      <div class="mb-6 mt-8 text-center">
+        <h2 class="text-xl font-semibold text-[#002b5c]">Inicia sesión</h2>
+        <p class="mt-1.5 text-sm text-gray-500">Ingresa tus credenciales institucionales para continuar</p>
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-5">
+        <div>
+          <label for="email" class="mb-2 block text-sm font-medium text-gray-700">Correo electrónico</label>
+          <div class="relative">
+            <svg
+              class="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M4 6h16v12H4z"></path>
+              <path d="m4 7 8 6 8-6"></path>
+            </svg>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              placeholder="usuario@urbe.edu"
+              autocomplete="email"
+              aria-required="true"
+              class="block w-full rounded-md border border-gray-300 bg-gray-50/60 py-3 pl-11 pr-4 text-sm text-gray-900 placeholder-gray-400 transition duration-150 hover:border-gray-400 focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label for="password" class="mb-2 block text-sm font-medium text-gray-700">Contraseña</label>
+          <div class="relative">
+            <svg
+              class="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <rect width="16" height="11" x="4" y="10" rx="2"></rect>
+              <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+            </svg>
+            <input
+              id="password"
+              type="password"
+              formControlName="password"
+              placeholder="Ingresa tu contraseña"
+              autocomplete="current-password"
+              aria-required="true"
+              class="block w-full rounded-md border border-gray-300 bg-gray-50/60 py-3 pl-11 pr-4 text-sm text-gray-900 placeholder-gray-400 transition duration-150 hover:border-gray-400 focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          [disabled]="loginForm.invalid || loading"
+          class="inline-flex w-full items-center justify-center rounded-md bg-primary px-4 py-3 text-sm font-semibold text-[var(--urbe-white)] shadow-sm transition-all duration-100 hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
+        >
+          {{ loading ? 'Ingresando…' : 'Iniciar sesión' }}
+        </button>
+      </form>
+
+      <div class="mt-8 flex items-center justify-center gap-2 border-t border-gray-100 pt-5 text-center text-xs text-gray-500">
+        <svg
+          class="h-4 w-4 shrink-0 text-primary"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <rect width="16" height="11" x="4" y="10" rx="2"></rect>
+          <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+        </svg>
+        <span>Acceso exclusivo para la comunidad universitaria</span>
+      </div>
     </div>
-
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
-      <div>
-        <label for="email" class="block text-xs uppercase tracking-widest text-accent-muted mb-2">Correo electrónico</label>
-        <input
-          id="email"
-          type="email"
-          formControlName="email"
-          placeholder="usuario@urbe.edu"
-          class="w-full bg-surface-dark border border-surface-border rounded-sm px-4 py-2.5 text-sm text-accent-white placeholder-accent-subtle focus:outline-none focus:border-accent-white focus:ring-1 focus:ring-accent-white transition-colors"
-        />
-      </div>
-
-      <div>
-        <label for="password" class="block text-xs uppercase tracking-widest text-accent-muted mb-2">Contraseña</label>
-        <input
-          id="password"
-          type="password"
-          formControlName="password"
-          placeholder="&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;"
-          class="w-full bg-surface-dark border border-surface-border rounded-sm px-4 py-2.5 text-sm text-accent-white placeholder-accent-subtle focus:outline-none focus:border-accent-white focus:ring-1 focus:ring-accent-white transition-colors"
-        />
-      </div>
-
-      <button
-        type="submit"
-        [disabled]="loginForm.invalid || loading"
-        class="w-full py-2.5 text-sm uppercase tracking-widest border border-accent-white text-accent-white bg-transparent rounded-sm hover:bg-accent-white hover:text-background-dark transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-      >
-        {{ loading ? 'Ingresando…' : 'Iniciar sesión' }}
-      </button>
-    </form>
-  </div>
-</div>
+  </section>
+</main>

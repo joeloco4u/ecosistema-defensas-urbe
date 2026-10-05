@@ -1,23 +1,28 @@
 package com.urbe.defensas.services;
 
 import com.urbe.defensas.dtos.RegistroDefensaDTO;
+import com.urbe.defensas.dtos.ReprogramacionDTO;
 import com.urbe.defensas.dtos.ReporteDefensaDTO;
 import com.urbe.defensas.exceptions.ConflictException;
 import com.urbe.defensas.models.Defensa;
 import com.urbe.defensas.models.Docente;
 import com.urbe.defensas.models.EspacioFisico;
+import com.urbe.defensas.models.JuradoDefensa;
 import com.urbe.defensas.models.Proyecto;
 import com.urbe.defensas.repositories.DefensaRepository;
 import com.urbe.defensas.repositories.DocenteRepository;
 import com.urbe.defensas.repositories.EspacioFisicoRepository;
 import com.urbe.defensas.repositories.HorarioClaseRepository;
+import com.urbe.defensas.repositories.JuradoDefensaRepository;
 import com.urbe.defensas.repositories.ProyectoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,17 +35,20 @@ public class DefensaService {
     private final EspacioFisicoRepository espacioFisicoRepository;
     private final DocenteRepository docenteRepository;
     private final HorarioClaseRepository horarioClaseRepository;
+    private final JuradoDefensaRepository juradoDefensaRepository;
 
     public DefensaService(DefensaRepository defensaRepository,
                           ProyectoRepository proyectoRepository,
                           EspacioFisicoRepository espacioFisicoRepository,
                           DocenteRepository docenteRepository,
-                          HorarioClaseRepository horarioClaseRepository) {
+                          HorarioClaseRepository horarioClaseRepository,
+                          JuradoDefensaRepository juradoDefensaRepository) {
         this.defensaRepository = defensaRepository;
         this.proyectoRepository = proyectoRepository;
         this.espacioFisicoRepository = espacioFisicoRepository;
         this.docenteRepository = docenteRepository;
         this.horarioClaseRepository = horarioClaseRepository;
+        this.juradoDefensaRepository = juradoDefensaRepository;
     }
 
     public Defensa programar(RegistroDefensaDTO dto) {
@@ -49,7 +57,12 @@ public class DefensaService {
         EspacioFisico espacio = espacioFisicoRepository.findById(dto.getEspacioId())
                 .orElseThrow(() -> new RuntimeException("Espacio físico no encontrado"));
 
-        validarSinChoqueDeClases(dto);
+        List<Long> docentesIds = new ArrayList<>();
+        if (dto.getJuradoId() != null) docentesIds.add(dto.getJuradoId());
+        if (dto.getTutorAcademicoId() != null) docentesIds.add(dto.getTutorAcademicoId());
+        if (dto.getTutorMetodologicoId() != null) docentesIds.add(dto.getTutorMetodologicoId());
+        validarDisponibilidad(dto.getFecha(), dto.getEspacioId(), docentesIds,
+                dto.getHoraInicio(), dto.getHoraFin(), null);
 
         Defensa defensa = new Defensa();
         defensa.setProyecto(proyecto);
@@ -63,6 +76,8 @@ public class DefensaService {
         defensa.setEstatus(Defensa.EstatusDefensa.PROGRAMADA);
 
         Defensa guardada = defensaRepository.save(defensa);
+        sincronizarJurados(guardada,
+                Arrays.asList(dto.getJuradoId(), dto.getTutorAcademicoId(), dto.getTutorMetodologicoId()));
 
         proyecto.setEstatus(Proyecto.EstatusProyecto.AGENDADO);
         proyectoRepository.save(proyecto);
@@ -70,15 +85,31 @@ public class DefensaService {
         return guardada;
     }
 
-    public Defensa reprogramar(UUID id, Defensa defensa) {
+    public Defensa reprogramar(UUID id, ReprogramacionDTO dto) {
         Defensa existente = defensaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Defensa no encontrada"));
-        existente.setFecha(defensa.getFecha());
-        existente.setHoraInicio(defensa.getHoraInicio());
-        existente.setHoraFin(defensa.getHoraFin());
-        existente.setEspacioFisico(defensa.getEspacioFisico());
-        existente.setEstatus(defensa.getEstatus());
-        return defensaRepository.save(existente);
+
+        List<Long> docentesIds = dto.getJuradosIds() != null ? dto.getJuradosIds() : List.of();
+        validarDisponibilidad(dto.getFecha(), dto.getEspacioId(), docentesIds,
+                dto.getHoraInicio(), dto.getHoraFin(), id);
+
+        EspacioFisico espacio = espacioFisicoRepository.findById(dto.getEspacioId())
+                .orElseThrow(() -> new RuntimeException("Espacio físico no encontrado"));
+
+        existente.setFecha(dto.getFecha());
+        existente.setHoraInicio(dto.getHoraInicio());
+        existente.setHoraFin(dto.getHoraFin());
+        existente.setEspacioFisico(espacio);
+
+        existente.setJuradoId(valorEn(docentesIds, 0));
+        existente.setTutorAcademicoId(valorEn(docentesIds, 1));
+        existente.setTutorMetodologicoId(valorEn(docentesIds, 2));
+        existente.setEstatus(Defensa.EstatusDefensa.REPROGRAMADA);
+
+        Defensa actualizada = defensaRepository.save(existente);
+        sincronizarJurados(actualizada, docentesIds);
+
+        return actualizada;
     }
 
     public Defensa confirmar(UUID id) {
@@ -109,21 +140,53 @@ public class DefensaService {
                 .toList();
     }
 
-    private void validarSinChoqueDeClases(RegistroDefensaDTO dto) {
-        List<Long> docentesIds = new ArrayList<>();
-        if (dto.getTutorAcademicoId() != null) docentesIds.add(dto.getTutorAcademicoId());
-        if (dto.getTutorMetodologicoId() != null) docentesIds.add(dto.getTutorMetodologicoId());
-        if (dto.getJuradoId() != null) docentesIds.add(dto.getJuradoId());
+    private void validarDisponibilidad(LocalDate fecha, UUID espacioId, List<Long> docentesIds,
+                                       LocalTime horaInicio, LocalTime horaFin, UUID excludedId) {
+        String dia = diaSemanaEspanol(fecha);
 
-        String dia = diaSemanaEspanol(dto.getFecha());
-        boolean conflicto = horarioClaseRepository.existeChoqueDeClases(
-                dia, dto.getEspacioId(), docentesIds, dto.getHoraInicio(), dto.getHoraFin());
-
-        if (conflicto) {
+        boolean choqueClases = horarioClaseRepository.existeChoqueDeClases(
+                dia, espacioId, docentesIds, horaInicio, horaFin);
+        if (choqueClases) {
             throw new ConflictException(
                     "Conflicto de horario: el docente o el espacio ya están ocupados con clases regulares "
-                            + "el " + dia + " de " + dto.getHoraInicio() + " a " + dto.getHoraFin() + ".");
+                            + "el " + dia + " de " + horaInicio + " a " + horaFin + ".");
         }
+
+        boolean choqueDefensas = defensaRepository.existeDefensaEnHorario(
+                fecha, espacioId, docentesIds, horaInicio, horaFin, excludedId);
+        if (choqueDefensas) {
+            throw new ConflictException(
+                    "Conflicto de horario: el espacio o alguno de los docentes seleccionados ya está asignado "
+                            + "a otra defensa el " + fecha + " de " + horaInicio + " a " + horaFin + ".");
+        }
+    }
+
+    private void sincronizarJurados(Defensa defensa, List<Long> juradosIds) {
+        juradoDefensaRepository.deleteByDefensaId(defensa.getId());
+        if (juradosIds == null || juradosIds.isEmpty()) return;
+
+        JuradoDefensa.RolJurado[] roles = {
+                JuradoDefensa.RolJurado.PRESIDENTE,
+                JuradoDefensa.RolJurado.PRINCIPAL,
+                JuradoDefensa.RolJurado.SUPLENTE
+        };
+
+        for (int i = 0; i < juradosIds.size() && i < roles.length; i++) {
+            Long docenteId = juradosIds.get(i);
+            if (docenteId == null) continue;
+            JuradoDefensa.RolJurado rolActual = roles[i];
+            docenteRepository.findById(docenteId).ifPresent(docente -> {
+                JuradoDefensa juradoDefensa = new JuradoDefensa();
+                juradoDefensa.setDefensa(defensa);
+                juradoDefensa.setDocente(docente);
+                juradoDefensa.setRolJurado(rolActual);
+                juradoDefensaRepository.save(juradoDefensa);
+            });
+        }
+    }
+
+    private Long valorEn(List<Long> lista, int indice) {
+        return lista != null && lista.size() > indice ? lista.get(indice) : null;
     }
 
     private String diaSemanaEspanol(LocalDate fecha) {
@@ -151,9 +214,9 @@ public class DefensaService {
         Proyecto proyecto = defensa.getProyecto();
         if (proyecto != null) {
             reporte.setTitulo(proyecto.getTitulo());
-            if (proyecto.getEstudiante() != null) {
-                reporte.setTesista(proyecto.getEstudiante().getNombres() + " " + proyecto.getEstudiante().getApellidos());
-            }
+            reporte.setTesista(nombreCompleto(proyecto.getEstudiante()));
+            reporte.setTesista2(nombreCompleto(proyecto.getEstudiante2()));
+            reporte.setTesista3(nombreCompleto(proyecto.getEstudiante3()));
         }
 
         reporte.setTutorAcademico(resolverDocente(defensa.getTutorAcademicoId()));
@@ -164,5 +227,17 @@ public class DefensaService {
     private String resolverDocente(Long id) {
         if (id == null) return null;
         return docenteRepository.findById(id).map(Docente::getNombreCompleto).orElse(null);
+    }
+
+    private String nombreCompleto(com.urbe.defensas.models.Estudiante estudiante) {
+        if (estudiante == null) return null;
+        List<String> partes = new ArrayList<>();
+        if (estudiante.getNombres() != null && !estudiante.getNombres().isBlank()) {
+            partes.add(estudiante.getNombres());
+        }
+        if (estudiante.getApellidos() != null && !estudiante.getApellidos().isBlank()) {
+            partes.add(estudiante.getApellidos());
+        }
+        return partes.isEmpty() ? null : String.join(" ", partes);
     }
 }

@@ -10,7 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class BackupService {
 
     private static final String[] ENCABEZADOS = {
-            "ID_Proyecto", "Expediente", "Nombres_Tesista", "Apellidos_Tesista",
+            "ID_Proyecto", "Expediente",
+            "Nombres_Tesista", "Apellidos_Tesista", "Cedula_Tesista",
+            "Nombres_Tesista2", "Cedula_Tesista2",
+            "Nombres_Tesista3", "Cedula_Tesista3",
             "Titulo", "Escuela", "Tutor", "Estatus"
     };
 
@@ -25,15 +28,24 @@ public class BackupService {
         csv.append(String.join(",", ENCABEZADOS)).append('\n');
 
         for (Proyecto proyecto : proyectoRepository.findAll()) {
-            String expediente = proyecto.getEstudiante() != null ? proyecto.getEstudiante().getCedula() : null;
-            String nombres = proyecto.getEstudiante() != null ? proyecto.getEstudiante().getNombres() : null;
-            String apellidos = proyecto.getEstudiante() != null ? proyecto.getEstudiante().getApellidos() : null;
+            String cedula1 = proyecto.getEstudiante() != null ? proyecto.getEstudiante().getCedula() : null;
+            String nombres1 = proyecto.getEstudiante() != null ? proyecto.getEstudiante().getNombres() : null;
+            String apellidos1 = proyecto.getEstudiante() != null ? proyecto.getEstudiante().getApellidos() : null;
+            String nombres2 = proyecto.getEstudiante2() != null ? proyecto.getEstudiante2().getNombres() : null;
+            String cedula2 = proyecto.getEstudiante2() != null ? proyecto.getEstudiante2().getCedula() : null;
+            String nombres3 = proyecto.getEstudiante3() != null ? proyecto.getEstudiante3().getNombres() : null;
+            String cedula3 = proyecto.getEstudiante3() != null ? proyecto.getEstudiante3().getCedula() : null;
             String tutor = proyecto.getTutor() != null ? proyecto.getTutor().getNombreCompleto() : null;
 
             csv.append(campo(proyecto.getId() != null ? proyecto.getId().toString() : null)).append(',')
-                    .append(campo(expediente)).append(',')
-                    .append(campo(nombres)).append(',')
-                    .append(campo(apellidos)).append(',')
+                    .append(campo(proyecto.getExpediente())).append(',')
+                    .append(campo(nombres1)).append(',')
+                    .append(campo(apellidos1)).append(',')
+                    .append(campo(cedula1)).append(',')
+                    .append(campo(nombres2)).append(',')
+                    .append(campo(cedula2)).append(',')
+                    .append(campo(nombres3)).append(',')
+                    .append(campo(cedula3)).append(',')
                     .append(campo(proyecto.getTitulo())).append(',')
                     .append(campo(proyecto.getEscuela())).append(',')
                     .append(campo(tutor)).append(',')
