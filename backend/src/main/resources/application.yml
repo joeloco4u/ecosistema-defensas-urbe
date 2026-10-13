@@ -30,6 +30,9 @@ app:
   scheduler:
     consumir-institucional: "0 0 6 * * ?"
 
+  periodo-academico:
+    inicio: "2026-08-24"
+
 logging:
   level:
     com.urbe.defensas: DEBUG

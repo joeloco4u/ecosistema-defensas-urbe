@@ -1,0 +1,108 @@
+<div class="bg-white text-black p-8 min-h-screen" style="font-family: 'Times New Roman', Times, serif;">
+  <style>
+    .predefensa-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .predefensa-table th,
+    .predefensa-table td {
+      border: 1px solid #000;
+      border-color: #000;
+      color: #000;
+      padding: 4px 5px;
+      vertical-align: top;
+      word-wrap: break-word;
+    }
+    .predefensa-table thead th {
+      background-color: #e5e7eb;
+      text-align: center;
+      font-weight: bold;
+      font-size: 9px;
+      text-transform: uppercase;
+    }
+    .predefensa-table td { font-size: 10px; }
+    .predefensa-check { width: 20px; }
+    .predefensa-grupo { width: 24%; }
+    .predefensa-exp { width: 9%; }
+
+    @media print {
+      @page { size: landscape; margin: 10mm; }
+      html,
+      body {
+        background-color: #fff !important;
+      }
+      body {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        background-color: white !important;
+      }
+      main {
+        overflow: visible !important;
+      }
+      .predefensa-table th,
+      .predefensa-table td {
+        border-color: #000 !important;
+        color: #000 !important;
+      }
+    }
+  </style>
+
+  <h1 class="text-center text-sm font-bold uppercase tracking-wide mb-4">Pre-Defensas TEG de Ingeniería</h1>
+
+  <div class="text-[10px] leading-relaxed mb-3">
+    <p>Escuela: {{ escuela }}</p>
+    <p>Sección: _______________</p>
+    <p>Tutor Metodológico: _______________</p>
+  </div>
+
+  <table class="predefensa-table">
+    <colgroup>
+      <col class="predefensa-grupo" />
+      <col class="predefensa-exp" />
+      <col />
+      <col class="predefensa-check" />
+      <col />
+      <col class="predefensa-check" />
+      <col />
+      <col class="predefensa-check" />
+    </colgroup>
+    <thead>
+      <tr>
+        <th rowspan="2">Grupo</th>
+        <th rowspan="2">N° Exp.</th>
+        <th colspan="2">Cumplimiento de Objetivos</th>
+        <th colspan="2">Cumplimiento de Fases Metodológicas</th>
+        <th colspan="2">Presentación de Propuesta</th>
+      </tr>
+      <tr>
+        <th>Observaciones</th>
+        <th></th>
+        <th>Observaciones</th>
+        <th></th>
+        <th>Observaciones</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let d of defensas">
+        <td>
+          <span class="block">{{ tesistas(d) }}</span>
+          <span class="block font-bold mt-1">Tutor Académico: {{ tutorAcademico(d) }}</span>
+        </td>
+        <td>{{ d.proyecto?.expediente || '—' }}</td>
+        <td></td>
+        <td class="predefensa-check"></td>
+        <td></td>
+        <td class="predefensa-check"></td>
+        <td></td>
+        <td class="predefensa-check"></td>
+      </tr>
+      <tr *ngIf="!cargando && defensas.length === 0">
+        <td colspan="8" class="text-center">No hay proyectos para listar.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="text-[10px] mt-6 flex flex-wrap justify-between gap-4">
+    <span>Fecha: //___</span>
+    <span>Evaluador: ______________________</span>
+    <span>Coordinador de TEG de Ingeniería: ______________________</span>
+  </div>
+</div>

@@ -42,6 +42,11 @@ const routes: Routes = [
     loadChildren: () => import('./features/documentos/documentos.module').then(m => m.DocumentosModule),
     canActivate: [AuthGuard],
   },
+  {
+    path: 'imprimir/pre-defensa/:escuela',
+    loadComponent: () => import('./features/documentos/pre-defensa-print/pre-defensa-print.component').then(m => m.PreDefensaPrintComponent),
+    canActivate: [AuthGuard],
+  },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' },
 ];

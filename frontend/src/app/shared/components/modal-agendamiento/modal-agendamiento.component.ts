@@ -68,6 +68,7 @@ export class ModalAgendamientoComponent implements OnChanges {
   franjaActual: SugerenciaHorario | null = null;
 cargando = false;
   isSearching = false;
+  busquedaRealizada = false;
 
   docentes: any[] = [];
   espacios: any[] = [];
@@ -75,6 +76,8 @@ cargando = false;
   tutorAcademicoId: number | null = null;
   tutorMetodologicoId: number | null = null;
   espacioId = '';
+  semanas: number[] = Array.from({ length: 14 }, (_, i) => i + 1);
+  semanaSeleccionada: number = 12;
   sugerenciasJurado: TutorSugerido[] = [];
   juradosSugeridosIds = new Set<number>();
 
@@ -134,6 +137,7 @@ cargando = false;
       this.cargarSugerenciasJurado();
       this.cargando = false;
       this.isSearching = false;
+      this.busquedaRealizada = false;
     }
   }
 
@@ -186,6 +190,7 @@ cargando = false;
   buscarDisponibilidad(): void {
     if (!this.juradoId || !this.tutorAcademicoId || !this.tutorMetodologicoId || !this.espacioId) return;
     this.isSearching = true;
+    this.busquedaRealizada = false;
     this.cargando = true;
     this.sugerencias = [];
     this.franjasAgrupadas = new Map<string, SugerenciaHorario[]>();
@@ -195,7 +200,7 @@ cargando = false;
       this.getCedula(this.tutorAcademicoId),
       this.getCedula(this.tutorMetodologicoId),
     ].filter((c): c is string => !!c);
-    this.programacionService.getSugerencias(cedulas, this.espacioId).subscribe({
+    this.programacionService.getSugerencias(cedulas, this.espacioId, this.semanaSeleccionada, this.proyecto?.id).subscribe({
       next: (data) => {
         this.sugerencias = data.map(item => ({
           fecha: item.fecha,
@@ -206,10 +211,12 @@ cargando = false;
         this.franjasAgrupadas = this.agruparPorFecha(this.sugerencias);
         this.cargando = false;
         this.isSearching = false;
+        this.busquedaRealizada = true;
       },
       error: () => {
         this.cargando = false;
         this.isSearching = false;
+        this.busquedaRealizada = true;
       }
     });
   }

@@ -20,6 +20,9 @@ public class HorarioClase {
     @Column(name = "espacio_id")
     private UUID espacioId;
 
+    @Column(name = "estudiante_id")
+    private UUID estudianteId;
+
     @Column(name = "dia_semana", length = 15)
     private String diaSemana;
 
@@ -37,6 +40,8 @@ public class HorarioClase {
     public void setDocenteId(Long docenteId) { this.docenteId = docenteId; }
     public UUID getEspacioId() { return espacioId; }
     public void setEspacioId(UUID espacioId) { this.espacioId = espacioId; }
+    public UUID getEstudianteId() { return estudianteId; }
+    public void setEstudianteId(UUID estudianteId) { this.estudianteId = estudianteId; }
     public String getDiaSemana() { return diaSemana; }
     public void setDiaSemana(String diaSemana) { this.diaSemana = diaSemana; }
     public LocalTime getHoraInicio() { return horaInicio; }

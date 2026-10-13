@@ -3,82 +3,76 @@
   <div class="print:hidden">
     <p class="urbe-kicker">Módulo de Documentos</p>
     <h2 class="urbe-page-title mt-1">Documentos Oficiales</h2>
-    <p class="urbe-page-subtitle">Genere veredictos de defensa a partir del expediente del proyecto</p>
+    <p class="urbe-page-subtitle">Genere veredictos de defensa por escuela</p>
   </div>
 
-  <!-- Buscador por Expediente -->
-  <div class="urbe-card p-6 space-y-4 print:hidden">
-    <label class="urbe-field-label block">Buscar por Expediente</label>
-    <div class="flex flex-col sm:flex-row gap-3">
-      <input
-        type="text"
-        [(ngModel)]="terminoBusqueda"
-        (ngModelChange)="buscar()"
-        (keyup.enter)="buscar()"
-        class="urbe-field w-full text-lg"
-      />
-      <button
-        type="button"
-        (click)="buscar()"
-        class="urbe-btn urbe-btn-primary whitespace-nowrap"
+  <!-- Filtro por Escuela -->
+  <div class="urbe-toolbar p-4 flex flex-col sm:flex-row sm:items-center gap-4 print:hidden">
+    <label class="urbe-field-label whitespace-nowrap">Filtrar por Escuela</label>
+    <div class="w-full sm:w-auto min-w-[240px]">
+      <select
+        class="urbe-select w-full"
+        [(ngModel)]="escuelaSeleccionada"
+        (ngModelChange)="onEscuelaChange()"
       >
-        Buscar
-      </button>
+        <option value="Todas">Todas las Escuelas</option>
+        <option *ngFor="let e of escuelas" [value]="e">{{ e }}</option>
+      </select>
     </div>
-
-    <div *ngIf="resultadosBusqueda.length > 0" class="divide-y divide-surface-border rounded-md border border-surface-border overflow-hidden">
-      <button
-        *ngFor="let d of resultadosBusqueda"
-        type="button"
-        (click)="seleccionar(d)"
-        class="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1"
-      >
-        <span class="flex flex-col">
-          <span class="text-sm font-bold text-gray-900 uppercase">{{ d.proyecto?.expediente || 'Sin expediente' }}</span>
-          <span class="text-sm text-gray-700">{{ d.proyecto?.titulo || 'Sin título' }}</span>
-          <span class="text-xs text-gray-500">{{ tesistas(d) }}</span>
-        </span>
-        <span class="text-xs text-gray-500 sm:text-right">
-          {{ formatFecha(d.fecha) }} · {{ formatHora(d.horaInicio) }}
-        </span>
-      </button>
-    </div>
-
-    <p *ngIf="busquedaRealizada && resultadosBusqueda.length === 0" class="text-sm text-gray-500">
-      No se encontraron proyectos con ese expediente.
-    </p>
+    <button
+      type="button"
+      (click)="imprimirPreDefensa()"
+      class="urbe-btn bg-[#002b5c] text-[#fff] hover:brightness-110 transition-all duration-100 ease-in-out active:scale-[0.98] w-full sm:w-auto sm:ml-auto"
+    >
+      Planilla Pre-Defensas
+    </button>
   </div>
 
-  <!-- Bandeja Rápida -->
-  <div class="urbe-card p-6 space-y-4 print:hidden">
-    <div class="flex items-center justify-between">
-      <h3 class="text-base font-semibold text-primary">Próximas Defensas (Próximos 7 días)</h3>
-      <span *ngIf="!cargando" class="text-sm text-gray-500">{{ proximas.length }} defensa(s)</span>
-    </div>
-
-    <p *ngIf="cargando" class="urbe-empty">Cargando defensas...</p>
-    <p *ngIf="error" class="text-sm text-red-600">{{ error }}</p>
-    <p *ngIf="!cargando && !error && proximas.length === 0" class="urbe-empty">
-      No hay defensas programadas en los próximos 7 días.
-    </p>
-
-    <div *ngIf="!cargando && proximas.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-      <button
-        *ngFor="let d of proximas"
-        type="button"
-        (click)="seleccionar(d)"
-        class="text-left rounded-md border border-surface-border bg-surface p-4 hover:border-[#002b5c] hover:shadow-sm transition-all"
-      >
-        <div class="flex items-center justify-between gap-2">
-          <span class="text-sm font-bold text-gray-900 uppercase">{{ d.proyecto?.expediente || 'Sin expediente' }}</span>
-          <span class="text-xs font-semibold text-[#8A1538] whitespace-nowrap">{{ formatFecha(d.fecha) }}</span>
-        </div>
-        <p class="mt-1 text-sm text-gray-700 line-clamp-2">{{ d.proyecto?.titulo || 'Sin título' }}</p>
-        <p class="mt-2 text-xs text-gray-500">
-          {{ formatHora(d.horaInicio) }} - {{ formatHora(d.horaFin) }} · {{ d.espacioFisico?.codigoAula || 'Sin espacio' }}
-        </p>
-      </button>
-    </div>
+  <!-- Resultados por Escuela -->
+  <div class="urbe-card overflow-hidden print:hidden">
+    <table class="urbe-datagrid">
+      <thead>
+        <tr>
+          <th>Expediente</th>
+          <th>Título</th>
+          <th>Tutor</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let d of defensasEscuela">
+          <td class="cell-strong">
+            <span class="text-sm font-bold text-gray-900 uppercase">{{ d.proyecto?.expediente || 'Sin Asignar' }}</span>
+          </td>
+          <td class="cell-muted">{{ d.proyecto?.titulo || 'Sin título' }}</td>
+          <td class="cell-muted">{{ tutorAcademico(d) }}</td>
+          <td>
+            <div class="flex items-center">
+              <button
+                (click)="seleccionar(d)"
+                class="urbe-btn urbe-btn-sm bg-[#002b5c] text-[#fff] hover:brightness-110 transition-all duration-100 ease-in-out active:scale-[0.98]"
+              >
+                VEREDICTO
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="cargando">
+          <td colspan="4" class="urbe-empty">Cargando proyectos...</td>
+        </tr>
+        <tr *ngIf="!cargando && error">
+          <td colspan="4" class="urbe-empty text-red-600">{{ error }}</td>
+        </tr>
+        <tr *ngIf="!cargando && !error && escuelaSeleccionada === 'Todas'">
+          <td colspan="4" class="urbe-empty">Seleccione una escuela para listar sus proyectos.</td>
+        </tr>
+        <tr *ngIf="!cargando && !error && escuelaSeleccionada !== 'Todas' && defensasEscuela.length === 0">
+          <td colspan="4" class="urbe-empty">
+            No se encontraron proyectos para la escuela seleccionada.
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
   <!-- Vista previa / Impresión -->
@@ -95,92 +89,71 @@
     </div>
 
     <!-- Hoja A4 -->
-    <div class="documento-print-area print-area mx-auto w-full max-w-[794px] aspect-[210/297] bg-white text-gray-900 shadow-2xl rounded-sm p-10 overflow-hidden">
-      <header class="text-center border-b-2 border-[#8A1538] pb-3 mb-6">
-        <p class="text-[10px] font-semibold tracking-[0.2em] text-[#8A1538] uppercase">Universidad Privada Dr. Rafael Belloso Chacín</p>
-        <p class="text-[9px] tracking-wide text-gray-500 uppercase">Decanato de Investigación y Postgrado</p>
-        <h1 class="mt-3 text-2xl font-black tracking-wide text-gray-900">VEREDICTO DE DEFENSA</h1>
+    <div
+      class="documento-print-area print-area mx-auto w-full max-w-[794px] aspect-[210/297] bg-white text-gray-900 shadow-2xl rounded-sm p-12 overflow-hidden"
+      style="font-family: 'Times New Roman', Times, serif;"
+    >
+
+      <!-- Encabezado -->
+      <header class="flex items-start justify-between gap-6 mb-10">
+        <div class="w-28 h-20 flex items-center justify-start shrink-0">
+          <img
+            src="https://cdn.urbe.edu/portal-urbe/images/logos/urbe-hd.png"
+            alt="Logo URBE"
+            class="max-h-full max-w-full object-contain"
+          />
+        </div>
+        <div class="flex-1 text-center pt-3">
+          <p class="text-sm font-bold uppercase tracking-wide">Facultad de Ingeniería</p>
+          <p class="text-sm font-bold uppercase tracking-wide mt-1">Escuela de {{ def.proyecto?.escuela || '—' }}</p>
+        </div>
+        <div class="w-28 shrink-0"></div>
       </header>
 
-      <p class="text-[11px] leading-relaxed text-justify mb-5">
-        Quienes suscriben, miembros del jurado examinador designado para evaluar la defensa del Trabajo Especial de Grado,
-        hacen constar que el proyecto identificado con el expediente
-        <span class="font-bold uppercase">{{ def.proyecto?.expediente || '—' }}</span>,
-        titulado «<span class="font-semibold">{{ def.proyecto?.titulo || 'Sin título' }}</span>»,
-        presentado por el(la) (los) ciudadano(a)(s)
-        <span class="font-semibold">{{ tesistas(def) }}</span>,
-        fue defendido satisfactoriamente ante este jurado.
+      <!-- Título -->
+      <h1 class="text-center text-2xl font-bold uppercase tracking-[0.35em] mb-10">Veredicto</h1>
+
+      <!-- Cuerpo -->
+      <p class="text-justify leading-loose text-[13px] mb-12">
+        Nosotros, los profesores, {{ tutorAcademico(def) }}, y {{ tutorMetodologico(def) }}, designados como jurado
+        examinador del Proyecto de Investigación titulado: "{{ def.proyecto?.titulo || '—' }}" que presenta(n) el/los
+        bachiller(es): {{ tesistas(def) }}, nos hemos reunido para revisar dicho trabajo y después del interrogatorio
+        correspondiente, lo hemos APROBADO con la calificación de ______ (   ) puntos, de acuerdo con las normas
+        vigentes establecidas por el Consejo Académico de la UNIVERSIDAD PRIVADA DR. RAFAEL BELLOSO CHACÍN, para la
+        evaluación de los Trabajos Especiales de Grado, para obtener el Título de Ingeniero(a) en
+        {{ def.proyecto?.escuela || '—' }}.
       </p>
 
-      <section class="grid grid-cols-2 gap-x-6 gap-y-3 text-[11px] mb-6">
-        <div>
-          <p class="text-[9px] font-semibold uppercase tracking-wider text-gray-500">Expediente</p>
-          <p class="font-bold uppercase">{{ def.proyecto?.expediente || '—' }}</p>
-        </div>
-        <div>
-          <p class="text-[9px] font-semibold uppercase tracking-wider text-gray-500">Escuela</p>
-          <p class="font-bold">{{ def.proyecto?.escuela || '—' }}</p>
-        </div>
-        <div class="col-span-2">
-          <p class="text-[9px] font-semibold uppercase tracking-wider text-gray-500">Título del Proyecto</p>
-          <p class="font-bold">{{ def.proyecto?.titulo || 'Sin título' }}</p>
-        </div>
-        <div class="col-span-2">
-          <p class="text-[9px] font-semibold uppercase tracking-wider text-gray-500">Tesistas</p>
-          <p class="font-bold">{{ tesistas(def) }}</p>
-        </div>
-        <div>
-          <p class="text-[9px] font-semibold uppercase tracking-wider text-gray-500">Tutor Académico</p>
-          <p class="font-bold">{{ tutorAcademico(def) }}</p>
-        </div>
-        <div>
-          <p class="text-[9px] font-semibold uppercase tracking-wider text-gray-500">Tutor Metodológico</p>
-          <p class="font-bold">{{ tutorMetodologico(def) }}</p>
-        </div>
-        <div class="col-span-2">
-          <p class="text-[9px] font-semibold uppercase tracking-wider text-gray-500">Jurado</p>
-          <p class="font-bold">{{ jurado(def) }}</p>
-        </div>
-        <div>
-          <p class="text-[9px] font-semibold uppercase tracking-wider text-gray-500">Fecha</p>
-          <p class="font-bold">{{ formatFechaLarga(def.fecha) }}</p>
-        </div>
-        <div>
-          <p class="text-[9px] font-semibold uppercase tracking-wider text-gray-500">Hora</p>
-          <p class="font-bold">{{ formatHora(def.horaInicio) }} - {{ formatHora(def.horaFin) }}</p>
-        </div>
-        <div class="col-span-2">
-          <p class="text-[9px] font-semibold uppercase tracking-wider text-gray-500">Espacio</p>
-          <p class="font-bold">{{ def.espacioFisico?.codigoAula || '—' }}</p>
-        </div>
-      </section>
-
-      <p class="text-[11px] leading-relaxed text-justify mb-10">
-        Se otorga al proyecto la calificación de
-        <span class="inline-block w-40 border-b border-gray-400 align-bottom"></span>
-        puntos, considerándose <span class="font-bold uppercase">Aprobado</span>.
-        En fe de lo anterior, se levanta la presente acta en la ciudad de Maracaibo,
-        a los {{ formatFechaLarga(def.fecha) }}.
+      <!-- Fecha -->
+      <p class="text-justify leading-loose text-[13px] mb-16" *ngIf="fechaPartes(def.fecha) as f">
+        En fe de lo cual firmamos en Maracaibo, a los {{ f.dia }} días del mes de {{ f.mes }} de {{ f.anio }}.
       </p>
 
-      <div class="grid grid-cols-3 gap-6 mt-12 text-center text-[10px]">
+      <!-- Firmas -->
+      <div class="grid grid-cols-3 gap-8 mt-8 text-center text-[11px]">
         <div>
-          <div class="border-t border-gray-400 pt-1 font-semibold">{{ tutorAcademico(def) }}</div>
-          <div class="text-gray-500">Tutor Académico</div>
+          <div class="border-t border-black mb-3"></div>
+          <p class="font-bold">C.I. ____________</p>
+          <p class="font-bold uppercase mt-1">Jurado</p>
         </div>
         <div>
-          <div class="border-t border-gray-400 pt-1 font-semibold">{{ jurado(def) }}</div>
-          <div class="text-gray-500">Jurado Principal</div>
+          <div class="border-t border-black mb-3"></div>
+          <p class="font-bold uppercase leading-tight">{{ tutorAcademico(def) }}</p>
+          <p class="font-bold mt-1">C.I. ____________</p>
+          <p class="font-bold uppercase mt-1">Tutor Académico</p>
         </div>
         <div>
-          <div class="border-t border-gray-400 pt-1 font-semibold">{{ tutorMetodologico(def) }}</div>
-          <div class="text-gray-500">Tutor Metodológico</div>
+          <div class="border-t border-black mb-3"></div>
+          <p class="font-bold uppercase leading-tight">{{ tutorMetodologico(def) }}</p>
+          <p class="font-bold mt-1">C.I. ____________</p>
+          <p class="font-bold uppercase mt-1">Tutor Metodológico</p>
         </div>
       </div>
     </div>
   </div>
 
   <div *ngIf="!seleccionada" class="urbe-card urbe-empty p-10 text-center text-gray-500 print:hidden">
-    Busque un expediente o seleccione una defensa próxima para generar el veredicto.
+    Seleccione una escuela y pulse VEREDICTO para generar el documento.
   </div>
 </div>
+

@@ -58,4 +58,23 @@ public interface DefensaRepository extends JpaRepository<Defensa, UUID>, JpaSpec
                                    @Param("inicio") LocalTime inicio,
                                    @Param("fin") LocalTime fin,
                                    @Param("excludedId") UUID excludedId);
+
+    /**
+     * Verificación estricta de la reserva EXACTA (fecha + aula + hora de inicio).
+     * Se usa como último filtro justo antes de persistir una defensa, ya bajo el
+     * bloqueo pesimista del aula, para cerrar la ventana de carrera entre
+     * transacciones concurrentes.
+     */
+    @Query("""
+            SELECT CASE WHEN COUNT(d) > 0 THEN TRUE ELSE FALSE END
+            FROM Defensa d
+            WHERE d.fecha = :fecha
+              AND d.espacioFisico.id = :espacioId
+              AND d.horaInicio = :horaInicio
+              AND (:excludedId IS NULL OR d.id <> :excludedId)
+            """)
+    boolean existeReservaExacta(@Param("fecha") LocalDate fecha,
+                                @Param("espacioId") UUID espacioId,
+                                @Param("horaInicio") LocalTime horaInicio,
+                                @Param("excludedId") UUID excludedId);
 }

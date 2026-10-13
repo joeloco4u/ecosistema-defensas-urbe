@@ -48,7 +48,7 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-3 gap-4 items-end">
+      <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="block text-xs uppercase tracking-widest text-accent-subtle font-medium mb-1.5">Jurado</label>
           <select
@@ -74,6 +74,18 @@
             <option *ngFor="let e of espacios" [value]="e.id">{{ e.codigoAula }} (Capacidad: {{ e.capacidad }} personas)</option>
           </select>
         </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 items-end">
+        <div>
+          <label class="block text-xs uppercase tracking-widest text-accent-subtle font-medium mb-1.5">Semana del Trimestre</label>
+          <select
+            [(ngModel)]="semanaSeleccionada"
+            class="w-full bg-surface-dark border border-surface-border rounded-sm px-3 py-2 text-sm text-accent-white focus:outline-none focus:border-accent-white"
+          >
+            <option *ngFor="let s of semanas" [ngValue]="s">Semana {{ s }}</option>
+          </select>
+        </div>
         <div class="flex items-end justify-end">
           <button
             (click)="buscarDisponibilidad()"
@@ -89,6 +101,13 @@
 
     <div class="px-6 py-5 space-y-3">
       <p class="text-xs uppercase tracking-widest text-accent-subtle font-medium">Selecciona una franja disponible</p>
+
+      <p
+        *ngIf="busquedaRealizada && !isSearching && franjasAgrupadas.size === 0 && !franjaActual"
+        class="text-sm text-accent-muted py-4 text-center"
+      >
+        No hay franjas disponibles (semana inhábil o feriada).
+      </p>
 
       <div
         *ngIf="franjaActual"

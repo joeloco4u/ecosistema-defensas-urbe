@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ReporteService, DefensaDTO } from '../../core/services/reporte.service';
 import { DocenteService } from '../../core/services/docente.service';
+import { ProyectoService } from '../../core/services/proyecto.service';
 
 @Component({
   selector: 'app-documentos',
@@ -8,13 +9,12 @@ import { DocenteService } from '../../core/services/docente.service';
 })
 export class DocumentosComponent implements OnInit {
 
-  terminoBusqueda = '';
-  resultadosBusqueda: DefensaDTO[] = [];
-  busquedaRealizada = false;
-
   todas: DefensaDTO[] = [];
-  proximas: DefensaDTO[] = [];
   seleccionada: DefensaDTO | null = null;
+
+  escuelas: string[] = [];
+  escuelaSeleccionada = 'Todas';
+  defensasEscuela: DefensaDTO[] = [];
 
   cargando = true;
   error = '';
@@ -24,6 +24,7 @@ export class DocumentosComponent implements OnInit {
   constructor(
     private reporteService: ReporteService,
     private docenteService: DocenteService,
+    private proyectoService: ProyectoService,
   ) {}
 
   ngOnInit(): void {
@@ -35,31 +36,48 @@ export class DocumentosComponent implements OnInit {
       },
       error: (err) => console.error('Error al cargar los docentes', err),
     });
+    this.proyectoService.getEscuelas().subscribe({
+      next: (escuelas) => {
+        this.escuelas = escuelas ?? [];
+      },
+      error: (err) => console.error('Error al cargar las escuelas', err),
+    });
     this.cargarDefensas();
   }
 
-  buscar(): void {
-    const termino = this.terminoBusqueda.trim().toLowerCase();
-    this.busquedaRealizada = termino.length > 0;
-    if (!termino) {
-      this.resultadosBusqueda = [];
+  onEscuelaChange(): void {
+    this.aplicarFiltroEscuela();
+  }
+
+  escuelaDe(defensa: DefensaDTO): string {
+    return defensa.proyecto?.escuela || 'Sin escuela';
+  }
+
+  private aplicarFiltroEscuela(): void {
+    if (!this.escuelaSeleccionada || this.escuelaSeleccionada === 'Todas') {
+      this.defensasEscuela = [];
       return;
     }
-    this.resultadosBusqueda = this.todas.filter((d) =>
-      (d.proyecto?.expediente ?? '').toLowerCase().includes(termino),
-    );
+    this.defensasEscuela = this.todas
+      .filter((d) => this.escuelaDe(d) === this.escuelaSeleccionada)
+      .sort((a, b) =>
+        (a.fecha ?? '').localeCompare(b.fecha ?? '')
+        || this.formatHora(a.horaInicio).localeCompare(this.formatHora(b.horaInicio)),
+      );
   }
 
   seleccionar(defensa: DefensaDTO): void {
     this.seleccionada = defensa;
-    this.resultadosBusqueda = [];
-    this.busquedaRealizada = false;
-    this.terminoBusqueda = defensa.proyecto?.expediente ?? '';
   }
 
   imprimirVeredicto(): void {
     if (!this.seleccionada) return;
     window.print();
+  }
+
+  imprimirPreDefensa(): void {
+    const escuela = encodeURIComponent(this.escuelaSeleccionada);
+    window.open(`/imprimir/pre-defensa/${escuela}`, '_blank');
   }
 
   tesistas(d: DefensaDTO): string {
@@ -83,22 +101,14 @@ export class DocumentosComponent implements OnInit {
     return d.proyecto?.tutorMetodologico?.nombreCompleto || this.nombreDocente(d.tutorMetodologicoId);
   }
 
-  jurado(d: DefensaDTO): string {
-    return this.nombreDocente(d.juradoId);
-  }
-
-  formatFecha(fecha?: string): string {
+  fechaPartes(fecha?: string): { dia: string; mes: string; anio: string } {
     const d = this.aFechaLocal(fecha);
-    if (!d) return '—';
-    const dia = String(d.getDate()).padStart(2, '0');
-    const mes = String(d.getMonth() + 1).padStart(2, '0');
-    return `${dia}/${mes}/${d.getFullYear()}`;
-  }
-
-  formatFechaLarga(fecha?: string): string {
-    const d = this.aFechaLocal(fecha);
-    if (!d) return '—';
-    return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+    if (!d) return { dia: '—', mes: '—', anio: '—' };
+    return {
+      dia: String(d.getDate()),
+      mes: d.toLocaleDateString('es-ES', { month: 'long' }),
+      anio: String(d.getFullYear()),
+    };
   }
 
   formatHora(hora?: string): string {
@@ -111,7 +121,7 @@ export class DocumentosComponent implements OnInit {
     this.reporteService.filtrarReportes({}).subscribe({
       next: (defensas) => {
         this.todas = defensas ?? [];
-        this.proximas = this.calcularProximas(this.todas);
+        this.aplicarFiltroEscuela();
         this.cargando = false;
       },
       error: (err) => {
@@ -120,23 +130,6 @@ export class DocumentosComponent implements OnInit {
         this.cargando = false;
       },
     });
-  }
-
-  private calcularProximas(defensas: DefensaDTO[]): DefensaDTO[] {
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-    const limite = new Date(hoy);
-    limite.setDate(limite.getDate() + 7);
-
-    return defensas
-      .filter((d) => {
-        const fecha = this.aFechaLocal(d.fecha);
-        return fecha !== null && fecha >= hoy && fecha <= limite;
-      })
-      .sort((a, b) =>
-        (a.fecha ?? '').localeCompare(b.fecha ?? '')
-        || this.formatHora(a.horaInicio).localeCompare(this.formatHora(b.horaInicio)),
-      );
   }
 
   private aFechaLocal(fecha?: string): Date | null {
