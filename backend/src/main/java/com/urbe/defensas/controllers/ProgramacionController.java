@@ -23,9 +23,10 @@ public class ProgramacionController {
             @RequestParam(name = "cedulas") List<String> cedulas,
             @RequestParam(name = "espacioId", required = false) UUID espacioId,
             @RequestParam(name = "semana", required = false) Integer semana,
-            @RequestParam(name = "proyectoId", required = false) UUID proyectoId) {
+            @RequestParam(name = "proyectoId", required = false) UUID proyectoId,
+            @RequestParam(name = "diaSemana", required = false) Integer diaSemana) {
         List<SugerenciaHorarioDTO> sugerencias =
-                motorProgramacionService.calcularDisponibilidad(cedulas, espacioId, semana, proyectoId);
+                motorProgramacionService.calcularDisponibilidad(cedulas, espacioId, semana, proyectoId, diaSemana);
         return ResponseEntity.ok(sugerencias);
     }
 }

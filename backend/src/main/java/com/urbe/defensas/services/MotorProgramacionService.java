@@ -63,23 +63,31 @@ public class MotorProgramacionService {
     }
 
     public List<SugerenciaHorarioDTO> calcularDisponibilidad(List<String> cedulasDocentes, UUID espacioFisicoId) {
-        return calcularDisponibilidad(cedulasDocentes, espacioFisicoId, null, null);
+        return calcularDisponibilidad(cedulasDocentes, espacioFisicoId, null, null, null);
+    }
+
+    public List<SugerenciaHorarioDTO> calcularDisponibilidad(List<String> cedulasDocentes, UUID espacioFisicoId,
+                                                             Integer semana, UUID proyectoId) {
+        return calcularDisponibilidad(cedulasDocentes, espacioFisicoId, semana, proyectoId, null);
     }
 
     @Transactional(readOnly = true)
     public List<SugerenciaHorarioDTO> calcularDisponibilidad(List<String> cedulasDocentes, UUID espacioFisicoId,
-                                                             Integer semana, UUID proyectoId) {
+                                                             Integer semana, UUID proyectoId, Integer diaSemana) {
         List<Long> docenteIds = resolverIdsDocentes(cedulasDocentes);
         List<UUID> estudianteIds = resolverIdsEstudiantes(proyectoId);
         List<EspacioFisico> espacios = resolverEspacios(espacioFisicoId);
 
-        LocalDate lunes = resolverLunes(semana);
-        LocalDate viernes = lunes.plusDays(4);
+        List<LocalDate> fechas = resolverFechasCandidatas(semana, diaSemana);
 
         List<BloqueCandidato> candidatos = new ArrayList<>();
-        for (LocalDate fecha = lunes; !fecha.isAfter(viernes); fecha = fecha.plusDays(1)) {
-            // Nunca se sugieren franjas en fines de semana ni en días feriados.
-            if (!DiasFeriados.esDiaHabil(fecha)) {
+        for (LocalDate fecha : fechas) {
+            // Los feriados nunca son hábiles. Los fines de semana sólo se excluyen
+            // cuando no se pidió explícitamente ese día de la semana.
+            if (DiasFeriados.esFeriado(fecha)) {
+                continue;
+            }
+            if (diaSemana == null && DiasFeriados.esFinDeSemana(fecha)) {
                 continue;
             }
             String dia = diaSemanaEspanol(fecha);
@@ -198,6 +206,30 @@ public class MotorProgramacionService {
         }
         LocalDate primerLunes = inicio.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         return primerLunes.plusWeeks(semana - 1L);
+    }
+
+    /**
+     * Determina las fechas de la semana que se evaluarán como candidatas.
+     * <p>
+     * Si {@code diaSemana} es nulo se conserva el comportamiento habitual: de lunes
+     * a viernes. Si se especifica un día (1 = lunes … 7 = domingo), se restringe
+     * estrictamente a esa fecha; al elegir explícitamente un día del fin de semana
+     * se permite agendar en él (ver {@link #calcularDisponibilidad}).
+     */
+    private List<LocalDate> resolverFechasCandidatas(Integer semana, Integer diaSemana) {
+        LocalDate lunes = resolverLunes(semana);
+        if (diaSemana != null) {
+            if (diaSemana < 1 || diaSemana > 7) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST, "Día de la semana inválido (rango permitido: 1-7): " + diaSemana);
+            }
+            return List.of(lunes.plusDays(diaSemana - 1L));
+        }
+        List<LocalDate> fechas = new ArrayList<>(5);
+        for (int i = 0; i < 5; i++) {
+            fechas.add(lunes.plusDays(i));
+        }
+        return fechas;
     }
 
     private LocalDate parseInicioTrimestre() {

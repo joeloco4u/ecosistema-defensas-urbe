@@ -21,6 +21,13 @@
     </div>
     <button
       type="button"
+      (click)="verPlanificacion()"
+      class="urbe-btn bg-[#002b5c] text-[#fff] hover:brightness-110 transition-all duration-100 ease-in-out active:scale-[0.98] w-full sm:w-auto"
+    >
+      PLANIFICACIÓN
+    </button>
+    <button
+      type="button"
       (click)="imprimirPreDefensa()"
       class="urbe-btn bg-[#002b5c] text-[#fff] hover:brightness-110 transition-all duration-100 ease-in-out active:scale-[0.98] w-full sm:w-auto sm:ml-auto"
     >
@@ -47,12 +54,18 @@
           <td class="cell-muted">{{ d.proyecto?.titulo || 'Sin título' }}</td>
           <td class="cell-muted">{{ tutorAcademico(d) }}</td>
           <td>
-            <div class="flex items-center">
+            <div class="flex items-center gap-2">
               <button
                 (click)="seleccionar(d)"
                 class="urbe-btn urbe-btn-sm bg-[#002b5c] text-[#fff] hover:brightness-110 transition-all duration-100 ease-in-out active:scale-[0.98]"
               >
                 VEREDICTO
+              </button>
+              <button
+                (click)="seleccionarEntrega(d)"
+                class="urbe-btn urbe-btn-sm bg-[#8A1538] text-[#fff] hover:brightness-110 transition-all duration-100 ease-in-out active:scale-[0.98]"
+              >
+                ENTREGA
               </button>
             </div>
           </td>
@@ -76,83 +89,288 @@
   </div>
 
   <!-- Vista previa / Impresión -->
-  <div *ngIf="seleccionada as def" class="space-y-4">
+  <div *ngIf="modoImpresion !== 'planificacion' && seleccionada as def" class="space-y-4">
     <div class="flex items-center justify-between print:hidden">
-      <h3 class="text-base font-semibold text-primary">Vista previa del Veredicto</h3>
+      <h3 class="text-base font-semibold text-primary">
+        {{ modoImpresion === 'entrega' ? 'Vista previa de Entrega de Veredictos' : 'Vista previa del Veredicto' }}
+      </h3>
       <button
         type="button"
         (click)="imprimirVeredicto()"
         class="urbe-btn urbe-btn-primary inline-flex items-center gap-2"
       >
-        Imprimir Veredicto
+        {{ modoImpresion === 'entrega' ? 'Imprimir Entrega' : 'Imprimir Veredicto' }}
       </button>
     </div>
 
     <!-- Hoja A4 -->
     <div
-      class="documento-print-area print-area mx-auto w-full max-w-[794px] aspect-[210/297] bg-white text-gray-900 shadow-2xl rounded-sm p-12 overflow-hidden"
-      style="font-family: 'Times New Roman', Times, serif;"
+      *ngIf="modoImpresion === 'veredicto'"
+      class="documento-print-area print-area mx-auto bg-white text-black relative shadow-2xl print:shadow-none overflow-hidden"
+      style="width: 210mm; height: 297mm; font-family: Arial, Helvetica, sans-serif; font-size: 13px;"
     >
 
-      <!-- Encabezado -->
-      <header class="flex items-start justify-between gap-6 mb-10">
-        <div class="w-28 h-20 flex items-center justify-start shrink-0">
-          <img
-            src="https://cdn.urbe.edu/portal-urbe/images/logos/urbe-hd.png"
-            alt="Logo URBE"
-            class="max-h-full max-w-full object-contain"
-          />
-        </div>
-        <div class="flex-1 text-center pt-3">
-          <p class="text-sm font-bold uppercase tracking-wide">Facultad de Ingeniería</p>
-          <p class="text-sm font-bold uppercase tracking-wide mt-1">Escuela de {{ def.proyecto?.escuela || '—' }}</p>
-        </div>
-        <div class="w-28 shrink-0"></div>
-      </header>
+      <!-- ========================================== -->
+      <!-- DECORATIVE LINES (100% width)              -->
+      <!-- ========================================== -->
 
-      <!-- Título -->
-      <h1 class="text-center text-2xl font-bold uppercase tracking-[0.35em] mb-10">Veredicto</h1>
+      <!-- Top Lines -->
+      <div class="absolute top-[15mm] left-0 w-full">
+        <div class="w-full h-[1px] bg-gray-400 mb-[2px]"></div>
+        <div class="w-full h-[4px] bg-[#374151]"></div>
+      </div>
 
-      <!-- Cuerpo -->
-      <p class="text-justify leading-loose text-[13px] mb-12">
-        Nosotros, los profesores, {{ tutorAcademico(def) }}, y {{ tutorMetodologico(def) }}, designados como jurado
-        examinador del Proyecto de Investigación titulado: "{{ def.proyecto?.titulo || '—' }}" que presenta(n) el/los
-        bachiller(es): {{ tesistas(def) }}, nos hemos reunido para revisar dicho trabajo y después del interrogatorio
-        correspondiente, lo hemos APROBADO con la calificación de ______ (   ) puntos, de acuerdo con las normas
-        vigentes establecidas por el Consejo Académico de la UNIVERSIDAD PRIVADA DR. RAFAEL BELLOSO CHACÍN, para la
-        evaluación de los Trabajos Especiales de Grado, para obtener el Título de Ingeniero(a) en
-        {{ def.proyecto?.escuela || '—' }}.
-      </p>
+      <!-- Bottom Lines (Thick line at the very bottom) -->
+      <div class="absolute bottom-[15mm] left-0 w-full">
+        <div class="w-full h-[4px] bg-[#374151] mb-[2px]"></div>
+        <div class="w-full h-[16px] bg-[#1F2937]"></div>
+      </div>
 
-      <!-- Fecha -->
-      <p class="text-justify leading-loose text-[13px] mb-16" *ngIf="fechaPartes(def.fecha) as f">
-        En fe de lo cual firmamos en Maracaibo, a los {{ f.dia }} días del mes de {{ f.mes }} de {{ f.anio }}.
-      </p>
+      <!-- ========================================== -->
+      <!-- TEXT CONTENT LAYER                         -->
+      <!-- ========================================== -->
 
-      <!-- Firmas -->
-      <div class="grid grid-cols-3 gap-8 mt-8 text-center text-[11px]">
-        <div>
-          <div class="border-t border-black mb-3"></div>
-          <p class="font-bold">C.I. ____________</p>
-          <p class="font-bold uppercase mt-1">Jurado</p>
+      <div class="absolute inset-0 pt-[30mm] px-[22mm] pb-[40mm] flex flex-col z-10">
+
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-6">
+          <div class="w-48 flex flex-col items-center">
+            <img src="https://cdn.urbe.edu/portal-urbe/images/logos/urbe-hd.png" alt="URBE" class="w-24 opacity-90 grayscale">
+            <div class="text-center mt-1" style="font-size: 8px; line-height: 1.2; color: #555;">
+               <p class="font-bold text-[10px] tracking-widest text-[#333]">UNIVERSIDAD</p>
+               <p class="text-[7px]">Privada</p>
+               <p class="text-[8px] tracking-wider">DR. RAFAEL BELLOSO CHACÍN</p>
+            </div>
+          </div>
+          <div class="text-center font-bold text-[13px] text-gray-700 leading-relaxed flex-1">
+            <p>FACULTAD DE INGENIERÍA</p>
+            <p>ESCUELA DE {{ def.proyecto?.escuela || '—' | uppercase }}</p>
+          </div>
+          <div class="w-48"></div>
         </div>
-        <div>
-          <div class="border-t border-black mb-3"></div>
-          <p class="font-bold uppercase leading-tight">{{ tutorAcademico(def) }}</p>
-          <p class="font-bold mt-1">C.I. ____________</p>
-          <p class="font-bold uppercase mt-1">Tutor Académico</p>
+
+        <!-- Title -->
+        <h1 class="text-center font-bold text-lg tracking-[0.2em] mb-6 mt-2 text-gray-700">VEREDICTO</h1>
+
+        <!-- Body Text -->
+        <p class="text-justify mb-6 leading-[1.8] text-[13px] text-gray-800" style="text-align: justify; text-justify: inter-word;">
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Nosotros, los profesores, <strong>{{ tutorAcademico(def) | uppercase }}</strong>, y <strong>{{ tutorMetodologico(def) | uppercase }}</strong>, designados como jurado examinador del Proyecto de Investigación titulado: <strong>"{{ def.proyecto?.titulo || '—' | uppercase }}"</strong> que presenta(n) el/los bachiller(es): <strong>{{ tesistas(def) | uppercase }}</strong>, titular(es) de la Cédula de Identidad número V-__________, nos hemos reunido para revisar dicho trabajo y después del interrogatorio correspondiente, lo hemos APROBADO con la calificación de _________________________ (____) puntos, de acuerdo con las normas vigentes establecidas por el Consejo Académico de la UNIVERSIDAD PRIVADA DR. RAFAEL BELLOSO CHACÍN, para la evaluación de los Trabajos Especiales de Grado, para obtener el Título de: Ingeniero (a) en <strong>{{ def.proyecto?.escuela || '—' | uppercase }}</strong>.
+        </p>
+
+        <!-- Date -->
+        <p class="text-justify mb-8 text-[13px] text-gray-800">
+          <ng-container *ngIf="fechaPartes(def.fecha) as f">
+            En fe de lo cual firmamos en Maracaibo, a los {{ f.dia }} días del mes de {{ f.mes }} de {{ f.anio }}.
+          </ng-container>
+        </p>
+
+        <!-- Signatures Grid -->
+        <div class="grid grid-cols-3 gap-4 text-center text-[10px] mt-2">
+          <div class="flex flex-col items-center">
+            <div class="border-t-[1px] border-black w-11/12 pt-1">
+               <p class="font-bold text-gray-800">Dr. __________________</p>
+               <p class="font-bold text-gray-800">C.I. V-____________</p>
+               <p class="font-bold text-gray-800">JURADO</p>
+            </div>
+          </div>
+          <div class="flex flex-col items-center">
+            <div class="border-t-[1px] border-black w-11/12 pt-1">
+               <p class="font-bold uppercase text-gray-800">{{ tutorAcademico(def) }}</p>
+               <p class="font-bold text-gray-800">C.I. V-____________</p>
+               <p class="font-bold text-gray-800">TUTOR ACADÉMICO</p>
+            </div>
+          </div>
+          <div class="flex flex-col items-center">
+            <div class="border-t-[1px] border-black w-11/12 pt-1">
+               <p class="font-bold uppercase text-gray-800">{{ tutorMetodologico(def) }}</p>
+               <p class="font-bold text-gray-800">C.I. V-____________</p>
+               <p class="font-bold text-gray-800">TUTOR METODOLÓGICO</p>
+            </div>
+          </div>
         </div>
-        <div>
-          <div class="border-t border-black mb-3"></div>
-          <p class="font-bold uppercase leading-tight">{{ tutorMetodologico(def) }}</p>
-          <p class="font-bold mt-1">C.I. ____________</p>
-          <p class="font-bold uppercase mt-1">Tutor Metodológico</p>
+
+        <!-- Decana & Footer -->
+        <div class="mt-auto flex justify-between items-end">
+          <div class="w-1/3"></div>
+          <div class="w-1/3 text-center text-[10px]">
+             <div class="border-t-[1px] border-black w-full pt-1 mx-auto">
+               <p class="font-bold text-gray-800">Dra. MARIA EUGENIA FOSSI</p>
+               <p class="font-bold text-gray-800">DECANA DE LA FACULTAD DE INGENIERÍA</p>
+             </div>
+          </div>
+          <div class="w-1/3 text-right pr-2">
+             <p class="font-bold text-[11px] text-black">{{ def.proyecto?.expediente || '—' }}</p>
+          </div>
         </div>
+
+      </div>
+    </div>
+
+    <!-- Hoja A4: Entrega de Veredictos -->
+    <div
+      *ngIf="modoImpresion === 'entrega'"
+      class="documento-print-area print-area mx-auto bg-white text-black relative shadow-2xl print:shadow-none overflow-hidden"
+      style="width: 210mm; height: 297mm; font-family: Arial, Helvetica, sans-serif; font-size: 13px;">
+
+      <!-- Decorative Bottom Border -->
+      <div class="absolute bottom-[15mm] left-0 w-full">
+        <div class="w-full h-[4px] bg-[#374151] mb-[2px]"></div>
+        <div class="w-full h-[16px] bg-[#1F2937]"></div>
+      </div>
+
+      <!-- Content Layer -->
+      <div class="absolute inset-0 pt-[30mm] px-[20mm] pb-[40mm] flex flex-col z-10">
+
+        <!-- Header: Logo, Title, Expediente -->
+        <div class="flex justify-between items-start mb-10">
+          <div class="w-40 flex flex-col items-center">
+            <img src="https://cdn.urbe.edu/portal-urbe/images/logos/urbe-hd.png" alt="URBE" class="w-24 opacity-90 grayscale">
+            <div class="text-center mt-1" style="font-size: 8px; line-height: 1.2; color: #555;">
+               <p class="font-bold text-[10px] tracking-widest text-[#333]">UNIVERSIDAD</p>
+               <p class="text-[7px]">Privada</p>
+               <p class="text-[8px] tracking-wider">DR. RAFAEL BELLOSO CHACÍN</p>
+            </div>
+          </div>
+          <div class="pt-8">
+            <h1 class="font-bold text-lg tracking-widest uppercase">ENTREGA DE VEREDICTOS.</h1>
+          </div>
+          <div class="pt-8 text-right">
+            <p class="font-bold text-sm">Número de Expediente: {{ def.proyecto?.expediente || '—' }}</p>
+          </div>
+        </div>
+
+        <!-- Intro Paragraph -->
+        <p class="text-justify leading-[1.8] mb-6">
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Por medio de la presente se hace constar que se ha recibido el Veredicto de la tesis titulada: <strong>"{{ def.proyecto?.titulo || '—' | uppercase }}"</strong>; realizada por los estudiantes:
+        </p>
+
+        <!-- Students Table -->
+        <table class="w-full border-collapse border border-black mb-12 text-sm text-center">
+          <thead>
+            <tr class="bg-gray-100 font-bold">
+              <th class="border border-black py-2 px-4 w-1/2">ALUMNO</th>
+              <th class="border border-black py-2 px-4 w-1/4">C.I.</th>
+              <th class="border border-black py-2 px-4 w-1/4">FIRMA DE RECIBIDO</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let e of filasEstudiantes(def)">
+              <td class="border border-black py-4 px-4 text-left font-bold uppercase">{{ e.nombre }}</td>
+              <td class="border border-black py-4 px-4 font-bold">{{ e.cedula }}</td>
+              <td class="border border-black py-4 px-4"></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Grades & Date Section -->
+        <div class="mt-4 text-sm font-bold leading-loose flex flex-col gap-2">
+          <div class="flex items-end gap-2">
+            <p>Nota de Tutor Académico:</p>
+            <div class="border-b border-black w-16"></div>
+          </div>
+          <div class="flex items-end gap-2">
+            <p>Nota de Tutor Metodológico:</p>
+            <div class="border-b border-black w-16"></div>
+          </div>
+          <div class="flex items-end gap-2">
+            <p>Nota de Jurado:</p>
+            <div class="border-b border-black w-16"></div>
+          </div>
+        </div>
+
+        <div class="mt-12 text-center">
+          <ng-container *ngIf="fechaPartes(def.fecha) as f">
+            <p class="font-bold text-sm">Fecha de entrega de veredictos: {{ f.dia }} de {{ f.mes }} de {{ f.anio }}</p>
+          </ng-container>
+        </div>
+
       </div>
     </div>
   </div>
 
-  <div *ngIf="!seleccionada" class="urbe-card urbe-empty p-10 text-center text-gray-500 print:hidden">
+  <!-- Planificación global (todos los proyectos filtrados por escuela) -->
+  <div
+    *ngIf="modoImpresion === 'planificacion'"
+    class="documento-print-area print-area mx-auto bg-white text-black relative shadow-2xl print:shadow-none"
+    style="width: 210mm; min-height: 297mm; font-family: Arial, Helvetica, sans-serif; padding: 20mm;"
+  >
+
+    <!-- Global Header -->
+    <div class="flex items-center gap-4 border-b-2 border-black pb-4 mb-8">
+      <div class="w-16">
+         <img src="https://cdn.urbe.edu/portal-urbe/images/logos/urbe-hd.png" class="w-full grayscale">
+      </div>
+      <h1 class="text-xl font-bold tracking-widest text-gray-700 italic">
+        SEMINARIO III Defensas Septiembre - Diciembre 2026
+      </h1>
+    </div>
+
+    <!-- Loop through projects -->
+    <div *ngFor="let p of proyectosPlanificacion" class="mb-10 border-b border-gray-300 pb-8 page-break-inside-avoid">
+
+      <!-- School Header -->
+      <h2 class="text-sm font-bold uppercase tracking-wider text-gray-700 italic mb-4">
+        {{ p.proyecto?.escuela || '—' }}
+      </h2>
+
+      <!-- Top row: Tutors -->
+      <div class="flex justify-between text-[11px] mb-4">
+        <div class="w-1/2">
+          <span class="font-bold italic">Académico:</span> <span class="uppercase">{{ tutorAcademico(p) }}</span><br>
+          <span class="font-bold italic">Sección Acad:</span> _______
+        </div>
+        <div class="w-1/2">
+          <span class="font-bold italic">Metodológico:</span> <span class="uppercase">{{ tutorMetodologico(p) }}</span><br>
+          <span class="font-bold italic">Sección Metd:</span> _______
+        </div>
+      </div>
+
+      <!-- Middle row: Students & Target Boxes -->
+      <div class="flex justify-between items-start text-[11px]">
+
+        <!-- Left: Expediente, Students & Title -->
+        <div class="w-2/3 pr-8">
+          <div class="flex gap-4 mb-4">
+            <div class="font-bold italic w-16">{{ p.proyecto?.expediente || '—' }}</div>
+            <div class="uppercase leading-tight flex-1" style="white-space: pre-line;">
+              {{ tesistas(p) }}
+            </div>
+            <div class="w-20 text-right">
+              <!-- If DTO has C.I., put it here. Else leave blank -->
+              ________
+            </div>
+          </div>
+          <div class="uppercase font-bold text-gray-700 text-justify border-t border-black pt-2">
+            "{{ p.proyecto?.titulo || '—' }}"
+          </div>
+        </div>
+
+        <!-- Right: The blank fields for the coordinator to fill -->
+        <div class="w-1/3 flex flex-col gap-3 text-[11px] italic">
+          <div class="flex justify-between items-end">
+            <span>Día de la Defensa:</span>
+            <div class="border-b border-black w-32"></div>
+          </div>
+          <div class="flex justify-between items-end">
+            <span>Hora:</span>
+            <div class="border-b border-black w-32"></div>
+          </div>
+          <div class="flex justify-between items-end">
+            <span>Aula:</span>
+            <div class="border-b border-black w-32"></div>
+          </div>
+          <div class="flex justify-between items-end">
+            <span>Jurado:</span>
+            <div class="border-b border-black w-32"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <div *ngIf="modoImpresion !== 'planificacion' && !seleccionada" class="urbe-card urbe-empty p-10 text-center text-gray-500 print:hidden">
     Seleccione una escuela y pulse VEREDICTO para generar el documento.
   </div>
 </div>

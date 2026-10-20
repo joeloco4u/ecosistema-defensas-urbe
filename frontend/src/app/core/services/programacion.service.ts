@@ -10,7 +10,7 @@ export class ProgramacionService {
 
   constructor(private http: HttpClient) {}
 
-  getSugerencias(cedulas: string[], espacioId: string, semana?: number | null, proyectoId?: string | null): Observable<any[]> {
+  getSugerencias(cedulas: string[], espacioId: string, semana?: number | null, proyectoId?: string | null, diaSemana?: number | null): Observable<any[]> {
     const fromObject: Record<string, string> = {
       espacioId: espacioId,
       cedulas: cedulas.join(','),
@@ -20,6 +20,9 @@ export class ProgramacionService {
     }
     if (proyectoId) {
       fromObject['proyectoId'] = proyectoId;
+    }
+    if (diaSemana != null) {
+      fromObject['diaSemana'] = String(diaSemana);
     }
     const params = new HttpParams({ fromObject });
     return this.http.get<any[]>(`${this.apiUrl}/sugerencias`, { params });

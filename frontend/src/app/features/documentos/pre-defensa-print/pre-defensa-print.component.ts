@@ -96,6 +96,13 @@ export class PreDefensaPrintComponent implements OnInit {
             table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 10px; }
             th, td { border: 1px solid #000; padding: 4px; vertical-align: top; word-wrap: break-word; }
             th { background-color: #e5e7eb; font-size: 9px; text-transform: uppercase; }
+            .predefensa-grupo { width: 22%; }
+            .predefensa-exp { width: 8%; }
+            .predefensa-titulo { width: 22%; }
+            .predefensa-check { width: 20px; }
+            .text-justify { text-align: justify; }
+            .whitespace-normal { white-space: normal; }
+            .text-xs { font-size: 10px; }
             .text-center { text-align: center; }
             .font-bold { font-weight: bold; }
             .uppercase { text-transform: uppercase; }

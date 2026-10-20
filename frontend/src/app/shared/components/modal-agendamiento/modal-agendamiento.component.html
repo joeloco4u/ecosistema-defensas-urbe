@@ -76,7 +76,7 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-4 items-end">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
         <div>
           <label class="block text-xs uppercase tracking-widest text-accent-subtle font-medium mb-1.5">Semana del Trimestre</label>
           <select
@@ -84,6 +84,15 @@
             class="w-full bg-surface-dark border border-surface-border rounded-sm px-3 py-2 text-sm text-accent-white focus:outline-none focus:border-accent-white"
           >
             <option *ngFor="let s of semanas" [ngValue]="s">Semana {{ s }}</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs uppercase tracking-widest text-accent-subtle font-medium mb-1.5">Día de la semana</label>
+          <select
+            [(ngModel)]="diaSeleccionado"
+            class="w-full bg-surface-dark border border-surface-border rounded-sm px-3 py-2 text-sm text-accent-white focus:outline-none focus:border-accent-white"
+          >
+            <option *ngFor="let d of diasSemana" [ngValue]="d.value">{{ d.label }}</option>
           </select>
         </div>
         <div class="flex items-end justify-end">
@@ -119,7 +128,7 @@
         }"
       >
         <div class="flex items-center gap-6">
-          <p class="text-sm font-medium text-gray-800">{{ franjaActual.fecha }}</p>
+          <p class="text-sm font-medium text-gray-800">{{ formatearFecha(franjaActual.fecha) }}</p>
           <div class="text-sm font-medium text-gray-800">
             {{ franjaActual.horaInicio }} – {{ franjaActual.horaFin }}
           </div>
@@ -135,7 +144,7 @@
       </div>
 
       <div *ngFor="let grupo of franjasAgrupadas | keyvalue">
-        <h4 class="text-sm font-semibold text-accent-white mt-4 mb-2">{{ grupo.key }}</h4>
+        <h4 class="text-sm font-semibold text-accent-white mt-4 mb-2">{{ formatearFecha(grupo.key) }}</h4>
         <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
           <button
             *ngFor="let s of grupo.value"

@@ -19,8 +19,9 @@
     }
     .predefensa-table td { font-size: 10px; }
     .predefensa-check { width: 20px; }
-    .predefensa-grupo { width: 24%; }
-    .predefensa-exp { width: 9%; }
+    .predefensa-grupo { width: 22%; }
+    .predefensa-exp { width: 8%; }
+    .predefensa-titulo { width: 22%; }
 
     @media print {
       @page { size: landscape; margin: 10mm; }
@@ -56,6 +57,7 @@
     <colgroup>
       <col class="predefensa-grupo" />
       <col class="predefensa-exp" />
+      <col class="predefensa-titulo" />
       <col />
       <col class="predefensa-check" />
       <col />
@@ -67,6 +69,7 @@
       <tr>
         <th rowspan="2">Grupo</th>
         <th rowspan="2">N° Exp.</th>
+        <th rowspan="2">Título</th>
         <th colspan="2">Cumplimiento de Objetivos</th>
         <th colspan="2">Cumplimiento de Fases Metodológicas</th>
         <th colspan="2">Presentación de Propuesta</th>
@@ -87,6 +90,7 @@
           <span class="block font-bold mt-1">Tutor Académico: {{ tutorAcademico(d) }}</span>
         </td>
         <td>{{ d.proyecto?.expediente || '—' }}</td>
+        <td class="w-48 text-xs whitespace-normal text-justify px-2 py-1">{{ d.proyecto?.titulo || '—' }}</td>
         <td></td>
         <td class="predefensa-check"></td>
         <td></td>
@@ -95,7 +99,7 @@
         <td class="predefensa-check"></td>
       </tr>
       <tr *ngIf="!cargando && defensas.length === 0">
-        <td colspan="8" class="text-center">No hay proyectos para listar.</td>
+        <td colspan="9" class="text-center">No hay proyectos para listar.</td>
       </tr>
     </tbody>
   </table>

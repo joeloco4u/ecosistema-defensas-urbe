@@ -78,6 +78,16 @@ cargando = false;
   espacioId = '';
   semanas: number[] = Array.from({ length: 14 }, (_, i) => i + 1);
   semanaSeleccionada: number = 12;
+  diasSemana: { label: string; value: number | null }[] = [
+    { label: 'Toda la semana', value: null },
+    { label: 'Lunes', value: 1 },
+    { label: 'Martes', value: 2 },
+    { label: 'Miércoles', value: 3 },
+    { label: 'Jueves', value: 4 },
+    { label: 'Viernes', value: 5 },
+    { label: 'Sábado', value: 6 },
+  ];
+  diaSeleccionado: number | null = null;
   sugerenciasJurado: TutorSugerido[] = [];
   juradosSugeridosIds = new Set<number>();
 
@@ -170,6 +180,17 @@ cargando = false;
     return this.espacios.find(e => e.id === this.espacioId)?.codigoAula || '—';
   }
 
+  formatearFecha(fecha: string): string {
+    if (!fecha) return '';
+    const d = new Date(`${fecha}T00:00:00`);
+    if (isNaN(d.getTime())) return fecha;
+    const dia = d.toLocaleDateString('es-ES', { weekday: 'long' });
+    const diaCapitalizado = dia.charAt(0).toUpperCase() + dia.slice(1);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const iso = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    return `${diaCapitalizado}, ${iso}`;
+  }
+
   nombreDocente(docenteId: number | null): string {
     if (docenteId == null) return 'Por asignar';
     const docente = this.docentes.find(d => d.id === docenteId);
@@ -200,7 +221,7 @@ cargando = false;
       this.getCedula(this.tutorAcademicoId),
       this.getCedula(this.tutorMetodologicoId),
     ].filter((c): c is string => !!c);
-    this.programacionService.getSugerencias(cedulas, this.espacioId, this.semanaSeleccionada, this.proyecto?.id).subscribe({
+    this.programacionService.getSugerencias(cedulas, this.espacioId, this.semanaSeleccionada, this.proyecto?.id, this.diaSeleccionado).subscribe({
       next: (data) => {
         this.sugerencias = data.map(item => ({
           fecha: item.fecha,
