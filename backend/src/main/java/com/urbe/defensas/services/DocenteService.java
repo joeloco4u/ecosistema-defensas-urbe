@@ -13,8 +13,11 @@ import com.urbe.defensas.repositories.DefensaRepository;
 import com.urbe.defensas.repositories.DocenteRepository;
 import com.urbe.defensas.repositories.JuradoDefensaRepository;
 import com.urbe.defensas.repositories.ProyectoRepository;
+import com.urbe.defensas.util.CedulaUtil;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -44,12 +47,19 @@ public class DocenteService {
     }
 
     public Docente crear(Docente docente) {
+        aplicarIdentidad(docente);
         return docenteRepository.save(docente);
     }
 
     public Docente actualizar(Long id, Docente docente) {
         Docente existente = docenteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Docente no encontrado"));
+        if (CedulaUtil.esValida(docente.getCedula())) {
+            existente.setCedula(CedulaUtil.soloDigitos(docente.getCedula()));
+        }
+        if (docente.getCodigoInstitucional() != null && !docente.getCodigoInstitucional().isBlank()) {
+            existente.setCodigoInstitucional(docente.getCodigoInstitucional().trim());
+        }
         existente.setNombreCompleto(docente.getNombreCompleto());
         existente.setEmail(docente.getEmail());
         existente.setDepartamento(docente.getDepartamento());
@@ -58,13 +68,33 @@ public class DocenteService {
         return docenteRepository.save(existente);
     }
 
+    private void aplicarIdentidad(Docente docente) {
+        String cedula = CedulaUtil.soloDigitos(docente.getCedula());
+        if (cedula.isEmpty()) {
+            cedula = CedulaUtil.soloDigitos(docente.getCodigoInstitucional());
+        }
+        if (cedula.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La cédula del docente es obligatoria");
+        }
+        docente.setCedula(cedula);
+        if (docente.getCodigoInstitucional() == null || docente.getCodigoInstitucional().isBlank()) {
+            docente.setCodigoInstitucional("DOC-" + cedula);
+        }
+        if (docente.getActivo() == null) {
+            docente.setActivo(true);
+        }
+        if (docente.getCargaMaximaSemanal() == null) {
+            docente.setCargaMaximaSemanal(8);
+        }
+    }
+
     public Docente obtenerPorId(Long id) {
         return docenteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Docente no encontrado"));
     }
 
     public List<Docente> listarTodos() {
-        return docenteRepository.findAll();
+        return docenteRepository.findByActivoTrue();
     }
 
     public List<Docente> listarActivos() {

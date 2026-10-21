@@ -18,6 +18,19 @@ interface SugerenciaHorario {
   tutorMetodologicoId?: number;
 }
 
+type Turno = 'matutino' | 'vespertino' | 'nocturno';
+
+interface GrupoTurno {
+  turno: Turno;
+  etiqueta: string;
+  franjas: SugerenciaHorario[];
+}
+
+interface GrupoFecha {
+  fecha: string;
+  turnos: GrupoTurno[];
+}
+
 interface DocenteInfo {
   id?: number | null;
   nombreCompleto?: string;
@@ -63,7 +76,7 @@ export class ModalAgendamientoComponent implements OnChanges {
   @Output() confirmar = new EventEmitter<SugerenciaHorario>();
 
   sugerencias: SugerenciaHorario[] = [];
-  franjasAgrupadas = new Map<string, SugerenciaHorario[]>();
+  gruposFranjas: GrupoFecha[] = [];
   sugerenciaSeleccionada: SugerenciaHorario | null = null;
   franjaActual: SugerenciaHorario | null = null;
 cargando = false;
@@ -120,14 +133,19 @@ cargando = false;
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['isOpen'] && this.isOpen) {
       this.sugerencias = [];
-      this.franjasAgrupadas = new Map<string, SugerenciaHorario[]>();
+      this.gruposFranjas = [];
       this.sugerenciaSeleccionada = null;
       this.juradoId = this.juradoInicial;
       this.tutorAcademicoId = this.proyecto?.tutor?.id ?? this.tutorAcademicoInicial ?? null;
       this.tutorMetodologicoId = this.proyecto?.tutorMetodologico?.id ?? this.tutorMetodologicoInicial ?? null;
       this.espacioId = this.espacioInicial;
       this.franjaActual = this.fechaInicial && this.horaInicioInicial && this.horaFinInicial
-        ? { fecha: this.fechaInicial, horaInicio: this.horaInicioInicial, horaFin: this.horaFinInicial, codigoAula: '' }
+        ? {
+            fecha: this.fechaInicial,
+            horaInicio: this.formatearHora(this.horaInicioInicial),
+            horaFin: this.formatearHora(this.horaFinInicial),
+            codigoAula: ''
+          }
         : null;
       this.sugerenciaSeleccionada = this.franjaActual;
       this.cargando = true;
@@ -164,16 +182,21 @@ cargando = false;
   private computarJuradosSugeridos(): void {
     const docentesPorCedula = new Map<string, number>();
     for (const d of this.docentes) {
-      if (d?.codigoInstitucional) {
-        docentesPorCedula.set(d.codigoInstitucional.trim().toLowerCase(), d.id);
+      const cedula = this.normalizarCedula(d?.cedula ?? d?.codigoInstitucional);
+      if (cedula) {
+        docentesPorCedula.set(cedula, d.id);
       }
     }
     this.juradosSugeridosIds = new Set(
       this.sugerenciasJurado
         .filter(s => s.estado === 'APROBADO' && s.cedula)
-        .map(s => docentesPorCedula.get(s.cedula.trim().toLowerCase()))
+        .map(s => docentesPorCedula.get(this.normalizarCedula(s.cedula)))
         .filter((id): id is number => id != null)
     );
+  }
+
+  private normalizarCedula(valor: string | null | undefined): string {
+    return String(valor ?? '').replace(/\D/g, '').replace(/^0+/, '');
   }
 
   aulaActual(): string {
@@ -191,6 +214,13 @@ cargando = false;
     return `${diaCapitalizado}, ${iso}`;
   }
 
+  formatearHora(hora: string | null | undefined): string {
+    const valor = String(hora ?? '').trim();
+    const coincidencia = valor.match(/^(\d{1,2}):(\d{2})/);
+    if (!coincidencia) return valor;
+    return `${coincidencia[1].padStart(2, '0')}:${coincidencia[2]}`;
+  }
+
   nombreDocente(docenteId: number | null): string {
     if (docenteId == null) return 'Por asignar';
     const docente = this.docentes.find(d => d.id === docenteId);
@@ -198,7 +228,8 @@ cargando = false;
   }
 
   private getCedula(docenteId: number): string | undefined {
-    return this.docentes.find(d => d.id === docenteId)?.codigoInstitucional;
+    const docente = this.docentes.find(d => d.id === docenteId);
+    return docente?.cedula ?? docente?.codigoInstitucional;
   }
 
   isDocenteSeleccionado(docenteId: number, rolActual: string): boolean {
@@ -214,7 +245,7 @@ cargando = false;
     this.busquedaRealizada = false;
     this.cargando = true;
     this.sugerencias = [];
-    this.franjasAgrupadas = new Map<string, SugerenciaHorario[]>();
+    this.gruposFranjas = [];
     this.sugerenciaSeleccionada = null;
     const cedulas = [
       this.getCedula(this.juradoId),
@@ -225,11 +256,11 @@ cargando = false;
       next: (data) => {
         this.sugerencias = data.map(item => ({
           fecha: item.fecha,
-          horaInicio: item.horaInicio,
-          horaFin: item.horaFin,
+          horaInicio: this.formatearHora(item.horaInicio),
+          horaFin: this.formatearHora(item.horaFin),
           codigoAula: item.codigoAula
         }));
-        this.franjasAgrupadas = this.agruparPorFecha(this.sugerencias);
+        this.gruposFranjas = this.agruparPorFechaYTurno(this.sugerencias);
         this.cargando = false;
         this.isSearching = false;
         this.busquedaRealizada = true;
@@ -246,18 +277,51 @@ cargando = false;
     this.sugerenciaSeleccionada = s;
   }
 
-  private agruparPorFecha(franjas: SugerenciaHorario[]): Map<string, SugerenciaHorario[]> {
-    const grupos = new Map<string, SugerenciaHorario[]>();
+  private agruparPorFechaYTurno(franjas: SugerenciaHorario[]): GrupoFecha[] {
+    const porFecha = new Map<string, SugerenciaHorario[]>();
     for (const franja of franjas) {
-      const fecha = franja.fecha;
-      const grupo = grupos.get(fecha);
+      const grupo = porFecha.get(franja.fecha);
       if (grupo) {
         grupo.push(franja);
       } else {
-        grupos.set(fecha, [franja]);
+        porFecha.set(franja.fecha, [franja]);
       }
     }
-    return grupos;
+
+    return Array.from(porFecha.entries())
+      .sort(([fechaA], [fechaB]) => fechaA.localeCompare(fechaB))
+      .map(([fecha, franjasFecha]) => {
+        const turnos: GrupoTurno[] = [
+          { turno: 'matutino', etiqueta: 'Matutino', franjas: [] },
+          { turno: 'vespertino', etiqueta: 'Vespertino', franjas: [] },
+          { turno: 'nocturno', etiqueta: 'Nocturno', franjas: [] },
+        ];
+
+        for (const franja of franjasFecha) {
+          const minutos = this.minutosDelDia(franja.horaInicio);
+          if (minutos < 12 * 60) {
+            turnos[0].franjas.push(franja);
+          } else if (minutos < 18 * 60) {
+            turnos[1].franjas.push(franja);
+          } else {
+            turnos[2].franjas.push(franja);
+          }
+        }
+
+        for (const turno of turnos) {
+          turno.franjas.sort((a, b) => a.horaInicio.localeCompare(b.horaInicio));
+        }
+
+        return {
+          fecha,
+          turnos: turnos.filter((turno) => turno.franjas.length > 0),
+        };
+      });
+  }
+
+  private minutosDelDia(hora: string): number {
+    const [horas, minutos] = hora.split(':').map(Number);
+    return (horas || 0) * 60 + (minutos || 0);
   }
 
   cerrar(): void {

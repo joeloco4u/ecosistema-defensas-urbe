@@ -1,6 +1,8 @@
 package com.urbe.defensas.dtos;
 
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -9,10 +11,10 @@ import java.util.UUID;
 
 public class ReprogramacionDTO {
     @NotNull private UUID espacioId;
-    @NotNull private LocalDate fecha;
+    @NotNull @FutureOrPresent private LocalDate fecha;
     @NotNull private LocalTime horaInicio;
     @NotNull private LocalTime horaFin;
-    private List<Long> juradosIds;
+    @NotNull @Size(min = 3, max = 3) private List<Long> juradosIds;
 
     public UUID getEspacioId() { return espacioId; }
     public void setEspacioId(UUID espacioId) { this.espacioId = espacioId; }

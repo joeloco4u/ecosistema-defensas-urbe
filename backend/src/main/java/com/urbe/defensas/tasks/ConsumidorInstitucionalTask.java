@@ -25,12 +25,15 @@ public class ConsumidorInstitucionalTask {
         log.info("Iniciando consumo del endpoint institucional de docentes...");
 
         try {
+            String cedula = String.valueOf(System.currentTimeMillis());
             Docente docenteSimulado = new Docente();
-            docenteSimulado.setCodigoInstitucional("DOC-" + System.currentTimeMillis());
+            docenteSimulado.setCedula(cedula);
+            docenteSimulado.setCodigoInstitucional("DOC-" + cedula);
             docenteSimulado.setNombreCompleto("Docente Sincronizado");
             docenteSimulado.setEmail("docente@institucion.edu");
             docenteSimulado.setDepartamento("Ingeniería");
             docenteSimulado.setCargaMaximaSemanal(8);
+            docenteSimulado.setActivo(true);
 
             docenteRepository.save(docenteSimulado);
             log.info("Docente sincronizado exitosamente: {}", docenteSimulado.getCodigoInstitucional());

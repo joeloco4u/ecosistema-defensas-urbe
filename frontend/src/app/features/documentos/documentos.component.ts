@@ -36,7 +36,7 @@ export class DocumentosComponent implements OnInit {
             (d: any) =>
               [
                 d.id as number,
-                { nombre: d.nombreCompleto ?? '', cedula: d.codigoInstitucional ?? '' },
+                { nombre: d.nombreCompleto ?? '', cedula: d.cedula ?? d.codigoInstitucional ?? '' },
               ] as [number, { nombre: string; cedula: string }],
           ),
         );

@@ -88,7 +88,7 @@ interface ProyectoPendiente {
                 class="w-full bg-white text-gray-900 border border-gray-300 rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-gray-400"
               >
                 <option [ngValue]="null" disabled selected>Seleccionar docente</option>
-                <option *ngFor="let d of docentes" [ngValue]="d.id">{{ d.nombreCompleto }} ({{ d.codigoInstitucional }})</option>
+                <option *ngFor="let d of docentes" [ngValue]="d.id">{{ d.nombreCompleto }} ({{ d.cedula || d.codigoInstitucional }})</option>
               </select>
             </div>
           </div>
@@ -244,7 +244,7 @@ export class JuradosSugeridosComponent implements OnInit {
       this.nuevoTutor = {
         nombre: partes[0] ?? '',
         apellido: partes.slice(1).join(' '),
-        cedula: this.docenteSeleccionado.codigoInstitucional ?? '',
+        cedula: this.docenteSeleccionado.cedula ?? this.docenteSeleccionado.codigoInstitucional ?? '',
         areaInvestigacion: this.docenteSeleccionado.departamento ?? '',
       };
     }

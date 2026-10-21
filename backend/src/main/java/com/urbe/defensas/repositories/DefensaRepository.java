@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,6 +24,25 @@ public interface DefensaRepository extends JpaRepository<Defensa, UUID>, JpaSpec
     List<Defensa> findByFechaOrderByHoraInicioAsc(LocalDate fecha);
 
     List<Defensa> findByProyectoId(UUID proyectoId);
+
+    @Query("""
+            SELECT d FROM Defensa d
+            WHERE d.fecha BETWEEN :inicio AND :fin
+              AND (
+                    (:tieneEspacios = TRUE AND d.espacioFisico.id IN :espacios)
+                 OR (:tieneDocentes = TRUE AND (
+                        d.juradoId IN :docentes
+                     OR d.tutorAcademicoId IN :docentes
+                     OR d.tutorMetodologicoId IN :docentes
+                 ))
+              )
+            """)
+    List<Defensa> buscarParaDisponibilidad(@Param("inicio") LocalDate inicio,
+                                           @Param("fin") LocalDate fin,
+                                           @Param("espacios") Collection<UUID> espacios,
+                                           @Param("tieneEspacios") boolean tieneEspacios,
+                                           @Param("docentes") Collection<Long> docentes,
+                                           @Param("tieneDocentes") boolean tieneDocentes);
 
     @Query("SELECT d FROM Defensa d WHERE d.juradoId = :tutorId OR d.tutorAcademicoId = :tutorId OR d.tutorMetodologicoId = :tutorId")
     List<Defensa> findByTutorId(@Param("tutorId") Long tutorId);

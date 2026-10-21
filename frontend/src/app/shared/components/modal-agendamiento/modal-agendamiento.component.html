@@ -112,7 +112,7 @@
       <p class="text-xs uppercase tracking-widest text-accent-subtle font-medium">Selecciona una franja disponible</p>
 
       <p
-        *ngIf="busquedaRealizada && !isSearching && franjasAgrupadas.size === 0 && !franjaActual"
+        *ngIf="busquedaRealizada && !isSearching && gruposFranjas.length === 0 && !franjaActual"
         class="text-sm text-accent-muted py-4 text-center"
       >
         No hay franjas disponibles (semana inhábil o feriada).
@@ -143,20 +143,25 @@
         </div>
       </div>
 
-      <div *ngFor="let grupo of franjasAgrupadas | keyvalue">
-        <h4 class="text-sm font-semibold text-accent-white mt-4 mb-2">{{ formatearFecha(grupo.key) }}</h4>
-        <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
-          <button
-            *ngFor="let s of grupo.value"
-            type="button"
-            (click)="seleccionarSugerencia(s)"
-            class="border-2 rounded-md px-3 py-2 text-center text-sm font-medium cursor-pointer transition-all duration-100 ease-in-out active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary/20"
-            [attr.aria-pressed]="sugerenciaSeleccionada === s"
-            [ngClass]="{
-              'border-primary bg-primary/10 text-primary font-semibold': sugerenciaSeleccionada === s,
-              'border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50': sugerenciaSeleccionada !== s
-            }"
-          >{{ s.horaInicio }} – {{ s.horaFin }}</button>
+      <div *ngFor="let grupoFecha of gruposFranjas">
+        <h4 class="text-sm font-semibold text-accent-white mt-4 mb-2">{{ formatearFecha(grupoFecha.fecha) }}</h4>
+        <div *ngFor="let grupoTurno of grupoFecha.turnos" class="mb-3 last:mb-0">
+          <p class="text-[11px] uppercase tracking-[0.18em] text-accent-subtle font-medium mb-1.5">
+            {{ grupoTurno.etiqueta }}
+          </p>
+          <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+            <button
+              *ngFor="let s of grupoTurno.franjas"
+              type="button"
+              (click)="seleccionarSugerencia(s)"
+              class="border-2 rounded-md px-3 py-2 text-center text-sm font-medium cursor-pointer transition-all duration-100 ease-in-out active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary/20"
+              [attr.aria-pressed]="sugerenciaSeleccionada === s"
+              [ngClass]="{
+                'border-primary bg-primary/10 text-primary font-semibold': sugerenciaSeleccionada === s,
+                'border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50': sugerenciaSeleccionada !== s
+              }"
+            >{{ s.horaInicio }} – {{ s.horaFin }}</button>
+          </div>
         </div>
       </div>
     </div>

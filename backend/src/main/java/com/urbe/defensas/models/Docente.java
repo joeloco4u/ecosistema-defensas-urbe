@@ -16,6 +16,9 @@ public class Docente {
     @Column(name = "codigo_institucional", nullable = false, unique = true, length = 30)
     private String codigoInstitucional;
 
+    @Column(name = "cedula", nullable = false, unique = true, length = 50)
+    private String cedula;
+
     @Column(name = "nombre_completo", nullable = false, length = 200)
     private String nombreCompleto;
 
@@ -45,6 +48,8 @@ public class Docente {
     public void setId(Long id) { this.id = id; }
     public String getCodigoInstitucional() { return codigoInstitucional; }
     public void setCodigoInstitucional(String codigoInstitucional) { this.codigoInstitucional = codigoInstitucional; }
+    public String getCedula() { return cedula; }
+    public void setCedula(String cedula) { this.cedula = cedula; }
     public String getNombreCompleto() { return nombreCompleto; }
     public void setNombreCompleto(String nombreCompleto) { this.nombreCompleto = nombreCompleto; }
     public String getEmail() { return email; }

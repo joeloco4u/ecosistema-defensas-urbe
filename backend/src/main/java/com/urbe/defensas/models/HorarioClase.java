@@ -32,6 +32,12 @@ public class HorarioClase {
     @Column(name = "hora_fin")
     private LocalTime horaFin;
 
+    @Column(name = "materia", length = 200)
+    private String materia;
+
+    @Column(name = "seccion", length = 50)
+    private String seccion;
+
     public HorarioClase() {}
 
     public UUID getId() { return id; }
@@ -48,4 +54,8 @@ public class HorarioClase {
     public void setHoraInicio(LocalTime horaInicio) { this.horaInicio = horaInicio; }
     public LocalTime getHoraFin() { return horaFin; }
     public void setHoraFin(LocalTime horaFin) { this.horaFin = horaFin; }
+    public String getMateria() { return materia; }
+    public void setMateria(String materia) { this.materia = materia; }
+    public String getSeccion() { return seccion; }
+    public void setSeccion(String seccion) { this.seccion = seccion; }
 }

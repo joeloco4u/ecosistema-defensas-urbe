@@ -5,11 +5,11 @@ import com.urbe.defensas.models.Docente;
 import com.urbe.defensas.models.EspacioFisico;
 import com.urbe.defensas.models.Estudiante;
 import com.urbe.defensas.models.Proyecto;
-import com.urbe.defensas.repositories.DefensaRepository;
 import com.urbe.defensas.repositories.DocenteRepository;
 import com.urbe.defensas.repositories.EspacioFisicoRepository;
-import com.urbe.defensas.repositories.HorarioClaseRepository;
 import com.urbe.defensas.repositories.ProyectoRepository;
+import com.urbe.defensas.services.DisponibilidadService.Intervalo;
+import com.urbe.defensas.util.CedulaUtil;
 import com.urbe.defensas.util.DiasFeriados;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -23,43 +23,41 @@ import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
 public class MotorProgramacionService {
 
     private static final LocalTime HORA_INICIO_JORNADA = LocalTime.of(8, 0);
-    private static final LocalTime HORA_ULTIMO_INICIO = LocalTime.of(19, 0);
+    private static final LocalTime HORA_FIN_JORNADA = LocalTime.of(22, 20);
     private static final LocalTime PRIME_INICIO = LocalTime.of(13, 0);
     private static final LocalTime PRIME_FIN = LocalTime.of(16, 0);
     private static final LocalTime MANANA_INICIO = LocalTime.of(8, 0);
     private static final LocalTime MANANA_FIN = LocalTime.of(12, 0);
     private static final LocalTime TARDE_INICIO = LocalTime.of(17, 0);
     private static final LocalTime TARDE_FIN = LocalTime.of(19, 0);
+    private static final LocalTime NOCHE_INICIO = LocalTime.of(19, 0);
     private static final int DURACION_BLOQUE_MINUTOS = 40;
-    private static final int MAX_SUGERENCIAS = 5;
 
     @Value("${app.periodo-academico.inicio:}")
     private String periodoAcademicoInicio;
 
     private final DocenteRepository docenteRepository;
     private final EspacioFisicoRepository espacioFisicoRepository;
-    private final HorarioClaseRepository horarioClaseRepository;
-    private final DefensaRepository defensaRepository;
     private final ProyectoRepository proyectoRepository;
+    private final DisponibilidadService disponibilidadService;
 
     public MotorProgramacionService(DocenteRepository docenteRepository,
                                     EspacioFisicoRepository espacioFisicoRepository,
-                                    HorarioClaseRepository horarioClaseRepository,
-                                    DefensaRepository defensaRepository,
-                                    ProyectoRepository proyectoRepository) {
+                                    ProyectoRepository proyectoRepository,
+                                    DisponibilidadService disponibilidadService) {
         this.docenteRepository = docenteRepository;
         this.espacioFisicoRepository = espacioFisicoRepository;
-        this.horarioClaseRepository = horarioClaseRepository;
-        this.defensaRepository = defensaRepository;
         this.proyectoRepository = proyectoRepository;
+        this.disponibilidadService = disponibilidadService;
     }
 
     public List<SugerenciaHorarioDTO> calcularDisponibilidad(List<String> cedulasDocentes, UUID espacioFisicoId) {
@@ -78,10 +76,8 @@ public class MotorProgramacionService {
         List<UUID> estudianteIds = resolverIdsEstudiantes(proyectoId);
         List<EspacioFisico> espacios = resolverEspacios(espacioFisicoId);
 
-        List<LocalDate> fechas = resolverFechasCandidatas(semana, diaSemana);
-
-        List<BloqueCandidato> candidatos = new ArrayList<>();
-        for (LocalDate fecha : fechas) {
+        List<LocalDate> fechasValidas = new ArrayList<>();
+        for (LocalDate fecha : resolverFechasCandidatas(semana, diaSemana)) {
             // Los feriados nunca son hábiles. Los fines de semana sólo se excluyen
             // cuando no se pidió explícitamente ese día de la semana.
             if (DiasFeriados.esFeriado(fecha)) {
@@ -90,16 +86,39 @@ public class MotorProgramacionService {
             if (diaSemana == null && DiasFeriados.esFinDeSemana(fecha)) {
                 continue;
             }
-            String dia = diaSemanaEspanol(fecha);
-            for (LocalTime inicio = HORA_INICIO_JORNADA;
-                 !inicio.isAfter(HORA_ULTIMO_INICIO);
-                 inicio = inicio.plusHours(1)) {
-                LocalTime fin = inicio.plusMinutes(DURACION_BLOQUE_MINUTOS);
-                int prioridad = calcularPrioridad(inicio);
-                if (prioridad == 0) continue;
+            fechasValidas.add(fecha);
+        }
 
-                for (EspacioFisico espacio : espacios) {
-                    candidatos.add(new BloqueCandidato(fecha, dia, inicio, fin, prioridad, espacio));
+        if (fechasValidas.isEmpty() || espacios.isEmpty()) {
+            return List.of();
+        }
+
+        List<UUID> espacioIds = espacios.stream()
+                .map(EspacioFisico::getId)
+                .toList();
+
+        DisponibilidadService.Disponibilidad disponibilidad = disponibilidadService.calcular(
+                fechasValidas.get(0),
+                fechasValidas.get(fechasValidas.size() - 1),
+                espacioIds,
+                docenteIds,
+                estudianteIds,
+                HORA_INICIO_JORNADA,
+                HORA_FIN_JORNADA);
+
+        List<BloqueCandidato> candidatos = new ArrayList<>();
+        for (LocalDate fecha : fechasValidas) {
+            for (EspacioFisico espacio : espacios) {
+                for (Intervalo intervalo : disponibilidad.libres(fecha, espacio.getId())) {
+                    LocalTime inicio = intervalo.inicio();
+                    while (!inicio.plusMinutes(DURACION_BLOQUE_MINUTOS).isAfter(intervalo.fin())) {
+                        LocalTime fin = inicio.plusMinutes(DURACION_BLOQUE_MINUTOS);
+                        int prioridad = calcularPrioridad(inicio);
+                        if (prioridad > 0) {
+                            candidatos.add(new BloqueCandidato(fecha, inicio, fin, prioridad, espacio));
+                        }
+                        inicio = inicio.plusMinutes(DURACION_BLOQUE_MINUTOS);
+                    }
                 }
             }
         }
@@ -108,31 +127,11 @@ public class MotorProgramacionService {
                 .thenComparing(BloqueCandidato::getFecha)
                 .thenComparing(BloqueCandidato::getInicio));
 
-        boolean tieneDocentes = !docenteIds.isEmpty();
-        boolean tieneEstudiantes = !estudianteIds.isEmpty();
-
-        List<SugerenciaHorarioDTO> sugerencias = new ArrayList<>();
-        for (BloqueCandidato candidato : candidatos) {
-            boolean choqueConClases = horarioClaseRepository.existeChoqueDeClases(
-                    candidato.dia, candidato.espacio.getId(),
-                    docenteIds, tieneDocentes,
-                    estudianteIds, tieneEstudiantes,
-                    candidato.inicio, candidato.fin);
-            if (choqueConClases) continue;
-
-            boolean choqueConDefensas = defensaRepository.existeDefensaEnHorario(
-                    candidato.fecha, candidato.espacio.getId(), docenteIds, candidato.inicio, candidato.fin, null);
-            if (choqueConDefensas) continue;
-
-            sugerencias.add(new SugerenciaHorarioDTO(
-                    candidato.fecha, candidato.inicio, candidato.fin,
-                    candidato.espacio.getId(), candidato.espacio.getCodigoAula()));
-            if (sugerencias.size() >= MAX_SUGERENCIAS) {
-                return sugerencias;
-            }
-        }
-
-        return sugerencias;
+        return candidatos.stream()
+                .map(candidato -> new SugerenciaHorarioDTO(
+                        candidato.fecha, candidato.inicio, candidato.fin,
+                        candidato.espacio.getId(), candidato.espacio.getCodigoAula()))
+                .toList();
     }
 
     /**
@@ -143,13 +142,17 @@ public class MotorProgramacionService {
     private List<Long> resolverIdsDocentes(List<String> cedulasDocentes) {
         if (cedulasDocentes == null) return List.of();
         List<Long> docenteIds = new ArrayList<>();
+        Set<Long> vistos = new HashSet<>();
         for (String cedula : cedulasDocentes) {
-            if (cedula == null || cedula.isBlank()) continue;
-            Docente docente = docenteRepository.findByCodigoInstitucional(cedula.trim())
+            if (!CedulaUtil.esValida(cedula)) continue;
+            Docente docente = docenteRepository.findByCedulaNormalizada(cedula)
+                    .filter(d -> Boolean.TRUE.equals(d.getActivo()))
                     .orElseThrow(() -> new ResponseStatusException(
                             HttpStatus.BAD_REQUEST,
-                            "Cédula no encontrada en el sistema: " + cedula));
-            docenteIds.add(docente.getId());
+                            "Cédula no encontrada o docente inactivo en el sistema: " + cedula));
+            if (vistos.add(docente.getId())) {
+                docenteIds.add(docente.getId());
+            }
         }
         return docenteIds;
     }
@@ -191,6 +194,7 @@ public class MotorProgramacionService {
         if (!inicio.isBefore(PRIME_INICIO) && !inicio.isAfter(PRIME_FIN)) return 1;
         if (!inicio.isBefore(MANANA_INICIO) && !inicio.isAfter(MANANA_FIN)) return 2;
         if (!inicio.isBefore(TARDE_INICIO) && !inicio.isAfter(TARDE_FIN)) return 3;
+        if (!inicio.isBefore(NOCHE_INICIO) && inicio.isBefore(HORA_FIN_JORNADA)) return 4;
         return 0;
     }
 
@@ -243,31 +247,16 @@ public class MotorProgramacionService {
         }
     }
 
-    private String diaSemanaEspanol(LocalDate fecha) {
-        DayOfWeek dia = fecha.getDayOfWeek();
-        return switch (dia) {
-            case MONDAY -> "LUNES";
-            case TUESDAY -> "MARTES";
-            case WEDNESDAY -> "MIERCOLES";
-            case THURSDAY -> "JUEVES";
-            case FRIDAY -> "VIERNES";
-            case SATURDAY -> "SABADO";
-            default -> "DOMINGO";
-        };
-    }
-
     private static class BloqueCandidato {
         final LocalDate fecha;
-        final String dia;
         final LocalTime inicio;
         final LocalTime fin;
         final int prioridad;
         final EspacioFisico espacio;
 
-        BloqueCandidato(LocalDate fecha, String dia, LocalTime inicio, LocalTime fin,
+        BloqueCandidato(LocalDate fecha, LocalTime inicio, LocalTime fin,
                         int prioridad, EspacioFisico espacio) {
             this.fecha = fecha;
-            this.dia = dia;
             this.inicio = inicio;
             this.fin = fin;
             this.prioridad = prioridad;

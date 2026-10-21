@@ -8,10 +8,30 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalTime;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 @Repository
 public interface HorarioClaseRepository extends JpaRepository<HorarioClase, UUID> {
+
+    void deleteByDocenteIdIn(Collection<Long> docenteIds);
+
+    @Query("""
+            SELECT h FROM HorarioClase h
+            WHERE h.diaSemana IN :dias
+              AND (
+                    (:tieneEspacios = TRUE AND h.espacioId IN :espacios)
+                 OR (:tieneDocentes = TRUE AND h.docenteId IN :docentes)
+                 OR (:tieneEstudiantes = TRUE AND h.estudianteId IN :estudiantes)
+              )
+            """)
+    List<HorarioClase> buscarParaDisponibilidad(@Param("dias") Collection<String> dias,
+                                                @Param("espacios") Collection<UUID> espacios,
+                                                @Param("tieneEspacios") boolean tieneEspacios,
+                                                @Param("docentes") Collection<Long> docentes,
+                                                @Param("tieneDocentes") boolean tieneDocentes,
+                                                @Param("estudiantes") Collection<UUID> estudiantes,
+                                                @Param("tieneEstudiantes") boolean tieneEstudiantes);
 
     /**
      * ¿Existe alguna clase que colisione con (día, aula, docentes, estudiantes, franja)?

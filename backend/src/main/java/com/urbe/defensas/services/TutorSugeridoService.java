@@ -5,6 +5,7 @@ import com.urbe.defensas.models.Docente;
 import com.urbe.defensas.models.TutorSugerido;
 import com.urbe.defensas.repositories.DocenteRepository;
 import com.urbe.defensas.repositories.TutorSugeridoRepository;
+import com.urbe.defensas.util.CedulaUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,19 +51,19 @@ public class TutorSugeridoService {
 
         existente.setEstado(nuevoEstado);
 
+        String cedula = CedulaUtil.soloDigitos(existente.getCedula());
         if (nuevoEstado.equalsIgnoreCase("APROBADO")
-                && existeCedula(existente) && !docenteRepository.existsByCodigoInstitucional(existente.getCedula())) {
+                && !cedula.isEmpty()
+                && docenteRepository.findByCedulaNormalizada(cedula).isEmpty()) {
             Docente nuevoDocente = new Docente();
-            nuevoDocente.setCodigoInstitucional(existente.getCedula());
+            nuevoDocente.setCedula(cedula);
+            nuevoDocente.setCodigoInstitucional("DOC-" + cedula);
             nuevoDocente.setNombreCompleto(existente.getNombre() + " " + existente.getApellido());
             nuevoDocente.setDepartamento(existente.getAreaInvestigacion());
+            nuevoDocente.setActivo(true);
             docenteRepository.save(nuevoDocente);
         }
 
         return tutorSugeridoRepository.save(existente);
-    }
-
-    private boolean existeCedula(TutorSugerido tutor) {
-        return tutor.getCedula() != null && !tutor.getCedula().trim().isEmpty();
     }
 }

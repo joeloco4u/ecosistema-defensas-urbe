@@ -3,7 +3,8 @@ import { DocenteService } from '../../core/services/docente.service';
 
 interface DocenteInfo {
   id: number;
-  codigoInstitucional: string;
+  cedula?: string;
+  codigoInstitucional?: string;
   nombreCompleto: string;
   email?: string;
   departamento?: string;
@@ -53,6 +54,7 @@ export class DirectorioDocentesComponent implements OnInit {
     return this.docentes.filter(
       (d) =>
         (d.nombreCompleto ?? '').toLowerCase().includes(termino) ||
+        (d.cedula ?? '').toLowerCase().includes(termino) ||
         (d.codigoInstitucional ?? '').toLowerCase().includes(termino),
     );
   }
@@ -98,7 +100,7 @@ export class DirectorioDocentesComponent implements OnInit {
     if (!this.nuevoDocente.nombre || !this.nuevoDocente.cedula) return;
     const payload = {
       nombreCompleto: this.nuevoDocente.nombre,
-      codigoInstitucional: this.nuevoDocente.cedula,
+      cedula: this.nuevoDocente.cedula,
       departamento: this.nuevoDocente.departamento,
       email: this.nuevoDocente.email,
     };

@@ -2,6 +2,7 @@ package com.urbe.defensas.config;
 
 import com.urbe.defensas.models.*;
 import com.urbe.defensas.repositories.*;
+import com.urbe.defensas.util.CedulaUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -94,7 +95,8 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         // ── Docentes ──
         Docente docente1 = new Docente();
-        docente1.setCodigoInstitucional("V-12345678");
+        docente1.setCedula("12345678");
+        docente1.setCodigoInstitucional("DOC-12345678");
         docente1.setNombreCompleto("María Rodríguez");
         docente1.setEmail("maria.rodriguez@urbe.edu.ve");
         docente1.setDepartamento("Desarrollo de Software");
@@ -102,7 +104,8 @@ public class DatabaseSeeder implements CommandLineRunner {
         docente1.setActivo(true);
 
         Docente docente2 = new Docente();
-        docente2.setCodigoInstitucional("V-23456789");
+        docente2.setCedula("23456789");
+        docente2.setCodigoInstitucional("DOC-23456789");
         docente2.setNombreCompleto("Carlos Mendoza");
         docente2.setEmail("carlos.mendoza@urbe.edu.ve");
         docente2.setDepartamento("Ciberseguridad");
@@ -110,7 +113,8 @@ public class DatabaseSeeder implements CommandLineRunner {
         docente2.setActivo(true);
 
         Docente docente3 = new Docente();
-        docente3.setCodigoInstitucional("V-34567890");
+        docente3.setCedula("34567890");
+        docente3.setCodigoInstitucional("DOC-34567890");
         docente3.setNombreCompleto("Ana López");
         docente3.setEmail("ana.lopez@urbe.edu.ve");
         docente3.setDepartamento("Telecomunicaciones");
@@ -184,7 +188,7 @@ public class DatabaseSeeder implements CommandLineRunner {
     public int backfillTutoresDesdeAprobados() {
         Map<String, Docente> docentesPorCedula = new HashMap<>();
         for (Docente docente : docenteRepository.findAll()) {
-            String clave = normalizarCedula(docente.getCodigoInstitucional());
+            String clave = CedulaUtil.normalizar(docente.getCedula());
             if (!clave.isEmpty()) {
                 docentesPorCedula.putIfAbsent(clave, docente);
             }
@@ -384,12 +388,7 @@ public class DatabaseSeeder implements CommandLineRunner {
     }
 
     private static String normalizarCedula(String cedula) {
-        if (cedula == null) return "";
-        StringBuilder soloDigitos = new StringBuilder();
-        for (char c : cedula.toCharArray()) {
-            if (Character.isDigit(c)) soloDigitos.append(c);
-        }
-        return soloDigitos.toString();
+        return CedulaUtil.normalizar(cedula);
     }
 
     private static List<String> parsearCsv(String linea) {

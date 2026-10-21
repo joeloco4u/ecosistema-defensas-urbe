@@ -1,4 +1,5 @@
 package com.urbe.defensas.dtos;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -7,12 +8,12 @@ import java.util.UUID;
 public class RegistroDefensaDTO {
     @NotNull private UUID proyectoId;
     @NotNull private UUID espacioId;
-    @NotNull private LocalDate fecha;
+    @NotNull @FutureOrPresent private LocalDate fecha;
     @NotNull private LocalTime horaInicio;
     @NotNull private LocalTime horaFin;
-    private Long tutorAcademicoId;
-    private Long tutorMetodologicoId;
-    private Long juradoId;
+    @NotNull private Long tutorAcademicoId;
+    @NotNull private Long tutorMetodologicoId;
+    @NotNull private Long juradoId;
 
     public UUID getProyectoId() { return proyectoId; }
     public void setProyectoId(UUID proyectoId) { this.proyectoId = proyectoId; }
