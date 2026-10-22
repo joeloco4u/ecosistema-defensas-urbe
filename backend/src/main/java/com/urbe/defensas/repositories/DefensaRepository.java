@@ -33,7 +33,6 @@ public interface DefensaRepository extends JpaRepository<Defensa, UUID>, JpaSpec
                  OR (:tieneDocentes = TRUE AND (
                         d.juradoId IN :docentes
                      OR d.tutorAcademicoId IN :docentes
-                     OR d.tutorMetodologicoId IN :docentes
                  ))
               )
             """)

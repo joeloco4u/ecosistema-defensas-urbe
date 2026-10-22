@@ -70,8 +70,11 @@ public class DefensaService {
                 .orElseThrow(() -> new RuntimeException("Espacio físico no encontrado"));
 
         List<UUID> estudianteIds = idsEstudiantesDe(proyecto);
+        // El Tutor Metodológico ya no debe estar presente: no restringe la franja.
+        List<Long> docentesDisponibilidad = Arrays.asList(
+                dto.getJuradoId(), dto.getTutorAcademicoId());
 
-        validarDisponibilidad(dto.getFecha(), dto.getEspacioId(), docentesIds, estudianteIds,
+        validarDisponibilidad(dto.getFecha(), dto.getEspacioId(), docentesDisponibilidad, estudianteIds,
                 dto.getHoraInicio(), dto.getHoraFin(), null);
 
         Defensa defensa = new Defensa();
@@ -112,8 +115,10 @@ public class DefensaService {
                 .orElseThrow(() -> new RuntimeException("Espacio físico no encontrado"));
 
         List<UUID> estudianteIds = idsEstudiantesDe(existente.getProyecto());
+        // El Tutor Metodológico no participa en la validación de disponibilidad.
+        List<Long> docentesDisponibilidad = docentesIds.subList(0, 2);
 
-        validarDisponibilidad(dto.getFecha(), dto.getEspacioId(), docentesIds, estudianteIds,
+        validarDisponibilidad(dto.getFecha(), dto.getEspacioId(), docentesDisponibilidad, estudianteIds,
                 dto.getHoraInicio(), dto.getHoraFin(), id);
 
         existente.setFecha(dto.getFecha());

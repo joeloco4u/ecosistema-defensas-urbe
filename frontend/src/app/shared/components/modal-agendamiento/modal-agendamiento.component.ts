@@ -250,7 +250,6 @@ cargando = false;
     const cedulas = [
       this.getCedula(this.juradoId),
       this.getCedula(this.tutorAcademicoId),
-      this.getCedula(this.tutorMetodologicoId),
     ].filter((c): c is string => !!c);
     this.programacionService.getSugerencias(cedulas, this.espacioId, this.semanaSeleccionada, this.proyecto?.id, this.diaSeleccionado).subscribe({
       next: (data) => {

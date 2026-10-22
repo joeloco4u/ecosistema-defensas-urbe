@@ -223,8 +223,7 @@ public class DisponibilidadService {
     private static boolean participaDocente(Defensa defensa, Set<Long> docentes) {
         if (docentes.isEmpty()) return false;
         return docentes.contains(defensa.getJuradoId())
-                || docentes.contains(defensa.getTutorAcademicoId())
-                || docentes.contains(defensa.getTutorMetodologicoId());
+                || docentes.contains(defensa.getTutorAcademicoId());
     }
 
     private static Intervalo intervalo(LocalTime inicio, LocalTime fin) {
