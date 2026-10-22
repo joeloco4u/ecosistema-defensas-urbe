@@ -34,6 +34,8 @@ import java.util.UUID;
 @Transactional
 public class DefensaService {
 
+    private static final LocalTime HORA_MAXIMA_FIN_DEFENSA = LocalTime.of(21, 0);
+
     private final DefensaRepository defensaRepository;
     private final ProyectoRepository proyectoRepository;
     private final EspacioFisicoRepository espacioFisicoRepository;
@@ -191,6 +193,11 @@ public class DefensaService {
         if (!horaInicio.isBefore(horaFin)) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "La hora de inicio debe ser anterior a la hora de fin");
+        }
+        if (!horaInicio.isBefore(HORA_MAXIMA_FIN_DEFENSA)
+                || horaFin.isAfter(HORA_MAXIMA_FIN_DEFENSA)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "La defensa debe finalizar a más tardar a las 21:00");
         }
     }
 

@@ -33,6 +33,7 @@ public class MotorProgramacionService {
 
     private static final LocalTime HORA_INICIO_JORNADA = LocalTime.of(8, 0);
     private static final LocalTime HORA_FIN_JORNADA = LocalTime.of(22, 20);
+    private static final LocalTime HORA_MAXIMA_FIN_DEFENSA = LocalTime.of(21, 0);
     private static final LocalTime PRIME_INICIO = LocalTime.of(13, 0);
     private static final LocalTime PRIME_FIN = LocalTime.of(16, 0);
     private static final LocalTime MANANA_INICIO = LocalTime.of(8, 0);
@@ -112,7 +113,13 @@ public class MotorProgramacionService {
                 for (Intervalo intervalo : disponibilidad.libres(fecha, espacio.getId())) {
                     LocalTime inicio = intervalo.inicio();
                     while (!inicio.plusMinutes(DURACION_BLOQUE_MINUTOS).isAfter(intervalo.fin())) {
+                        if (!inicio.isBefore(HORA_MAXIMA_FIN_DEFENSA)) {
+                            break;
+                        }
                         LocalTime fin = inicio.plusMinutes(DURACION_BLOQUE_MINUTOS);
+                        if (fin.isAfter(HORA_MAXIMA_FIN_DEFENSA)) {
+                            break;
+                        }
                         int prioridad = calcularPrioridad(inicio);
                         if (prioridad > 0) {
                             candidatos.add(new BloqueCandidato(fecha, inicio, fin, prioridad, espacio));
