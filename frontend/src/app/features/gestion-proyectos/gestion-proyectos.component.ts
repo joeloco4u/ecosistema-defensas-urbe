@@ -21,6 +21,7 @@ interface ProyectoRegistro {
   estudiante2?: EstudianteInfo;
   estudiante3?: EstudianteInfo;
   tutor?: TutorInfo;
+  tutorMetodologico?: TutorInfo;
   juradoNombre?: string;
   estatus: string;
 }
@@ -48,6 +49,9 @@ export class GestionProyectosComponent implements OnInit {
 
   modalReagendarAbierto = false;
   reagendarDefensa: any = null;
+
+  modalAgendarAbierto = false;
+  proyectoAgendar: ProyectoRegistro | null = null;
 
   constructor(
     private proyectoService: ProyectoService,
@@ -139,6 +143,60 @@ export class GestionProyectosComponent implements OnInit {
   cerrarExpediente(): void {
     this.mostrarModalExpediente = false;
     this.proyectoSeleccionado = null;
+  }
+
+  abrirModalAgendar(proyecto: ProyectoRegistro): void {
+    this.proyectoAgendar = proyecto;
+    this.modalAgendarAbierto = true;
+  }
+
+  cerrarModalAgendar(): void {
+    this.modalAgendarAbierto = false;
+    this.proyectoAgendar = null;
+  }
+
+  infoProyectoAgendar(): any {
+    const proyecto = this.proyectoAgendar;
+    if (!proyecto) return null;
+
+    return {
+      id: proyecto.id,
+      tesista: this.nombreEstudiante(proyecto.estudiante),
+      titulo: proyecto.titulo || 'Sin título',
+      expediente: proyecto.expediente ?? null,
+      estudiante: proyecto.estudiante ?? null,
+      estudiante2: proyecto.estudiante2 ?? null,
+      estudiante3: proyecto.estudiante3 ?? null,
+      tutor: proyecto.tutor ?? null,
+      tutorMetodologico: proyecto.tutorMetodologico ?? null,
+    };
+  }
+
+  onConfirmarAgendar(evento: any): void {
+    if (!this.proyectoAgendar) return;
+
+    const body = {
+      proyectoId: this.proyectoAgendar.id,
+      espacioId: evento.espacioId,
+      fecha: evento.fecha,
+      horaInicio: evento.horaInicio.length === 5 ? `${evento.horaInicio}:00` : evento.horaInicio,
+      horaFin: evento.horaFin.length === 5 ? `${evento.horaFin}:00` : evento.horaFin,
+      tutorAcademicoId: evento.tutorAcademicoId,
+      tutorMetodologicoId: evento.tutorMetodologicoId,
+      juradoId: evento.juradoId,
+    };
+
+    this.defensaService.crearDefensa(body).subscribe({
+      next: () => {
+        window.alert('Defensa agendada exitosamente.');
+        this.cerrarModalAgendar();
+        this.cargarProyectos();
+      },
+      error: (err) => {
+        console.error('Error al agendar la defensa', err);
+        window.alert('No se pudo agendar la defensa: ' + err.message);
+      },
+    });
   }
 
   abrirModalReagendar(proyecto: any): void {

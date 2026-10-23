@@ -89,6 +89,13 @@
                 VER EXPEDIENTE
               </button>
               <button
+                *ngIf="p.estatus === 'PENDIENTE'"
+                (click)="abrirModalAgendar(p)"
+                class="urbe-btn urbe-btn-sm bg-emerald-600 hover:bg-emerald-700 text-white ml-2 transition-all duration-100 ease-in-out active:scale-[0.98]"
+              >
+                AGENDAR
+              </button>
+              <button
                 *ngIf="p.estatus === 'AGENDADO'"
                 (click)="abrirModalReagendar(p)"
                 class="urbe-btn urbe-btn-sm bg-accent-white text-[#fff] enabled:hover:brightness-110 ml-2 transition-all duration-100 ease-in-out active:scale-[0.98]"
@@ -151,6 +158,15 @@
   botonConfirmar="Confirmar Reagendación"
   (closeModal)="cerrarModalReagendar()"
   (confirmar)="onConfirmarReagendar($event)"
+></app-modal-agendamiento>
+
+<app-modal-agendamiento
+  [isOpen]="modalAgendarAbierto"
+  [proyecto]="infoProyectoAgendar()"
+  tituloModal="Agendar Defensa"
+  botonConfirmar="Confirmar Agendamiento"
+  (closeModal)="cerrarModalAgendar()"
+  (confirmar)="onConfirmarAgendar($event)"
 ></app-modal-agendamiento>
 
 <!-- Modal Expediente Alumno -->

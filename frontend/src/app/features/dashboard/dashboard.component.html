@@ -55,7 +55,6 @@
             <th>Expediente</th>
             <th>Proyecto</th>
             <th>Tutor</th>
-            <th>Acción</th>
           </tr>
         </thead>
         <tbody>
@@ -65,24 +64,9 @@
             </td>
             <td class="cell-muted">{{ p.titulo }}</td>
             <td class="cell-muted">{{ p.tutor?.nombreCompleto || 'Por asignar' }}</td>
-            <td>
-              <button
-                (click)="abrirModalAgendamiento(p)"
-                class="urbe-btn urbe-btn-primary urbe-btn-sm"
-              >
-                Agendar
-              </button>
-            </td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
 </div>
-
-<app-modal-agendamiento
-  [isOpen]="modalAbierto"
-  [proyecto]="proyectoSeleccionado"
-  (closeModal)="cerrarModal()"
-  (confirmar)="onConfirmarDefensa($event)"
-></app-modal-agendamiento>
