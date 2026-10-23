@@ -47,6 +47,11 @@ const routes: Routes = [
     loadComponent: () => import('./features/documentos/pre-defensa-print/pre-defensa-print.component').then(m => m.PreDefensaPrintComponent),
     canActivate: [AuthGuard],
   },
+  {
+    path: 'imprimir/veredicto/:id',
+    loadComponent: () => import('./features/documentos/veredicto-print/veredicto-print.component').then(m => m.VeredictoPrintComponent),
+    canActivate: [AuthGuard],
+  },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' },
 ];

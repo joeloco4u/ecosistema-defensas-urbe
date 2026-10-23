@@ -1,0 +1,209 @@
+<style>
+  :host {
+    display: block;
+    background: #e5e7eb;
+    color: #000;
+  }
+
+  .veredicto-screen {
+    padding: 2rem 0;
+  }
+
+  .page {
+    width: 21.59cm;
+    min-height: 27.94cm;
+    margin: 0 auto 2rem;
+    padding: 2.2cm;
+    background: #fff;
+    color: #000;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 12pt;
+    line-height: 1.8;
+    box-sizing: border-box;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .encabezado {
+    text-align: center;
+    border-bottom: 2px solid #000;
+    padding-bottom: 0.8rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .universidad {
+    font-size: 14pt;
+    font-weight: bold;
+    letter-spacing: 0.03em;
+  }
+
+  .facultad,
+  .escuela {
+    font-size: 11pt;
+    font-weight: bold;
+  }
+
+  .titulo-documento {
+    font-size: 16pt;
+    font-weight: bold;
+    letter-spacing: 0.25em;
+    margin-top: 1rem;
+  }
+
+  .expediente {
+    font-size: 9pt;
+    margin-top: 0.35rem;
+  }
+
+  .texto {
+    text-align: justify;
+    text-justify: inter-word;
+    margin-bottom: 1rem;
+    text-indent: 2cm;
+  }
+
+  .firmas {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.2cm;
+    margin-top: auto;
+    padding-top: 2.5cm;
+    text-align: center;
+  }
+
+  .firma {
+    min-width: 0;
+  }
+
+  .linea {
+    display: block;
+    width: 100%;
+    border-top: 1px solid #000;
+    margin-bottom: 0.4rem;
+  }
+
+  .nombre-firmante {
+    font-size: 10pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    line-height: 1.35;
+  }
+
+  .rol-firmante {
+    font-size: 10pt;
+    line-height: 1.35;
+  }
+
+  .decana {
+    width: 55%;
+    margin: 1.8cm auto 0;
+    text-align: center;
+  }
+
+  .no-print {
+    max-width: 21.59cm;
+    margin: 2rem auto;
+    padding: 1rem 1.5rem;
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+  }
+
+  @media print {
+    @page {
+      size: letter portrait;
+      margin: 0;
+    }
+
+    :host,
+    .veredicto-screen {
+      background: #fff !important;
+      padding: 0 !important;
+    }
+
+    .page {
+      width: 100%;
+      min-height: 100vh;
+      margin: 0;
+      padding: 2.2cm;
+      box-shadow: none;
+      page-break-after: always;
+      break-after: page;
+    }
+
+    .page:last-child {
+      page-break-after: auto;
+      break-after: auto;
+    }
+
+    .no-print {
+      display: none !important;
+    }
+  }
+</style>
+
+<div class="veredicto-screen">
+  <div *ngIf="cargando" class="no-print">Cargando información del veredicto...</div>
+
+  <div *ngIf="error" class="no-print">{{ error }}</div>
+
+  <ng-container *ngIf="!cargando && !error && proyecto">
+    <section class="page" *ngFor="let tesista of tesistas">
+      <header class="encabezado">
+        <p class="universidad">UNIVERSIDAD PRIVADA DR. RAFAEL BELLOSO CHACÍN</p>
+        <p class="facultad">FACULTAD DE INGENIERÍA</p>
+        <p class="escuela">ESCUELA DE {{ escuela | uppercase }}</p>
+        <p class="titulo-documento">VEREDICTO</p>
+        <p class="expediente" *ngIf="proyecto.expediente">
+          Expediente: {{ proyecto.expediente }}
+        </p>
+      </header>
+
+      <p class="texto">
+        Nosotros, los profesores
+        <strong>{{ jurado }}</strong>,
+        <strong>{{ tutorAcademico }}</strong> y
+        <strong>{{ tutorMetodologico }}</strong>, designados como jurado examinador
+        del Trabajo Especial de Grado titulado
+        <strong>“{{ proyecto.titulo || 'Sin título' }}”</strong>, presentado por
+        el (la) ciudadano(a) <strong>{{ tesista.nombre }}</strong>, titular de la
+        Cédula de Identidad N° <strong>{{ tesista.cedula }}</strong>, para optar
+        al título de Ingeniero(a) en <strong>{{ escuela }}</strong>, hacemos
+        constar que, después de haber revisado el trabajo y presenciado su
+        exposición y defensa pública, hemos acordado otorgar la calificación de
+        <strong>__________________ (____) puntos</strong>.
+      </p>
+
+      <p class="texto">
+        Se expide el presente veredicto en la ciudad de Maracaibo, a los
+        {{ fechaDefensa }}.
+      </p>
+
+      <div class="firmas">
+        <div class="firma">
+          <span class="linea"></span>
+          <p class="nombre-firmante">{{ jurado }}</p>
+          <p class="rol-firmante">Jurado</p>
+        </div>
+        <div class="firma">
+          <span class="linea"></span>
+          <p class="nombre-firmante">{{ tutorAcademico }}</p>
+          <p class="rol-firmante">Tutor Académico</p>
+        </div>
+        <div class="firma">
+          <span class="linea"></span>
+          <p class="nombre-firmante">{{ tutorMetodologico }}</p>
+          <p class="rol-firmante">Tutor Metodológico</p>
+        </div>
+      </div>
+
+      <div class="decana">
+        <span class="linea"></span>
+        <p class="nombre-firmante">Decana</p>
+        <p class="rol-firmante">Facultad de Ingeniería</p>
+      </div>
+    </section>
+  </ng-container>
+</div>
