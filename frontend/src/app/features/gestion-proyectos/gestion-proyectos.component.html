@@ -62,6 +62,7 @@
           <th>Expediente</th>
           <th>Título</th>
           <th>Tutor</th>
+          <th>Jurado</th>
           <th>Estatus</th>
           <th>Acción</th>
         </tr>
@@ -73,6 +74,7 @@
           </td>
           <td class="cell-muted">{{ p.titulo || 'Sin título' }}</td>
           <td class="cell-muted">{{ p.tutor?.nombreCompleto || '—' }}</td>
+          <td class="cell-muted">{{ p.estatus === 'AGENDADO' ? (p.juradoNombre || '—') : '—' }}</td>
           <td>
             <span [class]="'font-medium px-2 py-1 rounded text-xs ' + estatusClase(p.estatus)">
               {{ p.estatus }}
@@ -104,10 +106,10 @@
           </td>
         </tr>
         <tr *ngIf="cargando">
-          <td colspan="5" class="urbe-empty">Cargando proyectos...</td>
+          <td colspan="6" class="urbe-empty">Cargando proyectos...</td>
         </tr>
         <tr *ngIf="!cargando && proyectosFiltrados.length === 0">
-          <td colspan="5" class="urbe-empty">
+          <td colspan="6" class="urbe-empty">
             No se encontraron proyectos con los filtros seleccionados.
           </td>
         </tr>
@@ -153,13 +155,13 @@
 
 <!-- Modal Expediente Alumno -->
 <div *ngIf="mostrarModalExpediente && proyectoSeleccionado" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 print:hidden">
-  <div class="urbe-modal w-full max-w-2xl p-6">
-    <div class="urbe-modal-header flex justify-between items-center mb-6 pb-4 -mx-6 -mt-6 px-6 pt-6">
+  <div class="urbe-modal w-full max-w-2xl p-6 max-h-[90vh] flex flex-col">
+    <div class="urbe-modal-header flex shrink-0 justify-between items-center mb-6 pb-4 -mx-6 -mt-6 px-6 pt-6">
       <h3 class="urbe-modal-title">Expediente del Proyecto</h3>
       <button (click)="cerrarExpediente()" class="urbe-close-btn text-xl leading-none">&times;</button>
     </div>
 
-    <div class="space-y-6">
+    <div class="space-y-6 max-h-[70vh] overflow-y-auto">
       <div>
         <h4 class="urbe-modal-label mb-2">Título de la Investigación</h4>
         <p class="text-base font-medium" style="color: var(--urbe-text)">{{ proyectoSeleccionado.titulo || 'Sin título asignado' }}</p>

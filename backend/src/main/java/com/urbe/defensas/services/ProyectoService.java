@@ -1,13 +1,21 @@
 package com.urbe.defensas.services;
 
 import com.urbe.defensas.dtos.ProyectoDTO;
+import com.urbe.defensas.models.Defensa;
+import com.urbe.defensas.models.Docente;
 import com.urbe.defensas.models.Proyecto;
+import com.urbe.defensas.repositories.DefensaRepository;
+import com.urbe.defensas.repositories.DocenteRepository;
 import com.urbe.defensas.repositories.ProyectoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -15,13 +23,19 @@ import java.util.UUID;
 public class ProyectoService {
 
     private final ProyectoRepository proyectoRepository;
+    private final DefensaRepository defensaRepository;
+    private final DocenteRepository docenteRepository;
 
-    public ProyectoService(ProyectoRepository proyectoRepository) {
+    public ProyectoService(ProyectoRepository proyectoRepository,
+                           DefensaRepository defensaRepository,
+                           DocenteRepository docenteRepository) {
         this.proyectoRepository = proyectoRepository;
+        this.defensaRepository = defensaRepository;
+        this.docenteRepository = docenteRepository;
     }
 
     public ProyectoDTO crear(Proyecto proyecto) {
-        return ProyectoDTO.fromEntity(proyectoRepository.save(proyecto));
+        return toDTO(proyectoRepository.save(proyecto));
     }
 
     public ProyectoDTO actualizar(UUID id, Proyecto proyecto) {
@@ -35,21 +49,64 @@ public class ProyectoService {
         existente.setTutor(proyecto.getTutor());
         existente.setTutorMetodologico(proyecto.getTutorMetodologico());
         existente.setEstatus(proyecto.getEstatus());
-        return ProyectoDTO.fromEntity(proyectoRepository.save(existente));
+        return toDTO(proyectoRepository.save(existente));
     }
 
     @Transactional(readOnly = true)
     public ProyectoDTO obtenerPorId(UUID id) {
         Proyecto proyecto = proyectoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Proyecto no encontrado"));
-        return ProyectoDTO.fromEntity(proyecto);
+        return toDTO(proyecto);
     }
 
     @Transactional(readOnly = true)
     public List<ProyectoDTO> listarTodos() {
-        return proyectoRepository.findAll().stream()
-                .map(ProyectoDTO::fromEntity)
+        List<Proyecto> proyectos = proyectoRepository.findAll();
+        Map<UUID, Defensa> defensasPorProyecto = new HashMap<>();
+        Set<Long> juradoIds = new HashSet<>();
+
+        for (Defensa defensa : defensaRepository.findAll()) {
+            if (defensa.getProyecto() != null) {
+                defensasPorProyecto.putIfAbsent(defensa.getProyecto().getId(), defensa);
+            }
+            if (defensa.getJuradoId() != null) {
+                juradoIds.add(defensa.getJuradoId());
+            }
+        }
+
+        Map<Long, String> nombresJurados = new HashMap<>();
+        for (Docente docente : docenteRepository.findAllById(juradoIds)) {
+            nombresJurados.put(docente.getId(), docente.getNombreCompleto());
+        }
+
+        return proyectos.stream()
+                .map(proyecto -> ProyectoDTO.fromEntity(
+                        proyecto,
+                        nombreJurado(proyecto.getId(), defensasPorProyecto, nombresJurados)))
                 .toList();
+    }
+
+    private ProyectoDTO toDTO(Proyecto proyecto) {
+        Defensa defensa = defensaRepository.findByProyectoId(proyecto.getId()).stream()
+                .findFirst()
+                .orElse(null);
+        String juradoNombre = null;
+        if (defensa != null && defensa.getJuradoId() != null) {
+            juradoNombre = docenteRepository.findById(defensa.getJuradoId())
+                    .map(Docente::getNombreCompleto)
+                    .orElse(null);
+        }
+        return ProyectoDTO.fromEntity(proyecto, juradoNombre);
+    }
+
+    private String nombreJurado(UUID proyectoId,
+                                Map<UUID, Defensa> defensasPorProyecto,
+                                Map<Long, String> nombresJurados) {
+        Defensa defensa = defensasPorProyecto.get(proyectoId);
+        if (defensa == null || defensa.getJuradoId() == null) {
+            return null;
+        }
+        return nombresJurados.get(defensa.getJuradoId());
     }
 
     public List<String> listarEscuelas() {

@@ -21,6 +21,7 @@ interface ProyectoRegistro {
   estudiante2?: EstudianteInfo;
   estudiante3?: EstudianteInfo;
   tutor?: TutorInfo;
+  juradoNombre?: string;
   estatus: string;
 }
 

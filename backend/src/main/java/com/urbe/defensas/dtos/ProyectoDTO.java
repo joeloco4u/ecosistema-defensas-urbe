@@ -25,8 +25,13 @@ public class ProyectoDTO {
     private TesistaDTO estudiante3;
     private DocenteResumenDTO tutor;
     private DocenteResumenDTO tutorMetodologico;
+    private String juradoNombre;
 
     public static ProyectoDTO fromEntity(Proyecto proyecto) {
+        return fromEntity(proyecto, null);
+    }
+
+    public static ProyectoDTO fromEntity(Proyecto proyecto, String juradoNombre) {
         if (proyecto == null) return null;
         ProyectoDTO dto = new ProyectoDTO();
         dto.setId(proyecto.getId());
@@ -40,6 +45,7 @@ public class ProyectoDTO {
         dto.setEstudiante3(TesistaDTO.fromEntity(proyecto.getEstudiante3()));
         dto.setTutor(DocenteResumenDTO.fromEntity(proyecto.getTutor()));
         dto.setTutorMetodologico(DocenteResumenDTO.fromEntity(proyecto.getTutorMetodologico()));
+        dto.setJuradoNombre(juradoNombre);
         return dto;
     }
 
@@ -65,6 +71,8 @@ public class ProyectoDTO {
     public void setTutor(DocenteResumenDTO tutor) { this.tutor = tutor; }
     public DocenteResumenDTO getTutorMetodologico() { return tutorMetodologico; }
     public void setTutorMetodologico(DocenteResumenDTO tutorMetodologico) { this.tutorMetodologico = tutorMetodologico; }
+    public String getJuradoNombre() { return juradoNombre; }
+    public void setJuradoNombre(String juradoNombre) { this.juradoNombre = juradoNombre; }
 
     public static class TesistaDTO {
         private UUID id;
