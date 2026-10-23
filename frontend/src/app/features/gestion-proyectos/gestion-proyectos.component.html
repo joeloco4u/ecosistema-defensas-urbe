@@ -102,15 +102,6 @@
               >
                 CANCELAR
               </button>
-              <a
-                *ngIf="p.estatus === 'AGENDADO'"
-                [routerLink]="['/imprimir/veredicto', p.id]"
-                target="_blank"
-                rel="noopener"
-                class="urbe-btn urbe-btn-sm bg-white border border-gray-400 text-gray-700 hover:bg-gray-50 ml-2 transition-all duration-100 ease-in-out active:scale-[0.98]"
-              >
-                VEREDICTO
-              </a>
             </div>
           </td>
         </tr>
