@@ -21,4 +21,13 @@ public interface ProyectoRepository extends JpaRepository<Proyecto, UUID> {
 
     @Query("SELECT DISTINCT p.escuela FROM Proyecto p WHERE p.escuela IS NOT NULL ORDER BY p.escuela")
     List<String> findDistinctEscuelas();
+
+    @Query("""
+            SELECT p.escuela, COUNT(p)
+            FROM Proyecto p
+            WHERE p.escuela IS NOT NULL AND p.escuela <> ''
+            GROUP BY p.escuela
+            ORDER BY p.escuela
+            """)
+    List<Object[]> countByEscuela();
 }
