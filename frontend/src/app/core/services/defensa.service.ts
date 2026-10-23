@@ -36,6 +36,12 @@ export class DefensaService {
     return this.http.put<any>(`${this.apiUrl}/${id}/reprogramar`, payload, { headers });
   }
 
+  cancelarDefensaPorProyecto(proyectoId: string): Observable<void> {
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    return this.http.delete<void>(`${this.apiUrl}/proyecto/${proyectoId}`, { headers });
+  }
+
   obtenerReporteDiario(fecha: string): Observable<any[]> {
     const token = this.authService.getToken();
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });

@@ -62,4 +62,16 @@ public class DefensaController {
         defensaService.cancelar(id);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable UUID id) {
+        defensaService.cancelar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/proyecto/{proyectoId}")
+    public ResponseEntity<Void> eliminarPorProyecto(@PathVariable UUID proyectoId) {
+        defensaService.cancelarPorProyecto(proyectoId);
+        return ResponseEntity.noContent().build();
+    }
 }

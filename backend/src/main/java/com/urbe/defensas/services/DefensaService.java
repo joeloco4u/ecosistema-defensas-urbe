@@ -149,7 +149,24 @@ public class DefensaService {
     public void cancelar(UUID id) {
         Defensa existente = defensaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Defensa no encontrada"));
+
+        Proyecto proyecto = existente.getProyecto();
+        juradoDefensaRepository.deleteByDefensaId(id);
         defensaRepository.delete(existente);
+
+        if (proyecto != null) {
+            proyecto.setEstatus(Proyecto.EstatusProyecto.PENDIENTE);
+            proyectoRepository.save(proyecto);
+        }
+    }
+
+    public void cancelarPorProyecto(UUID proyectoId) {
+        Defensa defensa = defensaRepository.findByProyectoId(proyectoId).stream()
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "No se encontró una defensa agendada para el proyecto: " + proyectoId));
+        cancelar(defensa.getId());
     }
 
     public Defensa obtenerPorId(UUID id) {

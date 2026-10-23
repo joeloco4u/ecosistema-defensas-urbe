@@ -93,6 +93,13 @@
               >
                 REAGENDAR
               </button>
+              <button
+                *ngIf="p.estatus === 'AGENDADO'"
+                (click)="cancelarDefensa(p)"
+                class="urbe-btn urbe-btn-sm bg-red-600 hover:bg-red-700 text-white ml-2 transition-all duration-100 ease-in-out active:scale-[0.98]"
+              >
+                CANCELAR
+              </button>
             </div>
           </td>
         </tr>

@@ -180,6 +180,21 @@ export class GestionProyectosComponent implements OnInit {
     };
   }
 
+  cancelarDefensa(proyecto: ProyectoRegistro): void {
+    const confirmado = window.confirm(
+      `¿Cancelar la defensa agendada del proyecto ${proyecto.expediente || proyecto.id}? El proyecto volverá al estado PENDIENTE.`,
+    );
+    if (!confirmado) return;
+
+    this.defensaService.cancelarDefensaPorProyecto(proyecto.id).subscribe({
+      next: () => this.cargarProyectos(),
+      error: (err) => {
+        console.error('Error al cancelar la defensa', err);
+        window.alert('No se pudo cancelar la defensa del proyecto.');
+      },
+    });
+  }
+
   onConfirmarReagendar(evento: any): void {
     if (!this.reagendarDefensa) return;
 
