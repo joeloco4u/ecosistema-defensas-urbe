@@ -1,6 +1,7 @@
 package com.urbe.defensas.repositories;
 
 import com.urbe.defensas.models.Proyecto;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -18,6 +19,16 @@ public interface ProyectoRepository extends JpaRepository<Proyecto, UUID> {
     List<Proyecto> findByNivelSeminario(String nivelSeminario);
     List<Proyecto> findByNivelSeminarioIsNull();
     Optional<Proyecto> findByExpediente(String expediente);
+
+    @EntityGraph(attributePaths = {
+            "estudiante",
+            "estudiante2",
+            "estudiante3",
+            "tutor",
+            "tutorMetodologico"
+    })
+    @Query("SELECT p FROM Proyecto p")
+    List<Proyecto> findAllConRelaciones();
 
     @Query("SELECT DISTINCT p.escuela FROM Proyecto p WHERE p.escuela IS NOT NULL ORDER BY p.escuela")
     List<String> findDistinctEscuelas();

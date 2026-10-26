@@ -61,7 +61,7 @@ public class ProyectoService {
 
     @Transactional(readOnly = true)
     public List<ProyectoDTO> listarTodos() {
-        List<Proyecto> proyectos = proyectoRepository.findAll();
+        List<Proyecto> proyectos = proyectoRepository.findAllConRelaciones();
         Map<UUID, Defensa> defensasPorProyecto = new HashMap<>();
         Set<Long> juradoIds = new HashSet<>();
 
