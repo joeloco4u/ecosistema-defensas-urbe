@@ -1,45 +1,19 @@
 package com.urbe.defensas.tasks;
 
-import com.urbe.defensas.models.Docente;
-import com.urbe.defensas.repositories.DocenteRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@Profile("!prod")
 public class ConsumidorInstitucionalTask {
 
     private static final Logger log = LoggerFactory.getLogger(ConsumidorInstitucionalTask.class);
 
-    private final DocenteRepository docenteRepository;
-
-    public ConsumidorInstitucionalTask(DocenteRepository docenteRepository) {
-        this.docenteRepository = docenteRepository;
-    }
-
-    @Scheduled(cron = "${app.scheduler.consumir-institucional}")
-    @Transactional
+    // La ejecución automática queda deshabilitada para evitar datos simulados.
+    // @Scheduled(cron = "${app.scheduler.consumir-institucional}")
     public void consumirEndpointInstitucional() {
-        log.info("Iniciando consumo del endpoint institucional de docentes...");
-
-        try {
-            String cedula = String.valueOf(System.currentTimeMillis());
-            Docente docenteSimulado = new Docente();
-            docenteSimulado.setCedula(cedula);
-            docenteSimulado.setCodigoInstitucional("DOC-" + cedula);
-            docenteSimulado.setNombreCompleto("Docente Sincronizado");
-            docenteSimulado.setEmail("docente@institucion.edu");
-            docenteSimulado.setDepartamento("Ingeniería");
-            docenteSimulado.setCargaMaximaSemanal(8);
-            docenteSimulado.setActivo(true);
-
-            docenteRepository.save(docenteSimulado);
-            log.info("Docente sincronizado exitosamente: {}", docenteSimulado.getCodigoInstitucional());
-        } catch (Exception e) {
-            log.error("Error al consumir endpoint institucional: {}", e.getMessage());
-        }
+        log.warn("La sincronización institucional está deshabilitada; no se insertan docentes de prueba.");
     }
-
 }
