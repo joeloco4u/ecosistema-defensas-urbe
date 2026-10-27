@@ -84,6 +84,7 @@ cargando = false;
   busquedaRealizada = false;
 
   docentes: any[] = [];
+  juradosDisponibles: any[] = [];
   espacios: any[] = [];
   juradoId: number | null = null;
   tutorAcademicoId: number | null = null;
@@ -123,11 +124,11 @@ cargando = false;
   }
 
   get docentesSugeridos(): any[] {
-    return this.docentes.filter(d => this.juradosSugeridosIds.has(d.id));
+    return this.juradosDisponibles.filter(d => this.juradosSugeridosIds.has(d.id));
   }
 
   get docentesNoSugeridos(): any[] {
-    return this.docentes.filter(d => !this.juradosSugeridosIds.has(d.id));
+    return this.juradosDisponibles.filter(d => !this.juradosSugeridosIds.has(d.id));
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -151,11 +152,16 @@ cargando = false;
       this.cargando = true;
       this.sugerenciasJurado = [];
       this.juradosSugeridosIds = new Set<number>();
+      this.juradosDisponibles = [];
       this.docenteService.getDocentes().subscribe({
         next: (data) => {
           this.docentes = data;
           this.computarJuradosSugeridos();
         },
+        error: () => { this.cargando = false; }
+      });
+      this.docenteService.getJuradosDisponibles().subscribe({
+        next: (data) => { this.juradosDisponibles = data; },
         error: () => { this.cargando = false; }
       });
       this.espacioFisicoService.getEspaciosFisicos().subscribe({
@@ -228,7 +234,8 @@ cargando = false;
   }
 
   private getCedula(docenteId: number): string | undefined {
-    const docente = this.docentes.find(d => d.id === docenteId);
+    const docente = this.docentes.find(d => d.id === docenteId)
+      ?? this.juradosDisponibles.find(d => d.id === docenteId);
     return docente?.cedula ?? docente?.codigoInstitucional;
   }
 

@@ -18,6 +18,7 @@ public interface DocenteRepository extends JpaRepository<Docente, Long> {
     boolean existsByCodigoInstitucional(String codigoInstitucional);
     List<Docente> findByActivoTrue();
     List<Docente> findByDepartamento(String departamento);
+    List<Docente> findByEstado(String estado);
 
     @Query(value = """
             SELECT *

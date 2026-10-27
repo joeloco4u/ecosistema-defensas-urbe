@@ -30,6 +30,7 @@
           <th>Nombre</th>
           <th>Departamento</th>
           <th>Carga Semanal</th>
+          <th>Estado</th>
           <th>Acción</th>
         </tr>
       </thead>
@@ -40,19 +41,35 @@
           <td class="cell-muted">{{ d.departamento || '—' }}</td>
           <td class="cell-muted">{{ d.cargaMaximaSemanal ?? '—' }} h</td>
           <td>
-            <button
-              (click)="verExpediente(d)"
-              class="urbe-btn urbe-btn-sm bg-[#002b5c] text-[#fff] font-medium hover:brightness-110 transition-all duration-100 ease-in-out active:scale-[0.98]"
-            >
-              Ver Expediente
-            </button>
+            <span [class]="'font-medium px-2 py-1 rounded text-xs ' + estadoClase(d.estado)">
+              {{ d.estado || 'ACTIVO' }}
+            </span>
+          </td>
+          <td>
+            <div class="flex items-center">
+              <button
+                (click)="verExpediente(d)"
+                class="urbe-btn urbe-btn-sm bg-[#002b5c] text-[#fff] font-medium hover:brightness-110 transition-all duration-100 ease-in-out active:scale-[0.98]"
+              >
+                Ver Expediente
+              </button>
+              <button
+                (click)="cambiarEstado(d)"
+                class="urbe-btn urbe-btn-sm ml-2 font-medium transition-all duration-100 ease-in-out active:scale-[0.98]"
+                [ngClass]="d.estado === 'INACTIVO'
+                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                  : 'bg-red-600 hover:bg-red-700 text-white'"
+              >
+                {{ d.estado === 'INACTIVO' ? 'Marcar Activo' : 'Marcar Inactivo' }}
+              </button>
+            </div>
           </td>
         </tr>
         <tr *ngIf="cargando">
-          <td colspan="5" class="urbe-empty">Cargando docentes...</td>
+          <td colspan="6" class="urbe-empty">Cargando docentes...</td>
         </tr>
         <tr *ngIf="!cargando && docentesFiltrados.length === 0">
-          <td colspan="5" class="urbe-empty">
+          <td colspan="6" class="urbe-empty">
             No se encontraron docentes con los criterios de búsqueda.
           </td>
         </tr>

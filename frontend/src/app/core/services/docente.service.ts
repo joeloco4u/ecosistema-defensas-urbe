@@ -20,6 +20,18 @@ export class DocenteService {
     return this.http.get<any[]>(this.apiUrl, { headers });
   }
 
+  getJuradosDisponibles(): Observable<any[]> {
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    return this.http.get<any[]>(`${this.apiUrl}/jurados`, { headers });
+  }
+
+  actualizarEstado(id: number, estado: string): Observable<any> {
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    return this.http.patch<any>(`${this.apiUrl}/${id}/estado`, { estado }, { headers });
+  }
+
   getExpediente(id: number): Observable<any> {
     const token = this.authService.getToken();
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });

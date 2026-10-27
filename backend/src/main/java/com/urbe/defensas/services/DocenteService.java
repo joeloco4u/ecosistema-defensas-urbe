@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -68,6 +69,22 @@ public class DocenteService {
         return docenteRepository.save(existente);
     }
 
+    public Docente actualizarEstado(Long id, String estado) {
+        Docente existente = docenteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Docente no encontrado"));
+        existente.setEstado(normalizarEstado(estado));
+        return docenteRepository.save(existente);
+    }
+
+    private String normalizarEstado(String estado) {
+        String valor = estado == null ? "" : estado.trim().toUpperCase(Locale.ROOT);
+        if (!valor.equals("ACTIVO") && !valor.equals("INACTIVO")) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "El estado del docente debe ser ACTIVO o INACTIVO");
+        }
+        return valor;
+    }
+
     private void aplicarIdentidad(Docente docente) {
         String cedula = CedulaUtil.soloDigitos(docente.getCedula());
         if (cedula.isEmpty()) {
@@ -86,6 +103,11 @@ public class DocenteService {
         if (docente.getCargaMaximaSemanal() == null) {
             docente.setCargaMaximaSemanal(8);
         }
+        if (docente.getEstado() == null || docente.getEstado().isBlank()) {
+            docente.setEstado("ACTIVO");
+        } else {
+            docente.setEstado(normalizarEstado(docente.getEstado()));
+        }
     }
 
     public Docente obtenerPorId(Long id) {
@@ -99,6 +121,10 @@ public class DocenteService {
 
     public List<Docente> listarActivos() {
         return docenteRepository.findByActivoTrue();
+    }
+
+    public List<Docente> listarJuradosDisponibles() {
+        return docenteRepository.findByEstado("ACTIVO");
     }
 
     public ExpedienteDocenteDTO obtenerExpediente(Long id) {

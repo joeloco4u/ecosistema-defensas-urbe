@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/docentes")
@@ -23,6 +24,11 @@ public class DocenteController {
     @GetMapping
     public ResponseEntity<List<Docente>> listar() {
         return ResponseEntity.ok(docenteService.listarTodos());
+    }
+
+    @GetMapping("/jurados")
+    public ResponseEntity<List<Docente>> listarJuradosDisponibles() {
+        return ResponseEntity.ok(docenteService.listarJuradosDisponibles());
     }
 
     @GetMapping("/{id}")
@@ -43,6 +49,12 @@ public class DocenteController {
     @PutMapping("/{id}")
     public ResponseEntity<Docente> actualizar(@PathVariable Long id, @Valid @RequestBody Docente docente) {
         return ResponseEntity.ok(docenteService.actualizar(id, docente));
+    }
+
+    @PatchMapping("/{id}/estado")
+    public ResponseEntity<Docente> actualizarEstado(@PathVariable Long id,
+                                                    @RequestBody Map<String, String> body) {
+        return ResponseEntity.ok(docenteService.actualizarEstado(id, body.get("estado")));
     }
 
 }

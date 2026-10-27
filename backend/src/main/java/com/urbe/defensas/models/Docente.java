@@ -34,6 +34,9 @@ public class Docente {
     @Column(name = "activo")
     private Boolean activo = true;
 
+    @Column(nullable = false, length = 20)
+    private String estado = "ACTIVO";
+
     @Column(name = "fecha_creacion", updatable = false)
     private LocalDateTime fechaCreacion;
 
@@ -60,6 +63,8 @@ public class Docente {
     public void setCargaMaximaSemanal(Integer cargaMaximaSemanal) { this.cargaMaximaSemanal = cargaMaximaSemanal; }
     public Boolean getActivo() { return activo; }
     public void setActivo(Boolean activo) { this.activo = activo; }
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
     public LocalDateTime getFechaCreacion() { return fechaCreacion; }
 
 }

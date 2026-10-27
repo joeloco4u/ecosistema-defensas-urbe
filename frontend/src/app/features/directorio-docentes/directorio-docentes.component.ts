@@ -6,6 +6,7 @@ interface DocenteInfo {
   cedula?: string;
   codigoInstitucional?: string;
   nombreCompleto: string;
+  estado?: string;
   email?: string;
   departamento?: string;
   cargaMaximaSemanal?: number;
@@ -108,6 +109,30 @@ export class DirectorioDocentesComponent implements OnInit {
       this.docentes.push(docente);
       this.cerrarModalNuevo();
     });
+  }
+
+  cambiarEstado(docente: DocenteInfo): void {
+    const nuevoEstado = docente.estado === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO';
+    const confirmado = window.confirm(
+      `¿Cambiar el estado de ${docente.nombreCompleto} a ${nuevoEstado}?`,
+    );
+    if (!confirmado) return;
+
+    this.docenteService.actualizarEstado(docente.id, nuevoEstado).subscribe({
+      next: (actualizado) => {
+        docente.estado = actualizado?.estado ?? nuevoEstado;
+      },
+      error: (err) => {
+        console.error('Error al actualizar el estado del docente', err);
+        window.alert('No se pudo actualizar el estado del docente.');
+      },
+    });
+  }
+
+  estadoClase(estado?: string): string {
+    return estado === 'INACTIVO'
+      ? 'bg-red-100 text-red-800'
+      : 'bg-emerald-100 text-emerald-800';
   }
 
   proyectoEstatusClase(estatus: string): string {
