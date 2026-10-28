@@ -7,6 +7,7 @@ import com.urbe.defensas.models.EspacioFisico;
 import com.urbe.defensas.models.Estudiante;
 import com.urbe.defensas.models.Proyecto;
 import com.urbe.defensas.repositories.DefensaRepository;
+import com.urbe.defensas.repositories.DocenteRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -29,7 +30,8 @@ class ReporteServiceTest {
     @Test
     void generarReporteMapeaDefensasConProyectoCompleto() {
         DefensaRepository defensaRepository = mock(DefensaRepository.class);
-        ReporteService service = new ReporteService(defensaRepository);
+        DocenteRepository docenteRepository = mock(DocenteRepository.class);
+        ReporteService service = new ReporteService(defensaRepository, docenteRepository);
 
         Estudiante tesista1 = new Estudiante();
         tesista1.setId(UUID.randomUUID());
@@ -95,7 +97,8 @@ class ReporteServiceTest {
     @Test
     void generarReporteRechazaRangoDeFechasInvertido() {
         DefensaRepository defensaRepository = mock(DefensaRepository.class);
-        ReporteService service = new ReporteService(defensaRepository);
+        DocenteRepository docenteRepository = mock(DocenteRepository.class);
+        ReporteService service = new ReporteService(defensaRepository, docenteRepository);
 
         FiltroReporteDTO filtro = new FiltroReporteDTO();
         filtro.setFechaInicio(LocalDate.of(2026, 6, 1));
@@ -109,7 +112,8 @@ class ReporteServiceTest {
     @Test
     void generarReporteToleraFiltroNulo() {
         DefensaRepository defensaRepository = mock(DefensaRepository.class);
-        ReporteService service = new ReporteService(defensaRepository);
+        DocenteRepository docenteRepository = mock(DocenteRepository.class);
+        ReporteService service = new ReporteService(defensaRepository, docenteRepository);
         when(defensaRepository.findAll(any(Specification.class), any(org.springframework.data.domain.Sort.class)))
                 .thenReturn(List.of());
 
