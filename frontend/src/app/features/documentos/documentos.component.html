@@ -154,7 +154,7 @@
 
         <!-- Body Text -->
         <p class="text-justify mb-6 leading-[1.8] text-[13px] text-gray-800" style="text-align: justify; text-justify: inter-word;">
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Nosotros, los profesores, <strong>{{ tutorAcademico(def) | uppercase }}</strong>, y <strong>{{ tutorMetodologico(def) | uppercase }}</strong>, designados como jurado examinador del Proyecto de Investigación titulado: <strong>"{{ def.proyecto?.titulo || '—' | uppercase }}"</strong> que presenta(n) el/los bachiller(es): <strong>{{ tesistas(def) | uppercase }}</strong>, titular(es) de la Cédula de Identidad número V-__________, nos hemos reunido para revisar dicho trabajo y después del interrogatorio correspondiente, lo hemos APROBADO con la calificación de _________________________ (____) puntos, de acuerdo con las normas vigentes establecidas por el Consejo Académico de la UNIVERSIDAD PRIVADA DR. RAFAEL BELLOSO CHACÍN, para la evaluación de los Trabajos Especiales de Grado, para obtener el Título de: Ingeniero (a) en <strong>{{ def.proyecto?.escuela || '—' | uppercase }}</strong>.
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Nosotros, los profesores, <strong>{{ (nombreTutorAcademico(def) || '____________________') | uppercase }}</strong>, <strong>{{ (nombreTutorMetodologico(def) || '____________________') | uppercase }}</strong> y <strong>{{ (nombreJurado(def) || '____________________') | uppercase }}</strong>, designados como jurado examinador del Proyecto de Investigación titulado: <strong>"{{ def.proyecto?.titulo || '—' | uppercase }}"</strong> que presenta(n) el/los bachiller(es): <strong>{{ tesistas(def) | uppercase }}</strong>, titular(es) de la Cédula de Identidad número {{ cedulas(def) }}, nos hemos reunido para revisar dicho trabajo y después del interrogatorio correspondiente, lo hemos APROBADO con la calificación de _________________________ (____) puntos, de acuerdo con las normas vigentes establecidas por el Consejo Académico de la UNIVERSIDAD PRIVADA DR. RAFAEL BELLOSO CHACÍN, para la evaluación de los Trabajos Especiales de Grado, para obtener el Título de: Ingeniero (a) en <strong>{{ def.proyecto?.escuela || '—' | uppercase }}</strong>.
         </p>
 
         <!-- Date -->
@@ -168,24 +168,24 @@
         <div class="grid grid-cols-3 gap-4 text-center text-[10px] mt-2">
           <div class="flex flex-col items-center">
             <div class="border-t-[1px] border-black w-11/12 pt-1">
-               <p class="font-bold text-gray-800">Dr. __________________</p>
-               <p class="font-bold text-gray-800">C.I. V-____________</p>
+               <p class="font-bold uppercase text-gray-800">{{ nombreJurado(def) || '____________________' }}</p>
+               <p class="font-bold text-gray-800">C.I. V-{{ cedulaJurado(def) || '_________' }}</p>
                <p class="font-bold text-gray-800">JURADO</p>
-            </div>
+             </div>
           </div>
           <div class="flex flex-col items-center">
             <div class="border-t-[1px] border-black w-11/12 pt-1">
-               <p class="font-bold uppercase text-gray-800">{{ tutorAcademico(def) }}</p>
-               <p class="font-bold text-gray-800">C.I. V-____________</p>
+               <p class="font-bold uppercase text-gray-800">{{ nombreTutorAcademico(def) || '____________________' }}</p>
+               <p class="font-bold text-gray-800">C.I. V-{{ cedulaTutorAcademico(def) || '_________' }}</p>
                <p class="font-bold text-gray-800">TUTOR ACADÉMICO</p>
-            </div>
+             </div>
           </div>
           <div class="flex flex-col items-center">
             <div class="border-t-[1px] border-black w-11/12 pt-1">
-               <p class="font-bold uppercase text-gray-800">{{ tutorMetodologico(def) }}</p>
-               <p class="font-bold text-gray-800">C.I. V-____________</p>
+               <p class="font-bold uppercase text-gray-800">{{ nombreTutorMetodologico(def) || '____________________' }}</p>
+               <p class="font-bold text-gray-800">C.I. V-{{ cedulaTutorMetodologico(def) || '_________' }}</p>
                <p class="font-bold text-gray-800">TUTOR METODOLÓGICO</p>
-            </div>
+             </div>
           </div>
         </div>
 
@@ -259,7 +259,7 @@
           <tbody>
             <tr *ngFor="let e of filasEstudiantes(def)">
               <td class="border border-black py-4 px-2 text-left font-bold uppercase">{{ e.nombre }}</td>
-              <td class="border border-black py-4 px-2 font-bold">{{ e.cedula }}</td>
+              <td class="border border-black py-4 px-2 font-bold">{{ e.cedula || '_________' }}</td>
               <td class="border border-black p-2"></td>
               <td class="border border-black p-2"></td>
               <td class="border border-black p-2"></td>

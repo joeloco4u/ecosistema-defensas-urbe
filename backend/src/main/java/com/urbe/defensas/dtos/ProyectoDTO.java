@@ -25,13 +25,24 @@ public class ProyectoDTO {
     private TesistaDTO estudiante3;
     private DocenteResumenDTO tutor;
     private DocenteResumenDTO tutorMetodologico;
+    private DocenteResumenDTO jurado;
     private String juradoNombre;
 
     public static ProyectoDTO fromEntity(Proyecto proyecto) {
-        return fromEntity(proyecto, null);
+        return fromEntity(proyecto, (String) null);
     }
 
     public static ProyectoDTO fromEntity(Proyecto proyecto, String juradoNombre) {
+        return fromEntity(proyecto, juradoNombre, null);
+    }
+
+    public static ProyectoDTO fromEntity(Proyecto proyecto, Docente jurado) {
+        return fromEntity(proyecto,
+                jurado != null ? jurado.getNombreCompleto() : null,
+                jurado);
+    }
+
+    private static ProyectoDTO fromEntity(Proyecto proyecto, String juradoNombre, Docente jurado) {
         if (proyecto == null) return null;
         ProyectoDTO dto = new ProyectoDTO();
         dto.setId(proyecto.getId());
@@ -45,6 +56,7 @@ public class ProyectoDTO {
         dto.setEstudiante3(TesistaDTO.fromEntity(proyecto.getEstudiante3()));
         dto.setTutor(DocenteResumenDTO.fromEntity(proyecto.getTutor()));
         dto.setTutorMetodologico(DocenteResumenDTO.fromEntity(proyecto.getTutorMetodologico()));
+        dto.setJurado(DocenteResumenDTO.fromEntity(jurado));
         dto.setJuradoNombre(juradoNombre);
         return dto;
     }
@@ -71,6 +83,8 @@ public class ProyectoDTO {
     public void setTutor(DocenteResumenDTO tutor) { this.tutor = tutor; }
     public DocenteResumenDTO getTutorMetodologico() { return tutorMetodologico; }
     public void setTutorMetodologico(DocenteResumenDTO tutorMetodologico) { this.tutorMetodologico = tutorMetodologico; }
+    public DocenteResumenDTO getJurado() { return jurado; }
+    public void setJurado(DocenteResumenDTO jurado) { this.jurado = jurado; }
     public String getJuradoNombre() { return juradoNombre; }
     public void setJuradoNombre(String juradoNombre) { this.juradoNombre = juradoNombre; }
 
@@ -102,18 +116,22 @@ public class ProyectoDTO {
 
     public static class DocenteResumenDTO {
         private Long id;
+        private String cedula;
         private String nombreCompleto;
 
         public static DocenteResumenDTO fromEntity(Docente docente) {
             if (docente == null) return null;
             DocenteResumenDTO dto = new DocenteResumenDTO();
             dto.setId(docente.getId());
+            dto.setCedula(docente.getCedula());
             dto.setNombreCompleto(docente.getNombreCompleto());
             return dto;
         }
 
         public Long getId() { return id; }
         public void setId(Long id) { this.id = id; }
+        public String getCedula() { return cedula; }
+        public void setCedula(String cedula) { this.cedula = cedula; }
         public String getNombreCompleto() { return nombreCompleto; }
         public void setNombreCompleto(String nombreCompleto) { this.nombreCompleto = nombreCompleto; }
     }

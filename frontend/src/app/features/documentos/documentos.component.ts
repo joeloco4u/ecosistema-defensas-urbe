@@ -116,10 +116,10 @@ export class DocumentosComponent implements OnInit {
     const filas = [p?.estudiante, p?.estudiante2, p?.estudiante3]
       .map((e) => ({
         nombre: [e?.nombres, e?.apellidos].filter(Boolean).join(' ').trim(),
-        cedula: e?.cedula ? this.formatearCedula(e.cedula) : '__________',
+        cedula: e?.cedula ? this.formatearCedula(e.cedula) : '_________',
       }))
       .filter((fila) => fila.nombre.length > 0);
-    return filas.length > 0 ? filas : [{ nombre: 'Por asignar', cedula: '__________' }];
+    return filas.length > 0 ? filas : [{ nombre: 'Por asignar', cedula: '_________' }];
   }
 
   nombreDocente(id?: number | null): string {
@@ -138,7 +138,7 @@ export class DocumentosComponent implements OnInit {
       .map((e) => e?.cedula)
       .filter((c): c is string => !!c && c.trim().length > 0)
       .map((c) => this.formatearCedula(c));
-    return cedulas.length > 0 ? cedulas.join(' y ') : '____________';
+    return cedulas.length > 0 ? cedulas.join(' y ') : '_________';
   }
 
   escuelaTitulo(d: DefensaDTO): string {
@@ -155,6 +155,39 @@ export class DocumentosComponent implements OnInit {
 
   tutorMetodologico(d: DefensaDTO): string {
     return d.proyecto?.tutorMetodologico?.nombreCompleto || this.nombreDocente(d.tutorMetodologicoId);
+  }
+
+  nombreTutorAcademico(d: DefensaDTO): string {
+    return this.nombreDeDocente(d.tutorAcademicoId, d.proyecto?.tutor?.nombreCompleto);
+  }
+
+  nombreTutorMetodologico(d: DefensaDTO): string {
+    return this.nombreDeDocente(d.tutorMetodologicoId, d.proyecto?.tutorMetodologico?.nombreCompleto);
+  }
+
+  nombreJurado(d: DefensaDTO): string {
+    return this.nombreDeDocente(d.juradoId, d.proyecto?.jurado?.nombreCompleto || d.proyecto?.juradoNombre);
+  }
+
+  cedulaTutorAcademico(d: DefensaDTO): string {
+    return this.cedulaDeDocente(d.tutorAcademicoId, d.proyecto?.tutor?.cedula);
+  }
+
+  cedulaTutorMetodologico(d: DefensaDTO): string {
+    return this.cedulaDeDocente(d.tutorMetodologicoId, d.proyecto?.tutorMetodologico?.cedula);
+  }
+
+  cedulaJurado(d: DefensaDTO): string {
+    return this.cedulaDeDocente(d.juradoId, d.proyecto?.jurado?.cedula);
+  }
+
+  private nombreDeDocente(id?: number | null, nombreDirecto?: string | null): string {
+    return (nombreDirecto || (id != null ? this.docentesPorId.get(id)?.nombre : '') || '').trim();
+  }
+
+  private cedulaDeDocente(id?: number | null, cedulaDirecta?: string | null): string {
+    const cedula = cedulaDirecta || (id != null ? this.docentesPorId.get(id)?.cedula : '');
+    return (cedula || '').replace(/[^0-9]/g, '');
   }
 
   fechaLarga(fecha?: string): string {

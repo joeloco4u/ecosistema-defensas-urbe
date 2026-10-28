@@ -23,6 +23,7 @@ export interface TesistaInfo {
 
 export interface DocenteResumen {
   id?: number;
+  cedula?: string;
   nombreCompleto?: string;
 }
 
@@ -38,6 +39,8 @@ export interface ProyectoReporte {
   estudiante3?: TesistaInfo | null;
   tutor?: DocenteResumen | null;
   tutorMetodologico?: DocenteResumen | null;
+  jurado?: DocenteResumen | null;
+  juradoNombre?: string | null;
 }
 
 export interface EspacioInfo {

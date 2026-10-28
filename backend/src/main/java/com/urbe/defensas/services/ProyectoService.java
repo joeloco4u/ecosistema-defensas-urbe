@@ -74,15 +74,15 @@ public class ProyectoService {
             }
         }
 
-        Map<Long, String> nombresJurados = new HashMap<>();
+        Map<Long, Docente> jurados = new HashMap<>();
         for (Docente docente : docenteRepository.findAllById(juradoIds)) {
-            nombresJurados.put(docente.getId(), docente.getNombreCompleto());
+            jurados.put(docente.getId(), docente);
         }
 
         return proyectos.stream()
                 .map(proyecto -> ProyectoDTO.fromEntity(
                         proyecto,
-                        nombreJurado(proyecto.getId(), defensasPorProyecto, nombresJurados)))
+                        juradoDe(proyecto.getId(), defensasPorProyecto, jurados)))
                 .toList();
     }
 
@@ -90,23 +90,21 @@ public class ProyectoService {
         Defensa defensa = defensaRepository.findByProyectoId(proyecto.getId()).stream()
                 .findFirst()
                 .orElse(null);
-        String juradoNombre = null;
+        Docente jurado = null;
         if (defensa != null && defensa.getJuradoId() != null) {
-            juradoNombre = docenteRepository.findById(defensa.getJuradoId())
-                    .map(Docente::getNombreCompleto)
-                    .orElse(null);
+            jurado = docenteRepository.findById(defensa.getJuradoId()).orElse(null);
         }
-        return ProyectoDTO.fromEntity(proyecto, juradoNombre);
+        return ProyectoDTO.fromEntity(proyecto, jurado);
     }
 
-    private String nombreJurado(UUID proyectoId,
-                                Map<UUID, Defensa> defensasPorProyecto,
-                                Map<Long, String> nombresJurados) {
+    private Docente juradoDe(UUID proyectoId,
+                             Map<UUID, Defensa> defensasPorProyecto,
+                             Map<Long, Docente> jurados) {
         Defensa defensa = defensasPorProyecto.get(proyectoId);
         if (defensa == null || defensa.getJuradoId() == null) {
             return null;
         }
-        return nombresJurados.get(defensa.getJuradoId());
+        return jurados.get(defensa.getJuradoId());
     }
 
     public List<String> listarEscuelas() {
