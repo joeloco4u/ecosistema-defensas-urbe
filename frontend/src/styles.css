@@ -76,6 +76,25 @@ app-sidebar {
   display: none;
 }
 
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #8a1538 #e5e7eb;
+}
+.custom-scrollbar::-webkit-scrollbar {
+  height: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #8a1538;
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #002b5c;
+}
+
 /* ==========================================================================
    Tailwind token → URBE light-mode re-map (.ts templates keep working)
    ========================================================================== */

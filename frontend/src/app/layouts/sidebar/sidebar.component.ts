@@ -14,8 +14,8 @@ import { AuthService } from '../../core/services/auth.service';
         </div>
       </div>
 
-      <div class="flex-1 min-w-0 overflow-x-auto no-scrollbar scroll-smooth overscroll-x-contain">
-        <ul class="flex w-max items-center gap-2 sm:gap-3 lg:gap-5 mx-auto px-2">
+      <div class="flex-1 min-w-0 overflow-x-auto overflow-y-hidden custom-scrollbar scroll-smooth overscroll-x-contain pb-1">
+        <ul class="flex w-max flex-nowrap items-center gap-2 sm:gap-3 lg:gap-5 mx-auto px-2 whitespace-nowrap">
           <li *ngFor="let item of menuItems" class="shrink-0">
             <a
               [routerLink]="item.path"
