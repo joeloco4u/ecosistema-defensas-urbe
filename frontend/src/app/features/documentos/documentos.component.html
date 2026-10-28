@@ -94,13 +94,23 @@
       <h3 class="text-base font-semibold text-primary">
         {{ modoImpresion === 'entrega' ? 'Vista previa de Entrega de Veredictos' : 'Vista previa del Veredicto' }}
       </h3>
-      <button
-        type="button"
-        (click)="imprimirVeredicto()"
-        class="urbe-btn urbe-btn-primary inline-flex items-center gap-2"
-      >
-        {{ modoImpresion === 'entrega' ? 'Imprimir Entrega' : 'Imprimir Veredicto' }}
-      </button>
+      <div class="flex items-center gap-2">
+        <button
+          *ngIf="modoImpresion === 'veredicto'"
+          type="button"
+          (click)="descargarWord(def)"
+          class="urbe-btn bg-[#8A1538] text-white hover:brightness-110 transition-all duration-100 ease-in-out active:scale-[0.98] inline-flex items-center gap-2"
+        >
+          DESCARGAR WORD
+        </button>
+        <button
+          type="button"
+          (click)="imprimirVeredicto()"
+          class="urbe-btn urbe-btn-primary inline-flex items-center gap-2"
+        >
+          {{ modoImpresion === 'entrega' ? 'Imprimir Entrega' : 'Imprimir Veredicto' }}
+        </button>
+      </div>
     </div>
 
     <!-- Hoja A4 -->

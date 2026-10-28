@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { ReporteService, DefensaDTO } from '../../core/services/reporte.service';
+import { HttpClient } from '@angular/common/http';
+import PizZip from 'pizzip';
+import Docxtemplater from 'docxtemplater';
+import { saveAs } from 'file-saver';
+import { ReporteService, DefensaDTO, TesistaInfo } from '../../core/services/reporte.service';
 import { DocenteService } from '../../core/services/docente.service';
 import { ProyectoService } from '../../core/services/proyecto.service';
 
@@ -26,6 +30,7 @@ export class DocumentosComponent implements OnInit {
     private reporteService: ReporteService,
     private docenteService: DocenteService,
     private proyectoService: ProyectoService,
+    private http: HttpClient,
   ) {}
 
   ngOnInit(): void {
@@ -96,6 +101,65 @@ export class DocumentosComponent implements OnInit {
   imprimirVeredicto(): void {
     if (!this.seleccionada) return;
     window.print();
+  }
+
+  descargarWord(def: DefensaDTO): void {
+    this.http.get('assets/template-veredicto.docx', { responseType: 'arraybuffer' }).subscribe({
+      next: (contenido) => {
+        const proyecto = def.proyecto;
+        const estudiantes: TesistaInfo[] = [
+          proyecto?.estudiante,
+          proyecto?.estudiante2,
+          proyecto?.estudiante3,
+        ].filter((e): e is TesistaInfo => !!e);
+
+        const alumnos = estudiantes
+          .map((e) => [e.nombres, e.apellidos].filter(Boolean).join(' ').trim())
+          .filter((nombre) => nombre.length > 0)
+          .join(', ') || '________________';
+
+        const cedulas = estudiantes
+          .map((e) => (e.cedula ? e.cedula.replace(/[^0-9]/g, '') : '________________'))
+          .join(', V-') || '________________';
+
+        const data = {
+          titulo: proyecto?.titulo || '________________',
+          alumnos,
+          cedulas,
+          tutor_ac: this.nombreTutorAcademico(def) || '________________',
+          tutor_met: this.nombreTutorMetodologico(def) || '________________',
+          jurado: this.nombreJurado(def) || '________________',
+          escuela: proyecto?.escuela || 'INFORMÁTICA',
+          fecha_firma: this.fechaFirmaWord(def.fecha),
+          seccion: '________',
+          expediente: proyecto?.expediente || '________',
+        };
+
+        const zip = new PizZip(contenido);
+        const doc = new Docxtemplater(zip, {
+          paragraphLoop: true,
+          linebreaks: true,
+          delimiters: { start: '{{', end: '}}' },
+        });
+        doc.render(data);
+
+        const blob = doc.getZip().generate({
+          type: 'blob',
+          mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        });
+        saveAs(blob, `Veredicto_${proyecto?.expediente || 'Sin_Expediente'}.docx`);
+      },
+      error: (err) => console.error('Error al generar el documento Word', err),
+    });
+  }
+
+  private fechaFirmaWord(fecha?: string): string {
+    const date = this.aFechaLocal(fecha) ?? new Date();
+    return new Intl.DateTimeFormat('es-VE', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    }).format(date);
   }
 
   imprimirPreDefensa(): void {
