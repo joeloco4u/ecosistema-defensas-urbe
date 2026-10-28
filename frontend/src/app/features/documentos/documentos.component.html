@@ -250,20 +250,20 @@
             <tr class="bg-gray-100 font-bold">
               <th class="border border-black py-2 px-2 w-[28%]">ALUMNO</th>
               <th class="border border-black py-2 px-2 w-[12%]">C.I.</th>
-              <th class="border border-black py-2 px-2 w-[16%]">FIRMA DE RECIBIDO</th>
               <th class="font-bold border border-black p-2 text-center text-sm w-[14%]">Nota Tutor Académico</th>
               <th class="font-bold border border-black p-2 text-center text-sm w-[15%]">Nota Tutor Metodológico</th>
               <th class="font-bold border border-black p-2 text-center text-sm w-[15%]">Nota Jurado</th>
+              <th class="border border-black py-2 px-2 w-[16%]">FIRMA DE RECIBIDO</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let e of filasEstudiantes(def)">
               <td class="border border-black py-4 px-2 text-left font-bold uppercase">{{ e.nombre }}</td>
               <td class="border border-black py-4 px-2 font-bold">{{ e.cedula }}</td>
+              <td class="border border-black p-2"></td>
+              <td class="border border-black p-2"></td>
+              <td class="border border-black p-2"></td>
               <td class="border border-black py-4 px-2"></td>
-              <td class="border border-black p-2"></td>
-              <td class="border border-black p-2"></td>
-              <td class="border border-black p-2"></td>
             </tr>
           </tbody>
         </table>
