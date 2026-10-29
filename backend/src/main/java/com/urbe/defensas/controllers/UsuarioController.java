@@ -1,6 +1,5 @@
 package com.urbe.defensas.controllers;
 
-import com.urbe.defensas.dtos.RegistroRequest;
 import com.urbe.defensas.models.Usuario;
 import com.urbe.defensas.services.UsuarioService;
 import jakarta.validation.Valid;
@@ -33,19 +32,6 @@ public class UsuarioController {
     @GetMapping("/{id}")
     public ResponseEntity<Usuario> obtener(@PathVariable Long id) {
         return ResponseEntity.ok(usuarioService.obtenerPorId(id));
-    }
-
-    @PostMapping("/registrar")
-    public ResponseEntity<Usuario> registrar(@Valid @RequestBody RegistroRequest request) {
-        Usuario usuario = new Usuario();
-        usuario.setEmail(request.getEmail());
-        usuario.setUsername(request.getEmail());
-        usuario.setPassword(passwordEncoder.encode(request.getPassword()));
-        usuario.setNombreCompleto(request.getNombreCompleto());
-        usuario.setRol(request.getRol());
-        usuario.setActivo(true);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.crear(usuario));
     }
 
     @PostMapping

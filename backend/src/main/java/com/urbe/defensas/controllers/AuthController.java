@@ -2,7 +2,7 @@ package com.urbe.defensas.controllers;
 
 import com.urbe.defensas.dtos.AuthResponse;
 import com.urbe.defensas.dtos.LoginRequest;
-import com.urbe.defensas.security.JwtTokenProvider;
+import com.urbe.defensas.security.JwtUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtUtil jwtUtil;
 
-    public AuthController(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
+    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
         this.authenticationManager = authenticationManager;
-        this.jwtTokenProvider = jwtTokenProvider;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/login")
@@ -33,7 +33,7 @@ public class AuthController {
                 .map(a -> a.getAuthority().replace("ROLE_", ""))
                 .orElse("");
 
-        String token = jwtTokenProvider.generarToken(email, rol);
+        String token = jwtUtil.generarToken(email, rol);
 
         return ResponseEntity.ok(new AuthResponse(token));
     }
