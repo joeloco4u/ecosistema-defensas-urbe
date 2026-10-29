@@ -1,0 +1,11 @@
+# Reglas de mantenimiento del proyecto
+
+DOCUMENTATION RULE: After any significant structural, security, or logic change to the codebase, you MUST automatically propose updates to the relevant .md files in the /docs folder to keep the documentation synchronized.
+
+## Contexto
+
+- Monorepo: `frontend/` (Angular 17), `backend/` (Spring Boot 3 / Java 17), `db-migration/`, `docs/`.
+- La documentación técnica vive en `docs/arquitectura.md`, `docs/seguridad.md` y `docs/despliegue.md`.
+- No incluir credenciales, hashes reales, correos de administradores ni secretos en código, documentación o commits.
+- Los usuarios se crean manualmente en la base de datos; no agregar endpoints ni pantallas de registro público.
+- Mantener la API protegida con JWT salvo `POST /api/auth/login` y las peticiones preflight `OPTIONS`.
