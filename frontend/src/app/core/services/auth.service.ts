@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
@@ -12,7 +13,10 @@ export class AuthService {
   private readonly apiUrl = `${environment.apiUrl}/auth/login`;
   private readonly TOKEN_KEY = 'auth_token';
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+  ) {}
 
   login(credenciales: { email: string; password: string }): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(this.apiUrl, credenciales).pipe(
@@ -28,11 +32,14 @@ export class AuthService {
     return localStorage.getItem(this.TOKEN_KEY);
   }
 
-  logout(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
-  }
-
   isLoggedIn(): boolean {
     return !!this.getToken();
+  }
+
+  logout(): void {
+    localStorage.removeItem(this.TOKEN_KEY);
+    if (!this.router.url.startsWith('/login')) {
+      this.router.navigate(['/login']);
+    }
   }
 }

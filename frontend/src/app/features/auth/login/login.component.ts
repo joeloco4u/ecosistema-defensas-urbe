@@ -11,6 +11,7 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class LoginComponent {
   loading = false;
+  error: string | null = null;
 
   loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -27,9 +28,16 @@ export class LoginComponent {
     if (this.loginForm.invalid) return;
 
     this.loading = true;
+    this.error = null;
+
     this.authService.login(this.loginForm.getRawValue()).subscribe({
       next: () => this.router.navigate(['/dashboard']),
-      error: () => (this.loading = false),
+      error: (err) => {
+        this.loading = false;
+        this.error = err?.status === 401
+          ? 'Credenciales incorrectas. Verifica tu correo y contraseña.'
+          : 'No se pudo iniciar sesión. Intenta nuevamente.';
+      },
     });
   }
 }

@@ -21,6 +21,12 @@
         <p class="mt-1.5 text-sm text-gray-500">Ingresa tus credenciales institucionales para continuar</p>
       </div>
 
+      @if (error) {
+        <div class="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+          {{ error }}
+        </div>
+      }
+
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-5">
         <div>
           <label for="email" class="mb-2 block text-sm font-medium text-gray-700">Correo electrónico</label>

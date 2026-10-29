@@ -1,11 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AuthGuard } from './core/guards/auth.guard';
+import { AuthGuard, authMatchGuard, guestGuard } from './core/guards/auth.guard';
 
 const routes: Routes = [
   {
     path: 'login',
     loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent),
+    canActivate: [guestGuard],
   },
   {
     path: 'dashboard',
@@ -47,7 +48,8 @@ const routes: Routes = [
     loadComponent: () => import('./features/documentos/pre-defensa-print/pre-defensa-print.component').then(m => m.PreDefensaPrintComponent),
     canActivate: [AuthGuard],
   },
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: '', pathMatch: 'full', canMatch: [authMatchGuard], redirectTo: '/dashboard' },
+  { path: '', pathMatch: 'full', redirectTo: '/login' },
   { path: '**', redirectTo: '/login' },
 ];
 
