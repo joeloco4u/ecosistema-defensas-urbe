@@ -6,11 +6,9 @@ import com.urbe.defensas.repositories.DocenteRepository;
 import com.urbe.defensas.repositories.EstudianteRepository;
 import com.urbe.defensas.repositories.EspacioFisicoRepository;
 import com.urbe.defensas.repositories.ProyectoRepository;
-import com.urbe.defensas.repositories.UsuarioRepository;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import org.junit.jupiter.api.Test;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -35,8 +33,6 @@ class DatabaseSeederTest {
         DocenteRepository docenteRepository = mock(DocenteRepository.class);
         EstudianteRepository estudianteRepository = mock(EstudianteRepository.class);
         ProyectoRepository proyectoRepository = mock(ProyectoRepository.class);
-        UsuarioRepository usuarioRepository = mock(UsuarioRepository.class);
-        PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
         Proyecto proyecto = new Proyecto();
         proyecto.setExpediente("O07-0126");
 
@@ -53,7 +49,7 @@ class DatabaseSeederTest {
         when(proyectoRepository.save(any(Proyecto.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         DatabaseSeeder seeder = new DatabaseSeeder(espacioFisicoRepository, docenteRepository,
-                estudianteRepository, proyectoRepository, usuarioRepository, passwordEncoder);
+                estudianteRepository, proyectoRepository);
 
         int actualizados = seeder.backfillTesistasDesdeAprobados();
 

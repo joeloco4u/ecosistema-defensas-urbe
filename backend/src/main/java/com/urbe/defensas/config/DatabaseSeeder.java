@@ -6,7 +6,6 @@ import com.urbe.defensas.util.CedulaUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -37,39 +36,20 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final DocenteRepository docenteRepository;
     private final EstudianteRepository estudianteRepository;
     private final ProyectoRepository proyectoRepository;
-    private final UsuarioRepository usuarioRepository;
-    private final PasswordEncoder passwordEncoder;
 
     public DatabaseSeeder(EspacioFisicoRepository espacioFisicoRepository,
                           DocenteRepository docenteRepository,
                           EstudianteRepository estudianteRepository,
-                          ProyectoRepository proyectoRepository,
-                          UsuarioRepository usuarioRepository,
-                          PasswordEncoder passwordEncoder) {
+                          ProyectoRepository proyectoRepository) {
         this.espacioFisicoRepository = espacioFisicoRepository;
         this.docenteRepository = docenteRepository;
         this.estudianteRepository = estudianteRepository;
         this.proyectoRepository = proyectoRepository;
-        this.usuarioRepository = usuarioRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(String... args) {
 
-        if (usuarioRepository.count() == 0) {
-            Usuario admin = new Usuario();
-            admin.setUsername("admin");
-            admin.setEmail("admin@urbe.edu");
-            admin.setPassword(passwordEncoder.encode("admin"));
-            admin.setNombreCompleto("Coordinador General");
-            admin.setRol("COORDINADOR");
-            admin.setActivo(true);
-            usuarioRepository.save(admin);
-            log.info("Usuario administrador génesis creado con éxito.");
-        }
-
-        // 2. DESPUÉS: Validamos el resto de los datos (aulas, docentes, etc)
         if (espacioFisicoRepository.count() > 0) {
             log.info("Database already contains data – skipping initial data seed.");
             backfillTesistasDesdeAprobados();
@@ -162,18 +142,6 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         proyectoRepository.saveAll(List.of(p1, p2, p3));
         backfillTesistasDesdeAprobados();
-
-        // ── Usuario Génesis (Administrador inicial) ──
-        /*Usuario admin = new Usuario();
-        admin.setUsername("admin");
-        admin.setEmail("admin@urbe.edu");
-        admin.setPassword(passwordEncoder.encode("admin"));
-        admin.setNombreCompleto("Coordinador General");
-        admin.setRol("COORDINADOR");
-        admin.setActivo(true);
-        usuarioRepository.save(admin);
-
-        log.info("Database seeding completed successfully.");*/
     }
 
     /**
