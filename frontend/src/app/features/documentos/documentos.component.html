@@ -90,7 +90,7 @@
 
   <!-- Vista previa / Impresión -->
   <div *ngIf="modoImpresion !== 'planificacion' && modoImpresion !== 'entrega-lote' && seleccionada as def" class="space-y-4">
-    <div class="flex items-center justify-between print:hidden">
+    <div class="flex items-center justify-between print:hidden no-print">
       <h3 class="text-base font-semibold text-primary">
         {{ modoImpresion === 'entrega' ? 'Vista previa de Entrega de Veredictos' : 'Vista previa del Veredicto' }}
       </h3>
@@ -222,7 +222,7 @@
 
   <!-- Vista previa e impresión por lote: Entrega de Veredictos -->
   <div *ngIf="modoImpresion === 'entrega-lote'" class="space-y-4">
-    <div class="flex items-center justify-between print:hidden">
+    <div class="flex items-center justify-between print:hidden no-print">
       <h3 class="text-base font-semibold text-primary">
         Vista previa: Entrega de Veredictos ({{ loteEntrega.length }} proyecto(s))
       </h3>
@@ -244,6 +244,38 @@
     </div>
   </div>
 
+  <!-- Toolbar de acciones: fuera del documento imprimible -->
+  <div *ngIf="modoImpresion === 'planificacion'" class="urbe-card p-4 mb-4 no-print">
+    <div class="flex flex-col gap-3">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p class="text-xs uppercase tracking-widest text-accent-subtle font-medium">Acciones de impresión</p>
+          <p class="text-sm text-accent-muted">Esta barra de acciones no forma parte del documento impreso.</p>
+        </div>
+        <button
+          type="button"
+          (click)="imprimirEntregaLote()"
+          [disabled]="proyectosPlanificacion.length === 0"
+          class="urbe-btn bg-[#8A1538] text-white hover:brightness-110 transition-all duration-100 ease-in-out active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Imprimir Todos (Escuela)
+        </button>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="text-xs uppercase tracking-widest text-accent-subtle font-medium">Imprimir Entrega:</span>
+        <button
+          *ngFor="let p of proyectosPlanificacion"
+          type="button"
+          (click)="imprimirEntrega(p)"
+          class="urbe-btn urbe-btn-sm bg-[#002b5c] text-[#fff] hover:brightness-110 transition-all duration-100 ease-in-out active:scale-[0.98]"
+        >
+          Imprimir Entrega · {{ p.proyecto?.expediente || 'Sin expediente' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Planificación global (todos los proyectos filtrados por escuela) -->
   <div
     *ngIf="modoImpresion === 'planificacion'"
@@ -261,36 +293,11 @@
       </h1>
     </div>
 
-    <!-- Acción de impresión por lote -->
-    <div class="flex justify-end mb-6 print:hidden">
-      <button
-        type="button"
-        (click)="imprimirEntregaLote()"
-        [disabled]="proyectosPlanificacion.length === 0"
-        class="urbe-btn bg-[#8A1538] text-white hover:brightness-110 transition-all duration-100 ease-in-out active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Imprimir Todos (Escuela)
-      </button>
-    </div>
-
     <!-- Loop through projects -->
     <div *ngFor="let p of proyectosPlanificacion" class="mb-10 border-b border-gray-300 pb-8 page-break-inside-avoid">
 
-      <!-- School Header + individual print action -->
-      <div class="flex items-center justify-between gap-4 mb-4 print:hidden">
-        <h2 class="text-sm font-bold uppercase tracking-wider text-gray-700 italic">
-          {{ p.proyecto?.escuela || '—' }}
-        </h2>
-        <button
-          type="button"
-          (click)="imprimirEntrega(p)"
-          class="urbe-btn urbe-btn-sm bg-[#002b5c] text-[#fff] hover:brightness-110 transition-all duration-100 ease-in-out active:scale-[0.98]"
-        >
-          Imprimir Entrega
-        </button>
-      </div>
-
-      <h2 class="hidden print:block text-sm font-bold uppercase tracking-wider text-gray-700 italic mb-4">
+      <!-- School Header -->
+      <h2 class="text-sm font-bold uppercase tracking-wider text-gray-700 italic mb-4">
         {{ p.proyecto?.escuela || '—' }}
       </h2>
 
