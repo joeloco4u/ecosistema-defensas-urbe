@@ -28,6 +28,14 @@
     </button>
     <button
       type="button"
+      (click)="imprimirVeredictosLote()"
+      [disabled]="defensasEscuela.length === 0"
+      class="urbe-btn bg-[#8A1538] text-[#fff] hover:brightness-110 transition-all duration-100 ease-in-out active:scale-[0.98] w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      Imprimir Veredictos (Escuela)
+    </button>
+    <button
+      type="button"
       (click)="imprimirPreDefensa()"
       class="urbe-btn bg-[#002b5c] text-[#fff] hover:brightness-110 transition-all duration-100 ease-in-out active:scale-[0.98] w-full sm:w-auto sm:ml-auto"
     >
@@ -88,34 +96,9 @@
     </table>
   </div>
 
-  <!-- Vista previa / Impresión -->
-  <div *ngIf="modoImpresion !== 'planificacion' && modoImpresion !== 'entrega-lote' && seleccionada as def" class="space-y-4">
-    <div class="flex items-center justify-between print:hidden no-print">
-      <h3 class="text-base font-semibold text-primary">
-        {{ modoImpresion === 'entrega' ? 'Vista previa de Entrega de Veredictos' : 'Vista previa del Veredicto' }}
-      </h3>
-      <div class="flex items-center gap-2">
-        <button
-          *ngIf="modoImpresion === 'veredicto'"
-          type="button"
-          (click)="descargarWord(def)"
-          class="urbe-btn bg-[#8A1538] text-white hover:brightness-110 transition-all duration-100 ease-in-out active:scale-[0.98] inline-flex items-center gap-2"
-        >
-          DESCARGAR WORD
-        </button>
-        <button
-          type="button"
-          (click)="imprimirVeredicto()"
-          class="urbe-btn urbe-btn-primary inline-flex items-center gap-2"
-        >
-          {{ modoImpresion === 'entrega' ? 'Imprimir Entrega' : 'Imprimir Veredicto' }}
-        </button>
-      </div>
-    </div>
-
-    <!-- Hoja A4 -->
+  <!-- Plantilla reutilizable del Veredicto (impresión individual y por lote) -->
+  <ng-template #veredictoTemplate let-def>
     <div
-      *ngIf="modoImpresion === 'veredicto'"
       class="veredicto-fondo documento-print-area print-area mx-auto bg-white text-black relative shadow-2xl print:shadow-none overflow-hidden"
       style="width: 210mm; height: 297mm; font-family: Arial, Helvetica, sans-serif; font-size: 13px;"
     >
@@ -188,9 +171,56 @@
 
       </div>
     </div>
+  </ng-template>
+
+  <!-- Vista previa / Impresión -->
+  <div *ngIf="modoImpresion !== 'planificacion' && modoImpresion !== 'entrega-lote' && modoImpresion !== 'veredicto-lote' && seleccionada as def" class="space-y-4">
+    <div class="flex items-center justify-between print:hidden no-print">
+      <h3 class="text-base font-semibold text-primary">
+        {{ modoImpresion === 'entrega' ? 'Vista previa de Entrega de Veredictos' : 'Vista previa del Veredicto' }}
+      </h3>
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          (click)="imprimirVeredicto()"
+          class="urbe-btn urbe-btn-primary inline-flex items-center gap-2"
+        >
+          {{ modoImpresion === 'entrega' ? 'Imprimir Entrega' : 'Imprimir Veredicto' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Hoja A4 -->
+    <ng-container *ngIf="modoImpresion === 'veredicto'">
+      <ng-container *ngTemplateOutlet="veredictoTemplate; context: { $implicit: def }"></ng-container>
+    </ng-container>
 
     <!-- Hoja A4: Entrega de Veredictos -->
     <app-entrega-veredicto *ngIf="modoImpresion === 'entrega'" [defensa]="def"></app-entrega-veredicto>
+  </div>
+
+  <!-- Vista previa e impresión por lote: Veredictos -->
+  <div *ngIf="modoImpresion === 'veredicto-lote'" class="space-y-4">
+    <div class="flex items-center justify-between print:hidden no-print">
+      <h3 class="text-base font-semibold text-primary">
+        Vista previa: Veredictos ({{ loteVeredicto.length }} proyecto(s))
+      </h3>
+      <button
+        type="button"
+        (click)="imprimirLoteVeredicto()"
+        class="urbe-btn urbe-btn-primary inline-flex items-center gap-2"
+      >
+        Imprimir Todos (Escuela)
+      </button>
+    </div>
+
+    <div
+      *ngFor="let def of loteVeredicto; let last = last"
+      class="receipt-page"
+      [class.receipt-page-last]="last"
+    >
+      <ng-container *ngTemplateOutlet="veredictoTemplate; context: { $implicit: def }"></ng-container>
+    </div>
   </div>
 
   <!-- Vista previa e impresión por lote: Entrega de Veredictos -->
@@ -331,7 +361,7 @@
 
   </div>
 
-  <div *ngIf="modoImpresion !== 'planificacion' && modoImpresion !== 'entrega-lote' && !seleccionada" class="urbe-card urbe-empty p-10 text-center text-gray-500 print:hidden">
+  <div *ngIf="modoImpresion !== 'planificacion' && modoImpresion !== 'entrega-lote' && modoImpresion !== 'veredicto-lote' && !seleccionada" class="urbe-card urbe-empty p-10 text-center text-gray-500 print:hidden">
     Seleccione una escuela y pulse VEREDICTO para generar el documento.
   </div>
 </div>
