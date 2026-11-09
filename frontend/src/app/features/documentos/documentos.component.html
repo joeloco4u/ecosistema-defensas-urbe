@@ -116,47 +116,20 @@
     <!-- Hoja A4 -->
     <div
       *ngIf="modoImpresion === 'veredicto'"
-      class="documento-print-area print-area mx-auto bg-white text-black relative shadow-2xl print:shadow-none overflow-hidden"
+      class="veredicto-fondo documento-print-area print-area mx-auto bg-white text-black relative shadow-2xl print:shadow-none overflow-hidden"
       style="width: 210mm; height: 297mm; font-family: Arial, Helvetica, sans-serif; font-size: 13px;"
     >
-
-      <!-- ========================================== -->
-      <!-- DECORATIVE LINES (100% width)              -->
-      <!-- ========================================== -->
-
-      <!-- Top Lines -->
-      <div class="absolute top-[15mm] left-0 w-full">
-        <div class="w-full h-[1px] bg-gray-400 mb-[2px]"></div>
-        <div class="w-full h-[4px] bg-[#374151]"></div>
-      </div>
-
-      <!-- Bottom Lines (Thick line at the very bottom) -->
-      <div class="absolute bottom-[15mm] left-0 w-full">
-        <div class="w-full h-[4px] bg-[#374151] mb-[2px]"></div>
-        <div class="w-full h-[16px] bg-[#1F2937]"></div>
-      </div>
 
       <!-- ========================================== -->
       <!-- TEXT CONTENT LAYER                         -->
       <!-- ========================================== -->
 
-      <div class="absolute inset-0 pt-[30mm] px-[22mm] pb-[40mm] flex flex-col z-10">
+      <div class="absolute inset-0 pt-[58mm] px-[22mm] pb-[45mm] flex flex-col z-10">
 
-        <!-- Header -->
-        <div class="flex justify-between items-center mb-6">
-          <div class="w-48 flex flex-col items-center">
-            <img src="https://cdn.urbe.edu/portal-urbe/images/logos/urbe-hd.png" alt="URBE" class="w-24 opacity-90 grayscale">
-            <div class="text-center mt-1" style="font-size: 8px; line-height: 1.2; color: #555;">
-               <p class="font-bold text-[10px] tracking-widest text-[#333]">UNIVERSIDAD</p>
-               <p class="text-[7px]">Privada</p>
-               <p class="text-[8px] tracking-wider">DR. RAFAEL BELLOSO CHACÍN</p>
-            </div>
-          </div>
-          <div class="text-center font-bold text-[13px] text-gray-700 leading-relaxed flex-1">
-            <p>FACULTAD DE INGENIERÍA</p>
-            <p>ESCUELA DE {{ def.proyecto?.escuela || '—' | uppercase }}</p>
-          </div>
-          <div class="w-48"></div>
+        <!-- Encabezado dinámico (la imagen ya incluye el logo y los bordes) -->
+        <div class="text-center font-bold text-[13px] text-gray-700 leading-relaxed mb-6">
+          <p>FACULTAD DE INGENIERÍA</p>
+          <p>ESCUELA DE {{ def.proyecto?.escuela || '—' | uppercase }}</p>
         </div>
 
         <!-- Title -->

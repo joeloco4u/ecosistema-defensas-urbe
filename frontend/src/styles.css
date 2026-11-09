@@ -669,7 +669,23 @@ body {
 /* ==========================================================================
    Print
    ========================================================================== */
+.veredicto-fondo {
+  background-image: url('assets/veredict.jpg');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
 @media print {
+  .veredicto-fondo {
+    background-image: url('assets/veredict.jpg') !important;
+    background-size: 100% 100% !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
   .no-print {
     display: none !important;
     visibility: hidden !important;
