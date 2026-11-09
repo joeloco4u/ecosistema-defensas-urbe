@@ -8,8 +8,10 @@ import org.junit.jupiter.api.Test;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ProyectoDTOTest {
 
@@ -30,6 +32,7 @@ class ProyectoDTOTest {
         proyecto.setEscuela("COMPUTACIÓN");
         proyecto.setNivelSeminario("SEMINARIO_3");
         proyecto.setEstatus(Proyecto.EstatusProyecto.PENDIENTE);
+        proyecto.setVaAJornada(true);
         proyecto.setEstudiante(tesista1);
         proyecto.setEstudiante2(tesista2);
         proyecto.setEstudiante3(tesista3);
@@ -42,6 +45,7 @@ class ProyectoDTOTest {
         assertEquals("COMPUTACIÓN", dto.getEscuela());
         assertEquals("SEMINARIO_3", dto.getNivelSeminario());
         assertEquals("PENDIENTE", dto.getEstatus());
+        assertTrue(dto.getVaAJornada());
 
         assertNotNull(dto.getEstudiante());
         assertNotNull(dto.getEstudiante2());
@@ -69,6 +73,7 @@ class ProyectoDTOTest {
         assertNull(dto.getEstudiante2());
         assertNull(dto.getEstudiante3());
         assertNull(dto.getTutor());
+        assertFalse(dto.getVaAJornada());
         assertNull(ProyectoDTO.fromEntity(null));
     }
 

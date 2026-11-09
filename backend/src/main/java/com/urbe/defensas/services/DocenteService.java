@@ -167,12 +167,12 @@ public class DocenteService {
         Map<UUID, DefensaJuradoDTO> defensasJurado = new LinkedHashMap<>();
         for (Defensa d : defensasParticipacion) {
             if (!id.equals(d.getJuradoId()) || d.getProyecto() == null) continue;
-            defensasJurado.putIfAbsent(d.getId(), toDefensaJurado(d, null));
+            defensasJurado.putIfAbsent(d.getId(), toDefensaJurado(d, RolJurado.PRESIDENTE));
         }
         for (JuradoDefensa jd : juradoDefensaRepository.findByDocenteId(id)) {
             Defensa d = jd.getDefensa();
             if (d == null || d.getProyecto() == null) continue;
-            defensasJurado.putIfAbsent(d.getId(), toDefensaJurado(d, RolJurado.valueOf(jd.getRolJurado().name())));
+            defensasJurado.put(d.getId(), toDefensaJurado(d, RolJurado.valueOf(jd.getRolJurado().name())));
         }
 
         ExpedienteDocenteDTO expediente = new ExpedienteDocenteDTO();

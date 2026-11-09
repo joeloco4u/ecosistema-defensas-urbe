@@ -49,6 +49,9 @@ public class Proyecto {
     @Column(nullable = false, length = 20)
     private EstatusProyecto estatus;
 
+    @Column(name = "va_a_jornada", nullable = false)
+    private boolean vaAJornada = false;
+
     public enum EstatusProyecto {
         PENDIENTE, AGENDADO, DEFENDIDO
     }
@@ -77,4 +80,6 @@ public class Proyecto {
     public void setTutorMetodologico(Docente tutorMetodologico) { this.tutorMetodologico = tutorMetodologico; }
     public EstatusProyecto getEstatus() { return estatus; }
     public void setEstatus(EstatusProyecto estatus) { this.estatus = estatus; }
+    public boolean getVaAJornada() { return vaAJornada; }
+    public void setVaAJornada(boolean vaAJornada) { this.vaAJornada = vaAJornada; }
 }

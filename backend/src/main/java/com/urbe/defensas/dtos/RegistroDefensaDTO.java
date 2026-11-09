@@ -14,6 +14,7 @@ public class RegistroDefensaDTO {
     @NotNull private Long tutorAcademicoId;
     @NotNull private Long tutorMetodologicoId;
     @NotNull private Long juradoId;
+    private Boolean vaAJornada;
 
     public UUID getProyectoId() { return proyectoId; }
     public void setProyectoId(UUID proyectoId) { this.proyectoId = proyectoId; }
@@ -31,4 +32,6 @@ public class RegistroDefensaDTO {
     public void setTutorMetodologicoId(Long tutorMetodologicoId) { this.tutorMetodologicoId = tutorMetodologicoId; }
     public Long getJuradoId() { return juradoId; }
     public void setJuradoId(Long juradoId) { this.juradoId = juradoId; }
+    public Boolean getVaAJornada() { return vaAJornada; }
+    public void setVaAJornada(Boolean vaAJornada) { this.vaAJornada = vaAJornada; }
 }

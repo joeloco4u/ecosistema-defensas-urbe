@@ -20,6 +20,7 @@ public class ProyectoDTO {
     private String escuela;
     private String nivelSeminario;
     private String estatus;
+    private boolean vaAJornada;
     private TesistaDTO estudiante;
     private TesistaDTO estudiante2;
     private TesistaDTO estudiante3;
@@ -51,6 +52,7 @@ public class ProyectoDTO {
         dto.setEscuela(proyecto.getEscuela());
         dto.setNivelSeminario(proyecto.getNivelSeminario());
         dto.setEstatus(proyecto.getEstatus() != null ? proyecto.getEstatus().name() : null);
+        dto.setVaAJornada(proyecto.getVaAJornada());
         dto.setEstudiante(TesistaDTO.fromEntity(proyecto.getEstudiante()));
         dto.setEstudiante2(TesistaDTO.fromEntity(proyecto.getEstudiante2()));
         dto.setEstudiante3(TesistaDTO.fromEntity(proyecto.getEstudiante3()));
@@ -73,6 +75,8 @@ public class ProyectoDTO {
     public void setNivelSeminario(String nivelSeminario) { this.nivelSeminario = nivelSeminario; }
     public String getEstatus() { return estatus; }
     public void setEstatus(String estatus) { this.estatus = estatus; }
+    public boolean getVaAJornada() { return vaAJornada; }
+    public void setVaAJornada(boolean vaAJornada) { this.vaAJornada = vaAJornada; }
     public TesistaDTO getEstudiante() { return estudiante; }
     public void setEstudiante(TesistaDTO estudiante) { this.estudiante = estudiante; }
     public TesistaDTO getEstudiante2() { return estudiante2; }

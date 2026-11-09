@@ -94,6 +94,9 @@ public class DefensaService {
         sincronizarJurados(guardada,
                 Arrays.asList(dto.getJuradoId(), dto.getTutorAcademicoId(), dto.getTutorMetodologicoId()));
 
+        if (dto.getVaAJornada() != null) {
+            proyecto.setVaAJornada(dto.getVaAJornada());
+        }
         proyecto.setEstatus(Proyecto.EstatusProyecto.AGENDADO);
         proyectoRepository.save(proyecto);
 

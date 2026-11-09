@@ -49,6 +49,7 @@ public class ProyectoService {
         existente.setTutor(proyecto.getTutor());
         existente.setTutorMetodologico(proyecto.getTutorMetodologico());
         existente.setEstatus(proyecto.getEstatus());
+        existente.setVaAJornada(proyecto.getVaAJornada());
         return toDTO(proyectoRepository.save(existente));
     }
 
