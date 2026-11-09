@@ -47,15 +47,20 @@ public final class DefensaSpecification {
             boolean filtrarPorEscuela =
                     filtroSeguro.getEscuela() != null && !filtroSeguro.getEscuela().isBlank();
             boolean filtrarPorDocente = filtroSeguro.getDocenteId() != null;
+            boolean filtrarPorJornada = filtroSeguro.getVaAJornada() != null;
 
-            // Un único LEFT JOIN a proyecto, compartido por el filtro de escuela y el de tutor.
+            // Un único LEFT JOIN a proyecto, compartido por el filtro de escuela, tutor y jornada.
             Join<Defensa, Proyecto> proyecto = null;
-            if (filtrarPorEscuela || filtrarPorDocente) {
+            if (filtrarPorEscuela || filtrarPorDocente || filtrarPorJornada) {
                 proyecto = root.join("proyecto", JoinType.LEFT);
             }
 
             if (filtrarPorEscuela) {
                 predicates.add(cb.equal(proyecto.get("escuela"), filtroSeguro.getEscuela().trim()));
+            }
+
+            if (filtrarPorJornada) {
+                predicates.add(cb.equal(proyecto.get("vaAJornada"), filtroSeguro.getVaAJornada()));
             }
 
             if (filtrarPorDocente) {

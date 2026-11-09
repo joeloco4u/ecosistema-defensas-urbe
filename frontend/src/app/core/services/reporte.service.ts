@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
 import { environment } from '../../../environments/environment';
@@ -12,6 +12,7 @@ export interface FiltroReporte {
   docenteId?: number | null;
   rol?: RolReporte | null;
   escuela?: string | null;
+  vaAJornada?: boolean | null;
 }
 
 export interface TesistaInfo {
@@ -75,6 +76,10 @@ export class ReporteService {
   filtrarReportes(filtro: FiltroReporte): Observable<DefensaDTO[]> {
     const token = this.authService.getToken();
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    return this.http.post<DefensaDTO[]>(`${this.apiUrl}/filtrar`, filtro, { headers });
+    let params = new HttpParams();
+    if (filtro.vaAJornada !== null && filtro.vaAJornada !== undefined) {
+      params = params.set('vaAJornada', String(filtro.vaAJornada));
+    }
+    return this.http.post<DefensaDTO[]>(`${this.apiUrl}/filtrar`, filtro, { headers, params });
   }
 }

@@ -13,6 +13,7 @@ public class FiltroReporteDTO {
     private Long docenteId;
     private RolReporte rol;
     private String escuela;
+    private Boolean vaAJornada;
 
     public enum RolReporte {
         TUTOR, JURADO, AMBOS
@@ -28,4 +29,6 @@ public class FiltroReporteDTO {
     public void setRol(RolReporte rol) { this.rol = rol; }
     public String getEscuela() { return escuela; }
     public void setEscuela(String escuela) { this.escuela = escuela; }
+    public Boolean getVaAJornada() { return vaAJornada; }
+    public void setVaAJornada(Boolean vaAJornada) { this.vaAJornada = vaAJornada; }
 }

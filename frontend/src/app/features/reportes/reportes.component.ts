@@ -137,11 +137,12 @@ export class ReportesComponent implements OnInit {
       docenteId: null,
       rol: 'AMBOS',
       escuela: this.escuelaSeleccionada === 'Todas' ? null : this.escuelaSeleccionada,
+      vaAJornada: this.vaAJornadaFiltro,
     };
 
     this.reporteService.filtrarReportes(filtro).subscribe({
       next: (defensas) => {
-        this.resultadosDefensas = (defensas ?? []).filter((d) => this.pasaFiltroJornada(d));
+        this.resultadosDefensas = defensas ?? [];
         this.resultadosDocentes = [];
         this.cargando = false;
         this.reporteGenerado = true;
@@ -150,12 +151,20 @@ export class ReportesComponent implements OnInit {
     });
   }
 
+  private get vaAJornadaFiltro(): boolean | null {
+    return this.filtroJornada === 'TODAS' ? null : this.filtroJornada === 'SI';
+  }
+
   private generarReporteDocentes(): void {
     this.cargando = true;
     this.reporteGenerado = false;
     const { fechaInicio, fechaFin } = this.rangoSemana(this.semanaDocentes);
 
-    this.reporteService.filtrarReportes({ fechaInicio, fechaFin }).subscribe({
+    this.reporteService.filtrarReportes({
+      fechaInicio,
+      fechaFin,
+      vaAJornada: this.vaAJornadaFiltro,
+    }).subscribe({
       next: (defensas) => {
         this.resultadosDocentes = this.construirFilasDocentes(defensas ?? []);
         this.resultadosDefensas = [];
@@ -169,7 +178,6 @@ export class ReportesComponent implements OnInit {
   private construirFilasDocentes(defensas: DefensaDTO[]): FilaDocente[] {
     const filas: FilaDocente[] = [];
     for (const d of defensas) {
-      if (!this.pasaFiltroJornada(d)) continue;
       for (const asignacion of this.asignacionesDocente(d)) {
         if (this.docenteSeleccionadoId != null && asignacion.id !== this.docenteSeleccionadoId) continue;
         if (this.rolSeleccionado !== 'TODOS' && this.rolSeleccionado !== asignacion.rolCodigo) continue;
@@ -301,12 +309,6 @@ export class ReportesComponent implements OnInit {
     return d.proyecto?.vaAJornada
       ? 'bg-[#8a1538]/10 text-[#8a1538] border border-[#8a1538]/30'
       : 'bg-gray-100 text-gray-600 border border-gray-200';
-  }
-
-  private pasaFiltroJornada(d: DefensaDTO): boolean {
-    if (this.filtroJornada === 'TODAS') return true;
-    const vaAJornada = d.proyecto?.vaAJornada === true;
-    return this.filtroJornada === 'SI' ? vaAJornada : !vaAJornada;
   }
 
   private filasCsvDefensas(): string[][] {
