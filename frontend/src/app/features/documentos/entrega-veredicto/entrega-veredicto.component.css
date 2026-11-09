@@ -1,0 +1,20 @@
+.entrega-hoja {
+  width: 210mm;
+  height: 297mm;
+  background: #ffffff;
+  color: #000000;
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+}
+
+@media print {
+  .entrega-hoja {
+    box-shadow: none !important;
+    margin: 0 auto !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

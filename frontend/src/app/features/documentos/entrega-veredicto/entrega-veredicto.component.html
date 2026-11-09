@@ -1,0 +1,71 @@
+<div class="entrega-hoja documento-print-area print-area shadow-2xl">
+
+  <!-- Borde decorativo inferior -->
+  <div class="absolute bottom-[15mm] left-0 w-full">
+    <div class="w-full h-[4px] bg-[#374151] mb-[2px]"></div>
+    <div class="w-full h-[16px] bg-[#1F2937]"></div>
+  </div>
+
+  <div class="absolute inset-0 pt-[30mm] px-[20mm] pb-[30mm] flex flex-col z-10">
+
+    <!-- Encabezado: logo, título centrado y expediente a la derecha -->
+    <div class="relative mb-10 min-h-[72px]">
+      <div class="absolute left-0 top-0 w-40 flex flex-col items-center">
+        <img src="https://cdn.urbe.edu/portal-urbe/images/logos/urbe-hd.png" alt="URBE" class="w-24 opacity-90 grayscale">
+        <div class="text-center mt-1" style="font-size: 8px; line-height: 1.2; color: #555;">
+          <p class="font-bold text-[10px] tracking-widest text-[#333]">UNIVERSIDAD</p>
+          <p class="text-[7px]">Privada</p>
+          <p class="text-[8px] tracking-wider">DR. RAFAEL BELLOSO CHACÍN</p>
+        </div>
+      </div>
+
+      <div class="text-center pt-6">
+        <h1 class="inline-block font-bold text-lg tracking-widest uppercase underline underline-offset-4">
+          ENTREGA DE VEREDICTOS.
+        </h1>
+      </div>
+
+      <div class="absolute right-0 top-0 pt-6 text-right">
+        <p class="font-bold text-sm">Número de Expediente: {{ expediente }}</p>
+      </div>
+    </div>
+
+    <!-- Texto de introducción -->
+    <p class="text-justify leading-[1.8] mb-6">
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Por medio de la presente se hace constar que se ha recibido el Veredicto de la tesis titulada: <strong>"{{ titulo | uppercase }}"</strong>; realizada por los estudiantes:
+    </p>
+
+    <!-- Tabla de estudiantes -->
+    <table class="w-full border-collapse border border-black mb-12 text-sm text-center">
+      <thead>
+        <tr class="bg-gray-100 font-bold">
+          <th rowspan="2" class="border border-black py-2 px-2 w-[30%]">ALUMNO</th>
+          <th rowspan="2" class="border border-black py-2 px-2 w-[14%]">C.I.</th>
+          <th rowspan="2" class="border border-black py-2 px-2 w-[20%]">FIRMA DE RECIBIDO</th>
+          <th colspan="3" class="border border-black py-2 px-2">NOTA</th>
+        </tr>
+        <tr class="bg-gray-100 font-bold">
+          <th class="border border-black py-1 px-2 w-[12%]">ACAD.</th>
+          <th class="border border-black py-1 px-2 w-[12%]">METOD.</th>
+          <th class="border border-black py-1 px-2 w-[12%]">JURADO</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let e of filasEstudiantes">
+          <td class="border border-black py-5 px-2 text-left font-bold uppercase">{{ e.nombre }}</td>
+          <td class="border border-black py-5 px-2 font-bold">{{ e.cedula }}</td>
+          <td class="border border-black py-5 px-2"></td>
+          <td class="border border-black py-5 px-2"></td>
+          <td class="border border-black py-5 px-2"></td>
+          <td class="border border-black py-5 px-2"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Pie de página -->
+    <div class="mt-auto text-center">
+      <p class="font-bold text-sm">Fecha de entrega de veredictos: {{ fechaEntrega }}</p>
+    </div>
+
+  </div>
+</div>

@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { DocumentosComponent } from './documentos.component';
+import { EntregaVeredictoComponent } from './entrega-veredicto/entrega-veredicto.component';
 
 const routes: Routes = [{ path: '', component: DocumentosComponent }];
 
 @NgModule({
   declarations: [DocumentosComponent],
-  imports: [CommonModule, FormsModule, RouterModule.forChild(routes)],
+  imports: [CommonModule, FormsModule, RouterModule.forChild(routes), EntregaVeredictoComponent],
 })
 export class DocumentosModule {}

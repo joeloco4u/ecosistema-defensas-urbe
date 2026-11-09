@@ -15,7 +15,8 @@ export class DocumentosComponent implements OnInit {
 
   todas: DefensaDTO[] = [];
   seleccionada: DefensaDTO | null = null;
-  modoImpresion: 'veredicto' | 'entrega' | 'planificacion' = 'veredicto';
+  loteEntrega: DefensaDTO[] = [];
+  modoImpresion: 'veredicto' | 'entrega' | 'planificacion' | 'entrega-lote' = 'veredicto';
 
   escuelas: string[] = [];
   escuelaSeleccionada = 'Todas';
@@ -100,6 +101,23 @@ export class DocumentosComponent implements OnInit {
 
   imprimirVeredicto(): void {
     if (!this.seleccionada) return;
+    window.print();
+  }
+
+  imprimirEntrega(defensa: DefensaDTO): void {
+    this.seleccionada = defensa;
+    this.modoImpresion = 'entrega';
+    setTimeout(() => window.print(), 200);
+  }
+
+  imprimirEntregaLote(): void {
+    this.loteEntrega = [...this.proyectosPlanificacion];
+    this.modoImpresion = 'entrega-lote';
+    setTimeout(() => window.print(), 250);
+  }
+
+  imprimirLoteEntrega(): void {
+    if (this.loteEntrega.length === 0) return;
     window.print();
   }
 

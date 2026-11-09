@@ -840,4 +840,14 @@ body {
     break-inside: avoid;
     page-break-inside: avoid;
   }
+
+  .receipt-page {
+    break-after: page;
+    page-break-after: always;
+  }
+
+  .receipt-page-last {
+    break-after: auto;
+    page-break-after: auto;
+  }
 }
