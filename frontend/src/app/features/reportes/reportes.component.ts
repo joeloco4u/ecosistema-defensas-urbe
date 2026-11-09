@@ -33,6 +33,7 @@ export class ReportesComponent implements OnInit {
 
   escuelaSeleccionada = 'Todas';
   semanaDefensas = 'Todas';
+  filtroJornada: 'TODAS' | 'SI' | 'NO' = 'TODAS';
 
   docenteSeleccionadoId: number | null = null;
   rolSeleccionado: RolDocenteFiltro = 'TODOS';
@@ -96,6 +97,7 @@ export class ReportesComponent implements OnInit {
   limpiarFiltros(): void {
     this.escuelaSeleccionada = 'Todas';
     this.semanaDefensas = 'Todas';
+    this.filtroJornada = 'TODAS';
     this.docenteSeleccionadoId = null;
     this.rolSeleccionado = 'TODOS';
     this.semanaDocentes = 'Todas';
@@ -139,7 +141,7 @@ export class ReportesComponent implements OnInit {
 
     this.reporteService.filtrarReportes(filtro).subscribe({
       next: (defensas) => {
-        this.resultadosDefensas = defensas ?? [];
+        this.resultadosDefensas = (defensas ?? []).filter((d) => this.pasaFiltroJornada(d));
         this.resultadosDocentes = [];
         this.cargando = false;
         this.reporteGenerado = true;
@@ -167,6 +169,7 @@ export class ReportesComponent implements OnInit {
   private construirFilasDocentes(defensas: DefensaDTO[]): FilaDocente[] {
     const filas: FilaDocente[] = [];
     for (const d of defensas) {
+      if (!this.pasaFiltroJornada(d)) continue;
       for (const asignacion of this.asignacionesDocente(d)) {
         if (this.docenteSeleccionadoId != null && asignacion.id !== this.docenteSeleccionadoId) continue;
         if (this.rolSeleccionado !== 'TODOS' && this.rolSeleccionado !== asignacion.rolCodigo) continue;
@@ -290,14 +293,31 @@ export class ReportesComponent implements OnInit {
     return this.nombreDocentePorId(d.juradoId);
   }
 
+  jornadaTexto(d: DefensaDTO): string {
+    return d.proyecto?.vaAJornada ? 'Sí' : 'No';
+  }
+
+  jornadaClase(d: DefensaDTO): string {
+    return d.proyecto?.vaAJornada
+      ? 'bg-[#8a1538]/10 text-[#8a1538] border border-[#8a1538]/30'
+      : 'bg-gray-100 text-gray-600 border border-gray-200';
+  }
+
+  private pasaFiltroJornada(d: DefensaDTO): boolean {
+    if (this.filtroJornada === 'TODAS') return true;
+    const vaAJornada = d.proyecto?.vaAJornada === true;
+    return this.filtroJornada === 'SI' ? vaAJornada : !vaAJornada;
+  }
+
   private filasCsvDefensas(): string[][] {
-    const encabezado = ['Expediente', 'Título', 'Escuela', 'Tesistas', 'Tutor', 'Fecha', 'Hora', 'Espacio'];
+    const encabezado = ['Expediente', 'Título', 'Escuela', 'Tesistas', 'Tutor', 'Jornada', 'Fecha', 'Hora', 'Espacio'];
     const filas = this.resultadosDefensas.map((d) => [
       d.proyecto?.expediente || '',
       d.proyecto?.titulo || '',
       this.escuelaDe(d),
       this.nombresTesistas(d.proyecto),
       this.tutorAcademico(d),
+      this.jornadaTexto(d),
       this.formatFecha(d.fecha),
       `${this.formatHora(d.horaInicio)} - ${this.formatHora(d.horaFin)}`,
       d.espacioFisico?.codigoAula || '',
@@ -306,13 +326,14 @@ export class ReportesComponent implements OnInit {
   }
 
   private filasCsvDocentes(): string[][] {
-    const encabezado = ['Docente', 'Rol', 'Expediente', 'Título', 'Escuela', 'Fecha', 'Hora', 'Espacio'];
+    const encabezado = ['Docente', 'Rol', 'Expediente', 'Título', 'Escuela', 'Jornada', 'Fecha', 'Hora', 'Espacio'];
     const filas = this.resultadosDocentes.map((f) => [
       f.docente,
       f.rol,
       f.defensa.proyecto?.expediente || '',
       f.defensa.proyecto?.titulo || '',
       this.escuelaDe(f.defensa),
+      this.jornadaTexto(f.defensa),
       this.formatFecha(f.defensa.fecha),
       `${this.formatHora(f.defensa.horaInicio)} - ${this.formatHora(f.defensa.horaFin)}`,
       f.defensa.espacioFisico?.codigoAula || '',

@@ -31,6 +31,26 @@
       <p class="text-sm text-accent-muted">
         <span class="text-accent-subtle">Proyecto:</span> {{ proyecto.titulo }}
       </p>
+
+      <div class="mt-3 flex items-center justify-between gap-4 rounded-sm border border-surface-border px-3 py-2">
+        <div>
+          <p class="text-sm font-medium text-accent-white">¿Este proyecto va a Jornada?</p>
+          <p class="text-xs text-accent-subtle">Actívelo si el proyecto se presentará en la Jornada de exhibición.</p>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          [attr.aria-checked]="vaAJornada"
+          (click)="vaAJornada = !vaAJornada"
+          class="relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#8A1538]/30"
+          [ngClass]="vaAJornada ? 'bg-[#8A1538] border-[#8A1538]' : 'bg-gray-200 border-gray-300'"
+        >
+          <span
+            class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-150"
+            [ngClass]="vaAJornada ? 'translate-x-6' : 'translate-x-1'"
+          ></span>
+        </button>
+      </div>
     </div>
 
     <div *ngIf="docentes.length || espacios.length" class="px-6 py-4 border-b border-surface-border space-y-4">

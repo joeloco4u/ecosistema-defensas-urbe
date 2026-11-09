@@ -34,6 +34,7 @@ export interface ProyectoReporte {
   escuela?: string;
   nivelSeminario?: string;
   estatus?: string;
+  vaAJornada?: boolean;
   estudiante?: TesistaInfo | null;
   estudiante2?: TesistaInfo | null;
   estudiante3?: TesistaInfo | null;

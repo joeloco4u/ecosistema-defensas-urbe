@@ -16,6 +16,7 @@ interface SugerenciaHorario {
   juradoId?: number;
   tutorAcademicoId?: number;
   tutorMetodologicoId?: number;
+  vaAJornada?: boolean;
 }
 
 type Turno = 'matutino' | 'vespertino' | 'nocturno';
@@ -46,6 +47,7 @@ interface ProyectoInfo {
   tesista: string;
   titulo: string;
   expediente?: string | null;
+  vaAJornada?: boolean;
   estudiante?: EstudianteInfo | null;
   estudiante2?: EstudianteInfo | null;
   estudiante3?: EstudianteInfo | null;
@@ -90,6 +92,7 @@ cargando = false;
   tutorAcademicoId: number | null = null;
   tutorMetodologicoId: number | null = null;
   espacioId = '';
+  vaAJornada = false;
   semanas: number[] = Array.from({ length: 14 }, (_, i) => i + 1);
   semanaSeleccionada: number = 12;
   diasSemana: { label: string; value: number | null }[] = [
@@ -140,6 +143,7 @@ cargando = false;
       this.tutorAcademicoId = this.proyecto?.tutor?.id ?? this.tutorAcademicoInicial ?? null;
       this.tutorMetodologicoId = this.proyecto?.tutorMetodologico?.id ?? this.tutorMetodologicoInicial ?? null;
       this.espacioId = this.espacioInicial;
+      this.vaAJornada = this.proyecto?.vaAJornada ?? false;
       this.franjaActual = this.fechaInicial && this.horaInicioInicial && this.horaFinInicial
         ? {
             fecha: this.fechaInicial,
@@ -341,6 +345,7 @@ cargando = false;
       this.sugerenciaSeleccionada.juradoId = this.juradoId!;
       this.sugerenciaSeleccionada.tutorAcademicoId = this.tutorAcademicoId!;
       this.sugerenciaSeleccionada.tutorMetodologicoId = this.tutorMetodologicoId!;
+      this.sugerenciaSeleccionada.vaAJornada = this.vaAJornada;
       this.confirmar.emit(this.sugerenciaSeleccionada);
       this.cerrar();
     }

@@ -24,6 +24,7 @@ interface ProyectoRegistro {
   tutorMetodologico?: TutorInfo;
   juradoNombre?: string;
   estatus: string;
+  vaAJornada?: boolean;
 }
 
 @Component({
@@ -169,6 +170,7 @@ export class GestionProyectosComponent implements OnInit {
       estudiante3: proyecto.estudiante3 ?? null,
       tutor: proyecto.tutor ?? null,
       tutorMetodologico: proyecto.tutorMetodologico ?? null,
+      vaAJornada: proyecto.vaAJornada ?? false,
     };
   }
 
@@ -184,6 +186,7 @@ export class GestionProyectosComponent implements OnInit {
       tutorAcademicoId: evento.tutorAcademicoId,
       tutorMetodologicoId: evento.tutorMetodologicoId,
       juradoId: evento.juradoId,
+      vaAJornada: evento.vaAJornada ?? false,
     };
 
     this.defensaService.crearDefensa(body).subscribe({

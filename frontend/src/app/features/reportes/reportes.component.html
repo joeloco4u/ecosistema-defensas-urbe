@@ -46,7 +46,7 @@
   <!-- Filtros -->
   <div class="urbe-card p-6 space-y-5 print:hidden">
     <!-- Filtros de Defensas -->
-    <div *ngIf="activeTab === 'DEFENSAS'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div *ngIf="activeTab === 'DEFENSAS'" class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div>
         <label class="urbe-field-label block mb-1.5">Escuela</label>
         <select [(ngModel)]="escuelaSeleccionada" class="urbe-select w-full">
@@ -60,10 +60,18 @@
           <option *ngFor="let s of semanas" [value]="s">{{ s }}</option>
         </select>
       </div>
+      <div>
+        <label class="urbe-field-label block mb-1.5">Jornada</label>
+        <select [(ngModel)]="filtroJornada" class="urbe-select w-full">
+          <option value="TODAS">Todas</option>
+          <option value="SI">Solo proyectos que van a Jornada</option>
+          <option value="NO">Proyectos que no van a Jornada</option>
+        </select>
+      </div>
     </div>
 
     <!-- Filtros de Docentes -->
-    <div *ngIf="activeTab === 'DOCENTES'" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div *ngIf="activeTab === 'DOCENTES'" class="grid grid-cols-1 md:grid-cols-4 gap-4">
       <div>
         <label class="urbe-field-label block mb-1.5">Docente</label>
         <select [(ngModel)]="docenteSeleccionadoId" class="urbe-select w-full">
@@ -84,6 +92,14 @@
         <label class="urbe-field-label block mb-1.5">Semana</label>
         <select [(ngModel)]="semanaDocentes" class="urbe-select w-full">
           <option *ngFor="let s of semanas" [value]="s">{{ s }}</option>
+        </select>
+      </div>
+      <div>
+        <label class="urbe-field-label block mb-1.5">Jornada</label>
+        <select [(ngModel)]="filtroJornada" class="urbe-select w-full">
+          <option value="TODAS">Todas</option>
+          <option value="SI">Solo proyectos que van a Jornada</option>
+          <option value="NO">Proyectos que no van a Jornada</option>
         </select>
       </div>
     </div>
@@ -140,6 +156,7 @@
           <th>Expediente</th>
           <th>Título</th>
           <th>Escuela</th>
+          <th>Jornada</th>
           <th>Tesistas</th>
           <th>Tutor</th>
           <th>Fecha</th>
@@ -154,6 +171,9 @@
           </td>
           <td class="cell-muted">{{ d.proyecto?.titulo || 'Sin título' }}</td>
           <td class="cell-muted">{{ escuelaDe(d) }}</td>
+          <td class="cell-muted">
+            <span [class]="'px-2 py-0.5 rounded-full text-xs font-medium ' + jornadaClase(d)">{{ jornadaTexto(d) }}</span>
+          </td>
           <td class="cell-muted">{{ tesistas(d) }}</td>
           <td class="cell-muted">{{ tutorAcademico(d) }}</td>
           <td class="cell-muted">{{ formatFecha(d.fecha) }}</td>
@@ -161,13 +181,13 @@
           <td class="cell-muted">{{ d.espacioFisico?.codigoAula || '—' }}</td>
         </tr>
         <tr *ngIf="cargando">
-          <td colspan="8" class="urbe-empty">Generando reporte...</td>
+          <td colspan="9" class="urbe-empty">Generando reporte...</td>
         </tr>
         <tr *ngIf="!cargando && reporteGenerado && resultadosDefensas.length === 0">
-          <td colspan="8" class="urbe-empty">No se encontraron defensas con los filtros seleccionados.</td>
+          <td colspan="9" class="urbe-empty">No se encontraron defensas con los filtros seleccionados.</td>
         </tr>
         <tr *ngIf="!cargando && !reporteGenerado">
-          <td colspan="8" class="urbe-empty">Configure los filtros y presione "Generar Reporte".</td>
+          <td colspan="9" class="urbe-empty">Configure los filtros y presione "Generar Reporte".</td>
         </tr>
       </tbody>
     </table>
@@ -181,6 +201,7 @@
           <th>Expediente</th>
           <th>Título</th>
           <th>Escuela</th>
+          <th>Jornada</th>
           <th>Fecha</th>
           <th>Hora</th>
           <th>Espacio</th>
@@ -195,18 +216,21 @@
           </td>
           <td class="cell-muted">{{ f.defensa.proyecto?.titulo || 'Sin título' }}</td>
           <td class="cell-muted">{{ escuelaDe(f.defensa) }}</td>
+          <td class="cell-muted">
+            <span [class]="'px-2 py-0.5 rounded-full text-xs font-medium ' + jornadaClase(f.defensa)">{{ jornadaTexto(f.defensa) }}</span>
+          </td>
           <td class="cell-muted">{{ formatFecha(f.defensa.fecha) }}</td>
           <td class="cell-muted">{{ formatHora(f.defensa.horaInicio) }} - {{ formatHora(f.defensa.horaFin) }}</td>
           <td class="cell-muted">{{ f.defensa.espacioFisico?.codigoAula || '—' }}</td>
         </tr>
         <tr *ngIf="cargando">
-          <td colspan="8" class="urbe-empty">Generando reporte...</td>
+          <td colspan="9" class="urbe-empty">Generando reporte...</td>
         </tr>
         <tr *ngIf="!cargando && reporteGenerado && resultadosDocentes.length === 0">
-          <td colspan="8" class="urbe-empty">No se encontraron asignaciones docentes con los filtros seleccionados.</td>
+          <td colspan="9" class="urbe-empty">No se encontraron asignaciones docentes con los filtros seleccionados.</td>
         </tr>
         <tr *ngIf="!cargando && !reporteGenerado">
-          <td colspan="8" class="urbe-empty">Configure los filtros y presione "Generar Reporte".</td>
+          <td colspan="9" class="urbe-empty">Configure los filtros y presione "Generar Reporte".</td>
         </tr>
       </tbody>
     </table>
