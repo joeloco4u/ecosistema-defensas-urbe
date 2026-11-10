@@ -1,4 +1,4 @@
-<div class="bg-background-dark min-h-screen p-8 space-y-6 print:bg-white print:p-0 print:min-h-0">
+<div class="bg-background-dark min-h-screen p-8 space-y-6 print:bg-white print:p-0 print:min-h-0 print:space-y-0 print:m-0">
 
   <div class="print:hidden">
     <p class="urbe-kicker">Módulo de Documentos</p>
@@ -99,8 +99,8 @@
   <!-- Plantilla reutilizable del Veredicto (impresión individual y por lote) -->
   <ng-template #veredictoTemplate let-def>
     <div
-      class="veredicto-fondo documento-print-area print-area mx-auto bg-white text-black relative shadow-2xl print:shadow-none overflow-hidden"
-      style="width: 210mm; height: 297mm; font-family: Arial, Helvetica, sans-serif; font-size: 13px;"
+      class="veredicto-fondo documento-print-area print-area mx-auto bg-white text-black relative shadow-2xl print:shadow-none overflow-hidden print:mt-0"
+      style="width: 210mm; height: 297mm; box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; font-size: 13px;"
     >
 
       <!-- ========================================== -->
@@ -174,7 +174,7 @@
   </ng-template>
 
   <!-- Vista previa / Impresión -->
-  <div *ngIf="modoImpresion !== 'planificacion' && modoImpresion !== 'entrega-lote' && modoImpresion !== 'veredicto-lote' && seleccionada as def" class="space-y-4">
+  <div *ngIf="modoImpresion !== 'planificacion' && modoImpresion !== 'entrega-lote' && modoImpresion !== 'veredicto-lote' && seleccionada as def" class="space-y-4 print:space-y-0 print:m-0">
     <div class="flex items-center justify-between print:hidden no-print">
       <h3 class="text-base font-semibold text-primary">
         {{ modoImpresion === 'entrega' ? 'Vista previa de Entrega de Veredictos' : 'Vista previa del Veredicto' }}
@@ -200,7 +200,7 @@
   </div>
 
   <!-- Vista previa e impresión por lote: Veredictos -->
-  <div *ngIf="modoImpresion === 'veredicto-lote'" class="space-y-4">
+  <div *ngIf="modoImpresion === 'veredicto-lote'" class="space-y-4 print:space-y-0 print:m-0">
     <div class="flex items-center justify-between print:hidden no-print">
       <h3 class="text-base font-semibold text-primary">
         Vista previa: Veredictos ({{ loteVeredicto.length }} proyecto(s))
@@ -224,7 +224,7 @@
   </div>
 
   <!-- Vista previa e impresión por lote: Entrega de Veredictos -->
-  <div *ngIf="modoImpresion === 'entrega-lote'" class="space-y-4">
+  <div *ngIf="modoImpresion === 'entrega-lote'" class="space-y-4 print:space-y-0 print:m-0">
     <div class="flex items-center justify-between print:hidden no-print">
       <h3 class="text-base font-semibold text-primary">
         Vista previa: Entrega de Veredictos ({{ loteEntrega.length }} proyecto(s))

@@ -669,6 +669,11 @@ body {
 /* ==========================================================================
    Print
    ========================================================================== */
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+
 .veredicto-fondo {
   background-image: url('assets/veredict.jpg');
   background-size: 100% 100%;
@@ -677,6 +682,35 @@ body {
 }
 
 @media print {
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  app-root > div,
+  app-root main {
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .space-y-4 > *,
+  .space-y-6 > * {
+    margin-top: 0 !important;
+  }
+
+  .veredicto-fondo,
+  .entrega-hoja,
+  .documento-print-area,
+  .receipt-page {
+    margin: 0 auto !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
   .veredicto-fondo {
     background-image: url('assets/veredict.jpg') !important;
     background-size: 100% 100% !important;
@@ -833,11 +867,6 @@ body {
   }
 
   /* Módulo de Documentos: imprimir únicamente la hoja A4 del veredicto */
-  @page {
-    size: A4 portrait;
-    margin: 0;
-  }
-
   .documento-print-area {
     position: relative !important;
     width: 210mm !important;
