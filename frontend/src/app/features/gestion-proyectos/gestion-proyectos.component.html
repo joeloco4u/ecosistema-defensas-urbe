@@ -127,21 +127,6 @@
   <app-modal [visible]="mostrarModal" title="Nuevo Proyecto" (onClose)="mostrarModal = false">
     <p class="text-accent-muted text-sm">Formulario de creación de proyecto.</p>
   </app-modal>
-
-  <div class="bg-white border border-surface-border rounded-lg p-6 mt-8 shadow-sm">
-    <h3 class="text-lg font-semibold text-gray-800 mb-2">Transición de Trimestre Académico</h3>
-    <p class="text-sm text-gray-600 mb-6">
-      Archiva los proyectos de Seminario 3 y promueve los de Seminario 1 y 2 al nivel superior.
-      Esta acción no se puede deshacer.
-    </p>
-    <button
-      (click)="ejecutarTransicion()"
-      [disabled]="ejecutandoTransicion"
-      class="urbe-btn urbe-btn-primary transition-all duration-100 ease-in-out active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      {{ ejecutandoTransicion ? 'Ejecutando...' : 'Iniciar Transición de Trimestre' }}
-    </button>
-  </div>
 </div>
 
 <app-modal-agendamiento

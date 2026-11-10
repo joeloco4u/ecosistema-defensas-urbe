@@ -35,7 +35,6 @@ export class GestionProyectosComponent implements OnInit {
   mostrarModal = false;
   cargando = false;
   exportando = false;
-  ejecutandoTransicion = false;
 
   proyectos: ProyectoRegistro[] = [];
   busqueda = '';
@@ -115,25 +114,6 @@ export class GestionProyectosComponent implements OnInit {
 
   aplicarFiltros(): void {
     return;
-  }
-
-  ejecutarTransicion(): void {
-    const confirmado = window.confirm(
-      '¿Está seguro? Esto archivará Seminario 3 y promoverá a los alumnos de Seminario 1 y 2. Esta acción no se puede deshacer.',
-    );
-    if (!confirmado) return;
-
-    this.ejecutandoTransicion = true;
-    this.proyectoService.transicionSeminarios().subscribe({
-      next: () => {
-        this.ejecutandoTransicion = false;
-        window.alert('Transición de seminarios ejecutada exitosamente.');
-      },
-      error: () => {
-        this.ejecutandoTransicion = false;
-        window.alert('No se pudo ejecutar la transición de seminarios.');
-      },
-    });
   }
 
   abrirExpediente(proyecto: any): void {
